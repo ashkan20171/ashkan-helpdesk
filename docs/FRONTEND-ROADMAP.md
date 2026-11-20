@@ -340,3 +340,11 @@ All asset records and actions remain local demo state until backend integration.
 - پایش مصرف کاربران، فضای ذخیره‌سازی و تعداد تیکت‌ها در برابر سهمیه
 - مسیر `/billing`، منوی کناری، فرمان سریع و طراحی واکنش‌گرا و RTL
 - تمام داده‌ها و عملیات در این فاز نمونه و در حافظه فرانت‌اند هستند؛ درگاه پرداخت، تمدید خودکار، محاسبه مالیات، تخفیف، ارز، صدور سند رسمی، سهمیه‌بندی واقعی و اتصال به Tenant در بک‌اند ASP.NET Core و PostgreSQL انجام خواهد شد.
+
+
+## Phase 2.72 — AI Observability & Evaluation Center
+- AI execution telemetry
+- Golden-dataset evaluation
+- Groundedness and safety quality gates
+- AI cost/latency/confidence monitoring
+- Human-review routing foundation

@@ -49,6 +49,7 @@ import { LucideAngularModule, LayoutDashboard, Ticket, LifeBuoy, Users, UsersRou
 
       <a routerLink="/ai-knowledge" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="BrainCircuit" [size]="19"></i-lucide><span>AI Knowledge & RAG</span><em class="nav-count">RAG</em></a>
         <a routerLink="/copilot" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Sparkles" [size]="19"></i-lucide><span>Ashkan Copilot</span><em class="nav-count">AI</em></a>
+        <a routerLink="/ai-observability" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Activity" [size]="19"></i-lucide><span>AI Observability & Evaluation</span><em class="nav-count">QA</em></a>
         <div class="nav-label nav-label-spaced">دانش و منابع</div>
       <nav class="main-nav" aria-label="مدیریت دانش و منابع">
         <a routerLink="/knowledge" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="BookOpen" [size]="19"></i-lucide><span>پایگاه دانش</span></a>

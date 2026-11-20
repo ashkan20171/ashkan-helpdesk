@@ -44,6 +44,7 @@ import { OrganizationAccessComponent } from './features/organization-access/orga
 import { TenantManagementComponent } from './features/tenant-management/tenant-management';
 import { CopilotComponent } from './features/copilot/copilot';
 import { AiKnowledgeComponent } from './features/ai-knowledge/ai-knowledge';
+import { AiObservabilityComponent } from './features/ai-observability/ai-observability';
 
 const rawRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'auth/login' },
@@ -67,6 +68,7 @@ const rawRoutes: Routes = [
   { path: 'customer-success-automation', component: CustomerSuccessAutomationComponent, data: { permission: 'settings.manage' }, title: 'Customer Success Automation | Ashkan HelpDesk' },
   { path: 'copilot', component: CopilotComponent, canActivate: [authGuard], title: 'Ashkan Copilot | Intelligent HelpDesk Assistant' },
   { path: 'ai-knowledge', component: AiKnowledgeComponent, canActivate: [authGuard], data: { permission: 'settings.manage' }, title: 'AI Knowledge & RAG Intelligence | Ashkan HelpDesk' },
+  { path: 'ai-observability', component: AiObservabilityComponent, canActivate: [authGuard], data: { permission: 'settings.manage' }, title: 'AI Observability & Evaluation | Ashkan HelpDesk' },
   { path: 'organization-access', component: OrganizationAccessComponent, data: { permission: 'organization.members.manage' }, title: 'مدیریت سازمان و عضویت‌ها | Ashkan HelpDesk' },
   { path: 'search', component: GlobalSearchComponent, canActivate: [authGuard], title: 'جستجوی سراسری | Ashkan HelpDesk' },
   { path: 'approvals', component: ApprovalCenterComponent, canActivate: [authGuard], title: 'مرکز Workflow و تأییدیه‌ها | Ashkan HelpDesk' },
