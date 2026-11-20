@@ -1,0 +1,48 @@
+<section class="page" dir="rtl">
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="icons.BrainCircuit"></lucide-icon> WORKFORCE CAPACITY INTELLIGENCE</div>
+      <h1>برنامه‌ریزی ظرفیت نیروی انسانی</h1>
+      <p>پیش‌بینی تقاضای حضور و تطبیق آن با ظرفیت میز، طبقه و Neighborhood.</p>
+    </div>
+    <div class="hero-actions">
+      <select [(ngModel)]="horizon"><option>Next 7 days</option><option>Next 30 days</option><option>Next 90 days</option></select>
+      <span class="ready"><lucide-icon [img]="icons.ShieldCheck"></lucide-icon> Planning Engine Ready</span>
+    </div>
+  </header>
+
+  <section class="scenario">
+    <div class="scenario-copy"><div class="spark"><lucide-icon [img]="icons.Sparkles"></lucide-icon></div><div><b>Scenario Planning</b><p>با تغییر سناریو، ریسک ظرفیت و تقاضای میز را مقایسه کنید.</p></div></div>
+    <div class="scenario-tabs"><button *ngFor="let s of scenarios" [class.active]="scenario===s.name" (click)="scenario=s.name">{{s.name}}</button></div>
+  </section>
+
+  <section class="kpis">
+    <article><span><lucide-icon [img]="icons.UsersRound"></lucide-icon></span><small>Peak Attendance</small><strong>{{selectedScenario.attendance}}%</strong><em>پیش‌بینی تقاضای حضور</em></article>
+    <article><span class="blue"><lucide-icon [img]="icons.Armchair"></lucide-icon></span><small>Peak Desk Demand</small><strong>{{peakDemand}}</strong><em>میز مورد نیاز</em></article>
+    <article><span class="orange"><lucide-icon [img]="icons.Building2"></lucide-icon></span><small>Capacity Utilization</small><strong>{{utilization}}%</strong><em>از ظرفیت ۱۵۰ میز</em></article>
+    <article><span class="red"><lucide-icon [img]="icons.AlertTriangle"></lucide-icon></span><small>Capacity Gap</small><strong>{{capacityGap > 0 ? '+' : ''}}{{capacityGap}}</strong><em>{{riskLabel}}</em></article>
+  </section>
+
+  <section class="forecast">
+    <div class="section-head"><div><h2>Weekly Demand Forecast</h2><p>برآورد تقاضای فضای کاری در روزهای پیش‌رو</p></div><span><lucide-icon [img]="icons.TrendingUp"></lucide-icon> Forecast</span></div>
+    <div class="days">
+      <div><small>شنبه</small><b>72%</b><i style="height:72%"></i></div>
+      <div><small>یکشنبه</small><b>84%</b><i style="height:84%"></i></div>
+      <div><small>دوشنبه</small><b>91%</b><i style="height:91%"></i></div>
+      <div><small>سه‌شنبه</small><b>88%</b><i style="height:88%"></i></div>
+      <div><small>چهارشنبه</small><b>95%</b><i style="height:95%"></i></div>
+      <div><small>پنجشنبه</small><b>69%</b><i style="height:69%"></i></div>
+    </div>
+  </section>
+
+  <section class="team">
+    <div class="section-head"><div><h2>Team Capacity Planning</h2><p>مقایسه تقاضای پیش‌بینی‌شده با میز اختصاص‌یافته</p></div><span class="secure"><lucide-icon [img]="icons.CalendarDays"></lucide-icon> {{horizon}}</span></div>
+    <div class="table-head"><span>تیم</span><span>کارکنان</span><span>تقاضای حضور</span><span>میز</span><span>Gap</span></div>
+    <div class="table-row" *ngFor="let t of teams"><strong>{{t.name}}</strong><span>{{t.employees}}</span><span>{{t.expected}}</span><span>{{t.desks}}</span><b [class.negative]="t.gap>0">{{t.gap>0?'+':''}}{{t.gap}}</b></div>
+  </section>
+
+  <section class="recommendations">
+    <article><div><lucide-icon [img]="icons.Sparkles"></lucide-icon></div><p><b>پیشنهاد هوشمند:</b> چهارشنبه بیشترین تقاضای پیش‌بینی‌شده را دارد؛ رزروهای تیم‌های Customer Support و Service Desk را زودتر کنترل کنید.</p></article>
+    <article><div class="orange"><lucide-icon [img]="icons.AlertTriangle"></lucide-icon></div><p><b>Capacity Risk:</b> سناریوی Peak On-site به ۱۷ میز بیشتر از ظرفیت فعلی نیاز دارد؛ Neighborhood جایگزین یا Desk Sharing پیشنهاد می‌شود.</p></article>
+  </section>
+</section>

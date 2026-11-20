@@ -1,0 +1,171 @@
+<section class="visitor-page" dir="rtl">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="icons.users" [size]="16"></lucide-icon> Visitor & Reception</div>
+      <h1>مدیریت پیشرفته مراجعین و پذیرش</h1>
+      <p>ثبت مهمان، دعوت‌نامه، تأیید میزبان، ورود و خروج، کارت مهمان و کنترل دسترسی در یک فضای یکپارچه.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn secondary"><lucide-icon [img]="icons.qr" [size]="17"></lucide-icon> اسکن QR</button>
+      <button class="btn primary" (click)="showNewVisitor = true">
+        <lucide-icon [img]="icons.userPlus" [size]="17"></lucide-icon> ثبت مهمان جدید
+      </button>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="icons.users"></lucide-icon></div>
+      <div><span>کل مراجعین امروز</span><strong>{{ totalVisitors }}</strong></div>
+      <small>ثبت‌شده در پذیرش</small>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon success"><lucide-icon [img]="icons.login"></lucide-icon></div>
+      <div><span>حاضر در ساختمان</span><strong>{{ checkedInCount }}</strong></div>
+      <small>مراجعین Checked-in</small>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon warning"><lucide-icon [img]="icons.clock"></lucide-icon></div>
+      <div><span>در انتظار اقدام</span><strong>{{ pendingCount }}</strong></div>
+      <small>تأیید یا آماده ورود</small>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon danger"><lucide-icon [img]="icons.shield"></lucide-icon></div>
+      <div><span>پرریسک / مسدود</span><strong>{{ highRiskCount }}</strong></div>
+      <small>نیازمند کنترل امنیتی</small>
+    </article>
+  </div>
+
+  <div class="workspace-grid">
+    <section class="panel main-panel">
+      <div class="panel-head">
+        <div>
+          <h2>دفتر مراجعین</h2>
+          <p>دعوت‌شده‌ها، تأییدشده‌ها و ورود/خروج روز جاری</p>
+        </div>
+        <div class="toolbar">
+          <label class="search-box">
+            <lucide-icon [img]="icons.search" [size]="17"></lucide-icon>
+            <input [(ngModel)]="searchTerm" placeholder="جستجوی نام، شرکت، میزبان یا کد..." />
+          </label>
+          <select [(ngModel)]="statusFilter">
+            <option>All</option>
+            <option>Invited</option>
+            <option>Awaiting Approval</option>
+            <option>Approved</option>
+            <option>Checked-in</option>
+            <option>Checked-out</option>
+            <option>Cancelled</option>
+            <option>Blacklisted</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>مراجع</th>
+              <th>میزبان / هدف</th>
+              <th>زمان</th>
+              <th>زون دسترسی</th>
+              <th>وضعیت</th>
+              <th>ریسک</th>
+              <th>اقدام</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let visitor of filteredVisitors">
+              <td>
+                <div class="visitor-cell">
+                  <div class="avatar">{{ visitor.name.charAt(0) }}</div>
+                  <div><strong>{{ visitor.name }}</strong><small>{{ visitor.id }} · {{ visitor.company }}</small></div>
+                </div>
+              </td>
+              <td><strong>{{ visitor.host }}</strong><small>{{ visitor.purpose }}</small></td>
+              <td><strong>{{ visitor.arrival }}</strong><small>{{ visitor.visitDate }}</small></td>
+              <td><span class="zone">{{ visitor.accessZone }}</span><small>Badge: {{ visitor.badge }}</small></td>
+              <td><span class="status" [class]="statusClass(visitor.status)">{{ visitor.status }}</span></td>
+              <td><span class="risk" [class]="'risk-' + visitor.risk.toLowerCase()">{{ visitor.risk }}</span></td>
+              <td>
+                <div class="row-actions">
+                  <button *ngIf="visitor.status === 'Awaiting Approval'" class="mini success" (click)="approve(visitor)">
+                    <lucide-icon [img]="icons.check" [size]="15"></lucide-icon>
+                  </button>
+                  <button *ngIf="visitor.status === 'Approved' || visitor.status === 'Invited'" class="mini" (click)="checkIn(visitor)">
+                    <lucide-icon [img]="icons.login" [size]="15"></lucide-icon>
+                  </button>
+                  <button *ngIf="visitor.status === 'Checked-in'" class="mini" (click)="checkOut(visitor)">
+                    <lucide-icon [img]="icons.logout" [size]="15"></lucide-icon>
+                  </button>
+                  <button class="mini" title="Visitor Pass"><lucide-icon [img]="icons.qr" [size]="15"></lucide-icon></button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="filteredVisitors.length === 0">
+              <td colspan="7" class="empty">موردی با فیلترهای انتخاب‌شده پیدا نشد.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="side-stack">
+      <section class="panel">
+        <div class="panel-title"><h3>چرخه ورود مراجع</h3><lucide-icon [img]="icons.file" [size]="18"></lucide-icon></div>
+        <div class="flow">
+          <div class="flow-step done"><span>۱</span><div><strong>Invitation</strong><small>دعوت یا پیش‌ثبت‌نام</small></div></div>
+          <div class="flow-step active"><span>۲</span><div><strong>Host Approval</strong><small>تأیید میزبان / مسئول</small></div></div>
+          <div class="flow-step"><span>۳</span><div><strong>Check-in</strong><small>احراز هویت و صدور Badge</small></div></div>
+          <div class="flow-step"><span>۴</span><div><strong>Physical Access</strong><small>اتصال به زون‌های مجاز</small></div></div>
+          <div class="flow-step"><span>۵</span><div><strong>Check-out</strong><small>ثبت خروج و بستن Visit</small></div></div>
+        </div>
+      </section>
+
+      <section class="panel security-card">
+        <div class="panel-title"><h3>کنترل امنیتی</h3><lucide-icon [img]="icons.shield" [size]="18"></lucide-icon></div>
+        <div class="security-row"><span>Blacklist / Watchlist</span><strong>{{ highRiskCount }}</strong></div>
+        <div class="security-row"><span>مراجعین بدون تأیید</span><strong>{{ awaitingApprovalCount }}</strong></div>
+        <div class="security-row"><span>زون محدود</span><strong>{{ restrictedZoneCount }}</strong></div>
+        <button class="link-btn"><lucide-icon [img]="icons.shield" [size]="15"></lucide-icon> مشاهده لاگ امنیتی</button>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title"><h3>ارتباطات عملیاتی</h3><lucide-icon [img]="icons.door" [size]="18"></lucide-icon></div>
+        <div class="chips">
+          <span>Employee / Host</span><span>Facility</span><span>Access Zone</span><span>Ticket</span><span>Security Incident</span>
+        </div>
+        <p class="muted">این ماژول برای اتصال مستقیم پذیرش، امنیت فیزیکی، Facility و Ticketing طراحی شده است.</p>
+      </section>
+    </aside>
+  </div>
+
+  <div class="drawer-backdrop" *ngIf="showNewVisitor" (click)="showNewVisitor = false"></div>
+  <aside class="drawer" *ngIf="showNewVisitor">
+    <div class="drawer-head">
+      <div><span class="eyebrow">NEW VISITOR</span><h2>ثبت دعوت / مراجع</h2></div>
+      <button class="close" (click)="showNewVisitor = false"><lucide-icon [img]="icons.x"></lucide-icon></button>
+    </div>
+
+    <div class="form-grid">
+      <label>نام مراجع<input [(ngModel)]="newVisitor.name" placeholder="نام و نام خانوادگی" /></label>
+      <label>شرکت / سازمان<input [(ngModel)]="newVisitor.company" placeholder="اختیاری" /></label>
+      <label>میزبان<input [(ngModel)]="newVisitor.host" placeholder="نام کارمند یا مسئول" /></label>
+      <label>هدف بازدید<select [(ngModel)]="newVisitor.purpose"><option>Meeting</option><option>Interview</option><option>Training</option><option>Vendor Review</option><option>Personal Visit</option></select></label>
+      <label>تاریخ<input type="date" [(ngModel)]="newVisitor.visitDate" /></label>
+      <label>زمان ورود<input type="time" [(ngModel)]="newVisitor.arrival" /></label>
+      <label>زون دسترسی<select [(ngModel)]="newVisitor.accessZone"><option>Reception</option><option>HQ - Floor 1</option><option>HQ - Floor 2</option><option>Training Center</option><option>Restricted - Floor 3</option></select></label>
+      <label>سطح ریسک<select [(ngModel)]="newVisitor.risk"><option>Low</option><option>Medium</option><option>High</option></select></label>
+    </div>
+
+    <div class="drawer-note">
+      <lucide-icon [img]="icons.qr" [size]="18"></lucide-icon>
+      <span>پس از ثبت، Visit می‌تواند برای QR Pass، Badge و Physical Access استفاده شود.</span>
+    </div>
+
+    <div class="drawer-actions">
+      <button class="btn secondary" (click)="showNewVisitor = false">انصراف</button>
+      <button class="btn primary" (click)="createInvitation()"><lucide-icon [img]="icons.userPlus" [size]="17"></lucide-icon> ثبت دعوت</button>
+    </div>
+  </aside>
+</section>

@@ -1,0 +1,115 @@
+<section class="facilities-page" dir="rtl">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow">WORKPLACE OPERATIONS</div>
+      <h1>مدیریت Facilities و محیط کار</h1>
+      <p>مدیریت ساختمان، فضا، اتاق‌ها، تجهیزات تأسیسات، درخواست‌های محیط کار و دسترسی فیزیکی</p>
+    </div>
+    <button class="primary-btn" type="button" (click)="addRequest()">
+      <lucide-icon [img]="icons.Plus" [size]="18"></lucide-icon>
+      درخواست Facility جدید
+    </button>
+  </header>
+
+  <div class="kpi-grid">
+    <article class="kpi-card"><div class="kpi-icon blue"><lucide-icon [img]="icons.ClipboardList" [size]="21"></lucide-icon></div><div><span>درخواست‌های باز</span><strong>{{ openRequests }}</strong><small>درخواست فعال محیط کار</small></div></article>
+    <article class="kpi-card"><div class="kpi-icon red"><lucide-icon [img]="icons.AlertTriangle" [size]="21"></lucide-icon></div><div><span>اولویت بالا</span><strong>{{ highPriority }}</strong><small>Critical / High</small></div></article>
+    <article class="kpi-card"><div class="kpi-icon violet"><lucide-icon [img]="icons.DoorOpen" [size]="21"></lucide-icon></div><div><span>فضاهای اشغال‌شده</span><strong>{{ occupiedSpaces }}</strong><small>از {{ spaces.length }} فضای ثبت‌شده</small></div></article>
+    <article class="kpi-card"><div class="kpi-icon green"><lucide-icon [img]="icons.Gauge" [size]="21"></lucide-icon></div><div><span>Facility Health</span><strong>{{ facilityHealth }}%</strong><small>میانگین سلامت تجهیزات</small></div></article>
+  </div>
+
+  <nav class="tabs">
+    <button [class.active]="activeTab === 'requests'" (click)="activeTab='requests'"><lucide-icon [img]="icons.ClipboardList" [size]="17"></lucide-icon> درخواست‌ها</button>
+    <button [class.active]="activeTab === 'spaces'" (click)="activeTab='spaces'"><lucide-icon [img]="icons.DoorOpen" [size]="17"></lucide-icon> فضا و اتاق‌ها</button>
+    <button [class.active]="activeTab === 'buildings'" (click)="activeTab='buildings'"><lucide-icon [img]="icons.Building2" [size]="17"></lucide-icon> ساختمان‌ها</button>
+    <button [class.active]="activeTab === 'facility-assets'" (click)="activeTab='facility-assets'"><lucide-icon [img]="icons.Wrench" [size]="17"></lucide-icon> تجهیزات تأسیسات</button>
+  </nav>
+
+  <div *ngIf="activeTab === 'requests'" class="content">
+    <div class="toolbar">
+      <div class="search-box"><lucide-icon [img]="icons.Search" [size]="18"></lucide-icon><input [(ngModel)]="query" placeholder="جستجو در درخواست، مکان، درخواست‌کننده یا مسئول..." /></div>
+      <div class="selects">
+        <select [(ngModel)]="statusFilter"><option>All</option><option>New</option><option>Assigned</option><option>In Progress</option><option>Waiting</option><option>Completed</option></select>
+        <select [(ngModel)]="priorityFilter"><option>All</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select>
+        <button class="ghost-btn"><lucide-icon [img]="icons.Filter" [size]="17"></lucide-icon> فیلتر پیشرفته</button>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-head"><div><h2>Facility Requests</h2><span>درخواست‌های فضا، تجهیزات، تأسیسات، مبلمان و دسترسی</span></div><span class="count">{{ filteredRequests.length }} مورد</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>درخواست</th><th>مکان</th><th>دسته‌بندی</th><th>اولویت</th><th>وضعیت</th><th>درخواست‌کننده</th><th>مسئول</th><th>موعد</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let item of filteredRequests">
+              <td><b>{{ item.id }}</b><strong>{{ item.title }}</strong><small *ngIf="item.ticket">{{ item.ticket }}</small></td>
+              <td><span class="location"><lucide-icon [img]="icons.MapPin" [size]="14"></lucide-icon>{{ item.location }}</span></td>
+              <td><span class="type-chip">{{ item.category }}</span></td>
+              <td><span class="priority" [ngClass]="priorityClass(item.priority)">{{ item.priority }}</span></td>
+              <td><span class="status" [ngClass]="statusClass(item.status)">{{ item.status }}</span></td>
+              <td>{{ item.requester }}</td><td>{{ item.assignee }}</td><td>{{ item.due }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="relationship-grid">
+      <article class="relation-card"><div class="relation-icon"><lucide-icon [img]="icons.Ticket" [size]="19"></lucide-icon></div><div><h3>Ticket ↔ Facility</h3><p>اتصال درخواست‌های محیط کار به Incident و Service Request</p></div><b>18</b></article>
+      <article class="relation-card"><div class="relation-icon green"><lucide-icon [img]="icons.Package" [size]="19"></lucide-icon></div><div><h3>Facility Asset ↔ CMDB</h3><p>ارتباط تجهیزات تأسیسات با دارایی و Configuration Item</p></div><b>42</b></article>
+      <article class="relation-card"><div class="relation-icon amber"><lucide-icon [img]="icons.KeyRound" [size]="19"></lucide-icon></div><div><h3>Physical Access</h3><p>مدیریت دسترسی افراد به فضاهای حساس و محدود</p></div><b>9</b></article>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'spaces'" class="content">
+    <div class="section-heading"><div><h2>فضاها و اتاق‌ها</h2><p>ظرفیت، اشغال، وضعیت رزرو و دسترسی به فضاها</p></div><button class="ghost-btn"><lucide-icon [img]="icons.CalendarDays" [size]="17"></lucide-icon> تقویم رزرو</button></div>
+    <div class="space-grid">
+      <article *ngFor="let item of spaces" class="space-card">
+        <div class="space-top"><span class="space-icon"><lucide-icon [img]="item.type === 'Meeting' ? icons.Users : icons.DoorOpen" [size]="19"></lucide-icon></span><span class="status" [ngClass]="statusClass(item.status)">{{ item.status }}</span></div>
+        <h3>{{ item.name }}</h3><small>{{ item.code }} · {{ item.building }} · {{ item.floor }}</small>
+        <div class="capacity"><span>ظرفیت استفاده</span><b>{{ utilization(item) }}%</b></div>
+        <div class="progress"><i [style.width.%]="utilization(item)"></i></div>
+        <div class="space-meta"><span>{{ item.occupied }} نفر حاضر</span><span>{{ item.capacity }} ظرفیت</span><span>{{ item.type }}</span></div>
+      </article>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'buildings'" class="content">
+    <div class="section-heading"><div><h2>پورتفولیوی ساختمان‌ها</h2><p>نمای کلی از ظرفیت، بهره‌برداری و مسئول هر ساختمان</p></div><button class="ghost-btn"><lucide-icon [img]="icons.Layers3" [size]="17"></lucide-icon> نقشه فضاها</button></div>
+    <div class="building-grid">
+      <article *ngFor="let item of buildings" class="building-card">
+        <div class="building-top"><div class="building-icon"><lucide-icon [img]="icons.Building2" [size]="21"></lucide-icon></div><span class="status" [class.restricted]="item.status === 'Restricted'">{{ item.status === 'Restricted' ? 'محدود' : 'فعال' }}</span></div>
+        <h3>{{ item.name }}</h3><small>{{ item.code }} · مدیر: {{ item.manager }}</small>
+        <div class="building-stats"><div><b>{{ item.floors }}</b><span>طبقه</span></div><div><b>{{ item.spaces }}</b><span>فضا</span></div><div><b>{{ item.utilization }}%</b><span>بهره‌برداری</span></div></div>
+        <div class="progress"><i [style.width.%]="item.utilization"></i></div>
+      </article>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'facility-assets'" class="content">
+    <div class="table-card">
+      <div class="table-head"><div><h2>Facility Assets</h2><span>تأسیسات، HVAC، ژنراتور، کنترل تردد و تجهیزات محیط کار</span></div><button class="ghost-btn"><lucide-icon [img]="icons.Wrench" [size]="17"></lucide-icon> برنامه نگهداری</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>کد</th><th>تجهیز</th><th>مکان</th><th>سلامت</th><th>سرویس بعدی</th><th>وضعیت</th></tr></thead>
+        <tbody><tr *ngFor="let item of facilityAssets">
+          <td><b>{{ item.code }}</b></td><td><strong>{{ item.name }}</strong></td><td>{{ item.location }}</td>
+          <td><div class="health-cell"><div class="mini-progress"><i [style.width.%]="item.health"></i></div><b>{{ item.health }}%</b></div></td>
+          <td>{{ item.nextMaintenance }}</td><td><span class="status" [ngClass]="statusClass(item.status)">{{ item.status }}</span></td>
+        </tr></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <aside *ngIf="showCreatePanel" class="drawer-backdrop" (click)="closeCreatePanel()">
+    <div class="drawer" (click)="$event.stopPropagation()">
+      <div class="drawer-head"><div><span>FACILITY REQUEST</span><h2>درخواست جدید</h2></div><button (click)="closeCreatePanel()">×</button></div>
+      <label>عنوان درخواست<input placeholder="مثلاً خرابی سیستم تهویه..." /></label>
+      <label>ساختمان / مکان<select><option>ساختمان مرکزی</option><option>ساختمان شمالی</option><option>دیتاسنتر</option></select></label>
+      <label>دسته‌بندی<select><option>HVAC</option><option>Electrical</option><option>Furniture</option><option>Room</option><option>Access</option></select></label>
+      <label>اولویت<select><option>Medium</option><option>High</option><option>Critical</option><option>Low</option></select></label>
+      <label>توضیحات<textarea rows="4" placeholder="شرح درخواست، شماره اتاق یا اطلاعات تکمیلی..."></textarea></label>
+      <button class="primary-btn full">ثبت درخواست</button>
+      <p class="drawer-note">در این فاز اطلاعات Mock است؛ ثبت واقعی، SLA، Notification، RBAC و اتصال به Ticket/Asset در لایه Backend پیاده‌سازی می‌شود.</p>
+    </div>
+  </aside>
+</section>

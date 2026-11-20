@@ -1,0 +1,62 @@
+<section class="page" dir="rtl">
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="icons.ShieldCheck"></lucide-icon> WORKPLACE POLICY & RESERVATION ENGINE</div>
+      <h1>موتور رزرو میز و سیاست‌های Workplace</h1>
+      <p>مدیریت رزرو، Check-in، No-show، قوانین Hybrid و کنترل تعارض فضای کاری.</p>
+    </div>
+    <button class="primary" (click)="showDrawer=true"><lucide-icon [img]="icons.CalendarDays"></lucide-icon> رزرو میز جدید</button>
+  </header>
+
+  <section class="kpis">
+    <article><span><lucide-icon [img]="icons.CalendarDays"></lucide-icon></span><div><small>رزروهای تأییدشده</small><strong>{{confirmed}}</strong></div></article>
+    <article><span class="green"><lucide-icon [img]="icons.CheckCircle2"></lucide-icon></span><div><small>Check-in فعال</small><strong>{{checkedIn}}</strong></div></article>
+    <article><span class="orange"><lucide-icon [img]="icons.AlertTriangle"></lucide-icon></span><div><small>No-show</small><strong>{{noShows}}</strong></div></article>
+    <article><span class="purple"><lucide-icon [img]="icons.RefreshCw"></lucide-icon></span><div><small>رزرو تکرارشونده</small><strong>{{recurringCount}}</strong></div></article>
+  </section>
+
+  <section class="policy">
+    <div class="section-title"><div><h2>Reservation Policy</h2><p>قوانین کنترلی Workspace در این لایه تعریف و برای Backend نهایی آماده می‌شوند.</p></div><span class="policy-state"><lucide-icon [img]="icons.ShieldCheck"></lucide-icon> Policy Engine Active</span></div>
+    <div class="rules">
+      <div><b>Double Booking</b><span>ممانعت از رزرو همزمان یک Desk</span><strong>فعال</strong></div>
+      <div><b>Check-in Window</b><span>آزادسازی خودکار میز پس از No-show</span><strong>60 دقیقه</strong></div>
+      <div><b>Hybrid Policy</b><span>کنترل ظرفیت براساس روز حضور</span><strong>فعال</strong></div>
+      <div><b>Team Rules</b><span>اولویت Neighborhood برای تیم‌ها</span><strong>فعال</strong></div>
+    </div>
+  </section>
+
+  <section class="workspace">
+    <div class="toolbar">
+      <div class="search"><lucide-icon [img]="icons.Search"></lucide-icon><input [(ngModel)]="search" placeholder="جستجوی کارمند، تیم، Desk یا Neighborhood..." /></div>
+      <select [(ngModel)]="statusFilter"><option value="All">همه وضعیت‌ها</option><option>Confirmed</option><option>Pending</option><option>Checked-in</option><option>No-show</option><option>Cancelled</option></select>
+      <select [(ngModel)]="modeFilter"><option value="All">همه Work Mode</option><option>Hybrid</option><option>On-site</option><option>Remote</option></select>
+    </div>
+
+    <div class="reservation-list">
+      <article class="reservation" *ngFor="let r of filteredReservations">
+        <div class="person"><div class="avatar"><lucide-icon [img]="icons.UsersRound"></lucide-icon></div><div><strong>{{r.employee}}</strong><small>{{r.team}}</small></div></div>
+        <div class="desk"><lucide-icon [img]="icons.Armchair"></lucide-icon><div><strong>{{r.desk}}</strong><small>{{r.neighborhood}}</small></div></div>
+        <div class="date"><lucide-icon [img]="icons.CalendarDays"></lucide-icon><div><strong>{{r.date}}</strong><small>{{r.time}}</small></div></div>
+        <div class="check"><lucide-icon [img]="icons.Clock3"></lucide-icon><div><strong>{{r.checkIn}}</strong><small>Check-in</small></div></div>
+        <span class="status" [class]="statusClass(r.status)">{{r.status}}</span>
+        <span class="mode">{{r.mode}}</span>
+        <span class="repeat" *ngIf="r.recurring"><lucide-icon [img]="icons.RefreshCw"></lucide-icon> تکرارشونده</span>
+      </article>
+      <div class="empty" *ngIf="filteredReservations.length===0">رزروی با فیلترهای انتخاب‌شده پیدا نشد.</div>
+    </div>
+  </section>
+
+  <aside *ngIf="showDrawer" class="drawer">
+    <div class="backdrop" (click)="showDrawer=false"></div>
+    <div class="panel">
+      <header><div><small>DESK RESERVATION</small><h2>رزرو فضای کاری</h2></div><button (click)="showDrawer=false">×</button></header>
+      <label>کارمند<select><option>سارا احمدی</option><option>علی رضایی</option><option>مریم کریمی</option><option>نگار حسینی</option></select></label>
+      <label>Neighborhood<select><option>Engineering Hub</option><option>Support Pod</option><option>Product Neighborhood</option><option>Finance Corner</option></select></label>
+      <label>Desk<select><option>D-204</option><option>D-118</option><option>D-032</option><option>D-301</option></select></label>
+      <div class="grid2"><label>تاریخ<input type="date" value="2026-11-21"></label><label>مدل کاری<select><option>Hybrid</option><option>On-site</option><option>Remote</option></select></label></div>
+      <label class="toggle"><input type="checkbox"> رزرو تکرارشونده</label>
+      <div class="validation"><lucide-icon [img]="icons.ShieldCheck"></lucide-icon><div><strong>Pre-booking validation</strong><p>در Backend نهایی، ظرفیت، Double Booking، Team Policy، Work Mode و Physical Access پیش از تأیید بررسی می‌شوند.</p></div></div>
+      <button class="primary full" (click)="showDrawer=false">بررسی و ثبت رزرو</button>
+    </div>
+  </aside>
+</section>

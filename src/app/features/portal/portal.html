@@ -1,0 +1,60 @@
+<div class="portal-page">
+  <section class="welcome">
+    <div><span class="eyebrow">پورتال خدمات کاربران</span><h1>سلام {{ profile.name }}، چطور می‌توانیم کمک کنیم؟</h1><p>درخواست‌های خود را ثبت کنید، وضعیت آن‌ها را پیگیری کنید و پاسخ پرسش‌هایتان را سریع‌تر بیابید.</p></div>
+    <button class="primary-btn" (click)="showTicketForm = true">＋ ثبت تیکت جدید</button>
+  </section>
+  <section class="stats">
+    <article><span class="stat-icon teal">▤</span><div><small>کل درخواست‌ها</small><strong>{{ tickets.length }}</strong><span>درخواست ثبت‌شده</span></div></article>
+    <article><span class="stat-icon blue">◷</span><div><small>در حال پیگیری</small><strong>{{ openCount }}</strong><span>درخواست باز</span></div></article>
+    <article><span class="stat-icon amber">✉</span><div><small>نیازمند پاسخ شما</small><strong>{{ waitingCount }}</strong><span>اقدام موردنیاز</span></div></article>
+    <article><span class="stat-icon green">✓</span><div><small>حل‌شده</small><strong>{{ tickets.length - openCount }}</strong><span>درخواست تکمیل‌شده</span></div></article>
+  </section>
+  <nav class="portal-tabs">
+    @for (tab of ['درخواست‌های من','کاتالوگ خدمات','پایگاه دانش','پروفایل من']; track tab) {
+      <button [class.active]="activeTab === tab" (click)="activeTab = tab">{{ tab }}</button>
+    }
+  </nav>
+  @if (activeTab === 'درخواست‌های من') {
+    <section class="panel">
+      <div class="section-head"><div><h2>درخواست‌های من</h2><p>وضعیت و آخرین تغییرات درخواست‌های پشتیبانی خود را مشاهده کنید.</p></div><button class="outline-btn" (click)="showTicketForm = true">＋ درخواست جدید</button></div>
+      <div class="filters"><input [(ngModel)]="query" placeholder="جستجو بر اساس عنوان یا کد درخواست..."><select [(ngModel)]="statusFilter"><option>همه</option><option>در حال بررسی</option><option>منتظر پاسخ شما</option><option>حل‌شده</option></select></div>
+      <div class="ticket-list">
+        @for (ticket of filteredTickets; track ticket.id) {
+          <button class="ticket-row" (click)="openTicket(ticket)">
+            <span class="ticket-symbol">▤</span><span class="ticket-info"><strong>{{ ticket.title }}</strong><small>{{ ticket.id }} · {{ ticket.category }} · {{ ticket.date }}</small></span>
+            <span class="priority" [class.high]="ticket.priority === 'زیاد'">{{ ticket.priority }}</span>
+            <span class="status" [class.waiting]="ticket.status === 'منتظر پاسخ شما'" [class.done]="ticket.status === 'حل‌شده'">{{ ticket.status }}</span><span class="arrow">‹</span>
+          </button>
+        } @empty { <div class="empty">درخواستی با این مشخصات پیدا نشد.</div> }
+      </div>
+    </section>
+  }
+  @if (activeTab === 'کاتالوگ خدمات') {
+    <section class="panel"><div class="section-head"><div><h2>کاتالوگ خدمات سازمان</h2><p>خدمت موردنظر را انتخاب کنید تا درخواست شما ثبت شود.</p></div></div>
+      <div class="service-grid">@for (service of services; track service.name) { <article class="service-card"><span>{{ service.icon }}</span><h3>{{ service.name }}</h3><p>{{ service.desc }}</p><small>زمان هدف: {{ service.eta }}</small><button class="outline-btn" (click)="serviceDraft.service = service.name; serviceDraft.details = ''; activeTab = 'ثبت خدمت'">ثبت درخواست ←</button></article> }</div>
+    </section>
+  }
+  @if (activeTab === 'ثبت خدمت') {
+    <section class="panel form-panel"><h2>ثبت درخواست خدمت</h2><label>نوع خدمت<select [(ngModel)]="serviceDraft.service">@for (service of services; track service.name) { <option>{{ service.name }}</option> }</select></label><label>شرح و جزئیات درخواست<textarea [(ngModel)]="serviceDraft.details" rows="5" placeholder="نیاز خود را با جزئیات توضیح دهید..."></textarea></label><button class="primary-btn" (click)="submitService()">ثبت درخواست خدمت</button></section>
+  }
+  @if (activeTab === 'پایگاه دانش') {
+    <section class="panel"><div class="section-head"><div><h2>پایگاه دانش و راهنماها</h2><p>پاسخ پرسش‌های پرتکرار را در راهنماهای زیر پیدا کنید.</p></div></div><div class="article-grid">@for (article of articles; track article.title) { <article class="article-card"><span>📘</span><small>{{ article.category }}</small><h3>{{ article.title }}</h3><p>{{ article.time }} · {{ article.views.toLocaleString('fa-IR') }} بازدید</p><button class="text-btn" (click)="notify('نمایش کامل مقاله در اتصال به پایگاه دانش فعال می‌شود.')">مطالعه راهنما ←</button></article> }</div></section>
+  }
+  @if (activeTab === 'پروفایل من') {
+    <section class="panel form-panel"><div class="section-head"><div><h2>اطلاعات حساب کاربری</h2><p>اطلاعات تماس و سازمانی خود را مدیریت کنید.</p></div><button class="outline-btn" (click)="profileEditing = !profileEditing">{{ profileEditing ? 'لغو ویرایش' : 'ویرایش اطلاعات' }}</button></div>
+      <label>نام و نام خانوادگی<input [(ngModel)]="profile.name" [disabled]="!profileEditing"></label><label>ایمیل سازمانی<input [(ngModel)]="profile.email" [disabled]="!profileEditing"></label><label>شماره تماس<input [(ngModel)]="profile.phone" [disabled]="!profileEditing"></label><label>واحد سازمانی<input [(ngModel)]="profile.department" [disabled]="!profileEditing"></label><button class="primary-btn" [disabled]="!profileEditing" (click)="saveProfile()">ذخیره تغییرات</button>
+    </section>
+  }
+  @if (showTicketForm) {
+    <div class="modal-backdrop" (click)="showTicketForm = false"><section class="modal" (click)="$event.stopPropagation()"><header><div><h2>ثبت تیکت جدید</h2><p>شرح دقیق درخواست به رسیدگی سریع‌تر کمک می‌کند.</p></div><button class="close" (click)="showTicketForm = false">×</button></header>
+      <label>عنوان درخواست<input [(ngModel)]="ticketDraft.title" placeholder="مثلاً: مشکل ورود به سامانه"></label><div class="form-row"><label>دسته‌بندی<select [(ngModel)]="ticketDraft.category"><option>نرم‌افزار و سیستم‌ها</option><option>شبکه و اینترنت</option><option>سخت‌افزار</option><option>حساب کاربری</option><option>سایر</option></select></label><label>اولویت<select [(ngModel)]="ticketDraft.priority"><option>عادی</option><option>متوسط</option><option>زیاد</option><option>بحرانی</option></select></label></div><label>شرح درخواست<textarea [(ngModel)]="ticketDraft.description" rows="5" placeholder="چه اتفاقی افتاده و چه انتظاری دارید؟"></textarea></label><footer><button class="outline-btn" (click)="showTicketForm = false">انصراف</button><button class="primary-btn" (click)="createTicket()">ثبت تیکت</button></footer>
+    </section></div>
+  }
+  @if (selectedTicket) {
+    <div class="modal-backdrop" (click)="selectedTicket = null"><section class="modal detail-modal" (click)="$event.stopPropagation()"><header><div><small>{{ selectedTicket.id }} · {{ selectedTicket.date }}</small><h2>{{ selectedTicket.title }}</h2><p>{{ selectedTicket.category }} · اولویت {{ selectedTicket.priority }}</p></div><button class="close" (click)="selectedTicket = null">×</button></header><div class="description">{{ selectedTicket.description }}</div><div class="conversation"><h3>گفت‌وگو با پشتیبانی</h3>@for (message of selectedTicket.messages; track $index) { <article [class.mine]="message.mine"><strong>{{ message.author }}</strong><p>{{ message.text }}</p><small>{{ message.time }}</small></article> } @empty { <p class="empty">هنوز پیامی ثبت نشده است.</p> }</div>
+      @if (selectedTicket.status === 'حل‌شده') { <div class="rating"><strong>از کیفیت رسیدگی رضایت داشتید؟</strong><div>@for (star of [1,2,3,4,5]; track star) { <button [class.selected]="(selectedTicket.rating || 0) >= star" (click)="rateTicket(selectedTicket, star)">★</button> }</div></div> }
+      <div class="reply"><textarea [(ngModel)]="replyText" rows="3" placeholder="پیام خود را بنویسید..."></textarea><div class="reply-actions"><label class="attach">📎 پیوست<input type="file" (change)="onAttachment($event)" hidden></label><small>{{ attachmentName }}</small><button class="primary-btn" [disabled]="!replyText.trim()" (click)="sendReply()">ارسال پاسخ</button></div></div>
+    </section></div>
+  }
+  @if (toast) { <div class="toast">{{ toast }}</div> }
+</div>

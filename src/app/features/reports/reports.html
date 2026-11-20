@@ -1,0 +1,74 @@
+<div class="reports-page" dir="rtl">
+  <section class="page-heading">
+    <div><span class="eyebrow">هوشمندی سازمانی</span><h1>گزارش‌گیری و تحلیل</h1><p>عملکرد پشتیبانی، کیفیت خدمات و شاخص‌های کلیدی سازمان را یک‌جا بررسی کنید.</p></div>
+    <div class="heading-actions"><button class="btn btn-light" type="button" (click)="resetFilters()"><i-lucide [img]="RefreshCw" [size]="16"></i-lucide> بازنشانی فیلترها</button><button class="btn btn-primary" type="button" (click)="exportCsv()"><i-lucide [img]="Download" [size]="16"></i-lucide> خروجی CSV</button></div>
+  </section>
+
+  <section class="kpi-grid">
+    @for (item of kpis; track item.label) {
+      <article class="kpi-card"><div class="kpi-top"><span>{{item.label}}</span><span class="kpi-icon" [class]="item.tone"><i-lucide [img]="item.icon" [size]="19"></i-lucide></span></div><strong>{{item.value}}</strong><div class="kpi-foot"><span class="change">↗ {{item.change}}</span><small>نسبت به دوره قبل</small></div></article>
+    }
+  </section>
+
+  <section class="filter-panel">
+    <div class="filter-title"><i-lucide [img]="Filter" [size]="17"></i-lucide><strong>فیلترهای گزارش</strong><span>پارامترهای تحلیل را تنظیم کنید</span></div>
+    <div class="filter-controls">
+      <label>بازه زمانی<select [ngModel]="dateRange()" (ngModelChange)="dateRange.set($event)"><option value="7">۷ روز اخیر</option><option value="30">۳۰ روز اخیر</option><option value="90">۹۰ روز اخیر</option><option value="365">۱۲ ماه اخیر</option></select></label>
+      <label>تیم<select [ngModel]="teamFilter()" (ngModelChange)="teamFilter.set($event)"><option>همه تیم‌ها</option>@for(t of teams;track t.name){<option>{{t.name}}</option>}</select></label>
+      <label>اولویت<select [ngModel]="priorityFilter()" (ngModelChange)="priorityFilter.set($event)"><option>همه اولویت‌ها</option><option>بحرانی</option><option>بالا</option><option>متوسط</option><option>پایین</option></select></label>
+      <label>وضعیت تیکت<select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"><option>همه وضعیت‌ها</option><option>باز</option><option>در حال بررسی</option><option>حل‌شده</option><option>بسته‌شده</option></select></label>
+      <label class="search-field">جستجو<input [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="نام تیم یا کارشناس..."></label>
+    </div>
+  </section>
+
+  <section class="report-tabs" aria-label="انواع گزارش">
+    <button [class.active]="reportKind()==='overview'" (click)="selectReport('overview')">نمای کلی</button>
+    <button [class.active]="reportKind()==='tickets'" (click)="selectReport('tickets')">حجم تیکت‌ها</button>
+    <button [class.active]="reportKind()==='sla'" (click)="selectReport('sla')">SLA</button>
+    <button [class.active]="reportKind()==='agents'" (click)="selectReport('agents')">عملکرد تیم‌ها</button>
+    <button [class.active]="reportKind()==='satisfaction'" (click)="selectReport('satisfaction')">رضایت کاربران</button>
+    <button [class.active]="reportKind()==='categories'" (click)="selectReport('categories')">دسته‌بندی‌ها</button>
+  </section>
+
+  <div class="report-layout">
+    <section class="panel trend-panel">
+      <header class="panel-header"><div><h2>{{reportTitle()}}</h2><p>روند ثبت و حل درخواست‌ها در بازه انتخاب‌شده</p></div><span class="period-pill">{{dateRange()==='7'?'۷ روز':dateRange()==='30'?'۳۰ روز':dateRange()==='90'?'۹۰ روز':'۱۲ ماه'}}</span></header>
+      @if(reportKind()==='overview'||reportKind()==='tickets'){
+        <div class="chart-legend"><span><i class="legend-dot opened"></i> تیکت‌های ثبت‌شده</span><span><i class="legend-dot resolved"></i> تیکت‌های حل‌شده</span></div>
+        <div class="bar-chart"><div class="y-labels"><span>۱۰۰</span><span>۷۵</span><span>۵۰</span><span>۲۵</span><span>۰</span></div><div class="chart-columns">@for(point of trend;track point.day){<div class="chart-group"><div class="bars"><span class="bar opened" [style.height]="barHeight(point.opened)" [title]="'ثبت‌شده: '+point.opened"></span><span class="bar resolved" [style.height]="barHeight(point.resolved)" [title]="'حل‌شده: '+point.resolved"></span></div><small>{{point.day}}</small></div>}</div></div>
+      } @else if(reportKind()==='sla'){
+        <div class="sla-summary"><div class="sla-ring"><strong>۹۴.۶٪</strong><small>رعایت SLA</small></div><div class="sla-details"><div><span>پاسخ در زمان مقرر</span><strong>۹۷.۲٪</strong></div><div><span>حل در زمان مقرر</span><strong>۹۲.۱٪</strong></div><div><span>نقض تعهد</span><strong>۵.۴٪</strong></div></div></div>
+      } @else if(reportKind()==='satisfaction'){
+        <div class="satisfaction-view"><div class="satisfaction-score"><strong>۴.۷</strong><span>از ۵ امتیاز</span><div>★★★★★</div><small>بر اساس ۸۴۲ پاسخ ثبت‌شده</small></div><div class="rating-bars">@for(row of [{label:'۵ ستاره',v:76},{label:'۴ ستاره',v:16},{label:'۳ ستاره',v:5},{label:'۲ ستاره',v:2},{label:'۱ ستاره',v:1}];track row.label){<div><span>{{row.label}}</span><i><b [style.width.%]="row.v"></b></i><strong>{{row.v}}٪</strong></div>}</div></div>
+      } @else if(reportKind()==='categories'){
+        <div class="category-chart">@for(c of categories;track c.name){<div class="category-row"><div><span>{{c.name}}</span><strong>{{c.count}}</strong></div><div class="progress"><i [class]="c.color" [style.width.%]="c.percent"></i></div></div>}</div>
+      } @else {
+        <div class="team-highlight"><div class="highlight-icon"><i-lucide [img]="TrendingUp" [size]="24"></i-lucide></div><div><strong>عملکرد تیم‌ها در مسیر بهبود است</strong><p>تیم پشتیبانی فنی با ۹۷٪ رعایت SLA در جایگاه نخست قرار دارد.</p></div></div>
+        <div class="mini-team-grid">@for(t of filteredTeams();track t.name){<div><small>{{t.name}}</small><strong>{{t.sla}}٪</strong><span>رعایت SLA</span></div>}</div>
+      }
+    </section>
+
+    <section class="panel insight-panel">
+      <header class="panel-header"><div><h2>بینش‌های کلیدی</h2><p>نکات قابل توجه در این دوره</p></div><i-lucide [img]="ChartNoAxesCombined" [size]="20"></i-lucide></header>
+      <div class="insight-list"><article><span class="insight-mark green">↗</span><div><strong>بهبود نرخ حل درخواست</strong><p>نرخ حل تیکت نسبت به دوره قبل ۸.۲٪ افزایش داشته است.</p></div></article><article><span class="insight-mark blue">◷</span><div><strong>زمان پاسخ اولیه</strong><p>میانگین پاسخ اولیه به ۲۴ دقیقه رسیده است.</p></div></article><article><span class="insight-mark amber">!</span><div><strong>نیازمند توجه</strong><p>بیشترین حجم درخواست مربوط به دسترسی و حساب کاربری است.</p></div></article></div>
+      <div class="insight-note"><strong>پیشنهاد مدیریتی</strong><p>برای کاهش تیکت‌های پرتکرار، محتوای پایگاه دانش در موضوعات دسترسی و بازیابی حساب به‌روزرسانی شود.</p></div>
+    </section>
+  </div>
+
+  <section class="panel data-panel">
+    <header class="panel-header"><div><h2>{{reportKind()==='agents'?'عملکرد کارشناسان': 'مقایسه عملکرد تیم‌ها'}}</h2><p>شاخص‌های عملیاتی و کیفیت خدمات</p></div><button class="btn btn-light btn-sm" (click)="exportCsv()"><i-lucide [img]="FileSpreadsheet" [size]="15"></i-lucide> دریافت CSV</button></header>
+    @if(reportKind()==='agents'){
+      <div class="table-wrap"><table><thead><tr><th>کارشناس</th><th>تیم</th><th>تخصیص‌یافته</th><th>حل‌شده</th><th>میانگین پاسخ</th><th>امتیاز عملکرد</th></tr></thead><tbody>@for(a of filteredAgents();track a.name){<tr><td><strong>{{a.name}}</strong></td><td>{{a.team}}</td><td>{{a.assigned}}</td><td>{{a.resolved}}</td><td>{{a.firstResponse}}</td><td><span class="score">{{a.score}} / ۱۰۰</span></td></tr>}</tbody></table></div>
+    } @else {
+      <div class="table-wrap"><table><thead><tr><th>تیم</th><th>تیکت‌های دریافتی</th><th>حل‌شده</th><th>نرخ حل</th><th>رعایت SLA</th><th>رضایت</th></tr></thead><tbody>@for(t of filteredTeams();track t.name){<tr><td><strong>{{t.name}}</strong></td><td>{{t.tickets}}</td><td>{{t.resolved}}</td><td><span class="score">{{(t.resolved/t.tickets*100).toFixed(1)}}٪</span></td><td><span class="sla-pill" [class.low]="t.sla<93">{{t.sla}}٪</span></td><td>★ {{t.satisfaction}}</td></tr>}</tbody></table></div>
+    }
+  </section>
+
+  <section class="panel schedules-panel">
+    <header class="panel-header"><div><h2>گزارش‌های زمان‌بندی‌شده</h2><p>ارسال خودکار گزارش‌ها در دوره‌های مشخص (نمایش آزمایشی)</p></div><button class="btn btn-primary btn-sm" (click)="openSchedule()"><i-lucide [img]="Plus" [size]="15"></i-lucide> برنامه جدید</button></header>
+    <div class="schedule-list">@for(s of schedules();track s.id){<article class="schedule-row"><span class="schedule-icon"><i-lucide [img]="CalendarClock" [size]="19"></i-lucide></span><div class="schedule-main"><strong>{{s.name}}</strong><small>{{s.report}} · {{s.frequency}} · {{s.recipient}}</small></div><span class="next-run">{{s.active?s.nextRun:'متوقف‌شده'}}</span><button class="icon-action" [title]="s.active?'توقف برنامه':'فعال‌سازی برنامه'" (click)="toggleSchedule(s)"><i-lucide [img]="s.active?Pause:Play" [size]="16"></i-lucide></button><button class="icon-action danger" title="حذف برنامه" (click)="removeSchedule(s)"><i-lucide [img]="X" [size]="16"></i-lucide></button></article>}@empty{<div class="empty-state">هنوز برنامه‌ای تعریف نشده است.</div>}</div>
+  </section>
+
+  @if(scheduleDialog()){<div class="modal-backdrop" (click)="scheduleDialog.set(false)"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="schedule-title" (click)="$event.stopPropagation()"><header><div><h2 id="schedule-title">ایجاد گزارش زمان‌بندی‌شده</h2><p>تنظیمات ارسال دوره‌ای گزارش را وارد کنید.</p></div><button class="icon-action" (click)="scheduleDialog.set(false)">×</button></header><div class="form-grid"><label>نام برنامه<input [(ngModel)]="scheduleForm.name" placeholder="مثلاً گزارش هفتگی مدیران"></label><label>نوع گزارش<select [(ngModel)]="scheduleForm.report"><option>نمای کلی تیکت‌ها</option><option>عملکرد تیم‌ها</option><option>تحلیل SLA</option><option>تحلیل رضایت</option></select></label><label>تناوب ارسال<select [(ngModel)]="scheduleForm.frequency"><option>روزانه</option><option>هفتگی</option><option>ماهانه</option></select></label><label>ایمیل گیرنده<input type="email" [(ngModel)]="scheduleForm.recipient" placeholder="name@company.com"></label></div><footer><button class="btn btn-light" (click)="scheduleDialog.set(false)">انصراف</button><button class="btn btn-primary" (click)="saveSchedule()">ثبت برنامه</button></footer></section></div>}
+  @if(toast()){<div class="toast" role="status">{{toast()}}</div>}
+</div>

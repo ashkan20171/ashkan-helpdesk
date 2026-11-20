@@ -1,0 +1,79 @@
+<section class="page" dir="rtl">
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="icons.Layers3"></lucide-icon> Workplace Experience</div>
+      <h1>مدیریت میز و فضای کاری</h1>
+      <p>مدیریت Hot Desk، رزرو میز، تخصیص صندلی، ظرفیت فضا و حضور روزانه کارکنان در یک نمای واحد.</p>
+    </div>
+    <button class="primary" (click)="showReservationDrawer=true">
+      <lucide-icon [img]="icons.Plus"></lucide-icon> رزرو میز
+    </button>
+  </header>
+
+  <div class="kpis">
+    <article><span class="kpi-icon"><lucide-icon [img]="icons.Armchair"></lucide-icon></span><div><small>کل میزها</small><strong>{{ total }}</strong></div></article>
+    <article><span class="kpi-icon success"><lucide-icon [img]="icons.CheckCircle2"></lucide-icon></span><div><small>آزاد</small><strong>{{ available }}</strong></div></article>
+    <article><span class="kpi-icon warning"><lucide-icon [img]="icons.Clock3"></lucide-icon></span><div><small>رزرو شده</small><strong>{{ reserved }}</strong></div></article>
+    <article><span class="kpi-icon danger"><lucide-icon [img]="icons.Users"></lucide-icon></span><div><small>در حال استفاده</small><strong>{{ occupied }}</strong></div></article>
+    <article><span class="kpi-icon info"><lucide-icon [img]="icons.Building2"></lucide-icon></span><div><small>ظرفیت کل</small><strong>{{ capacity }}</strong></div></article>
+  </div>
+
+  <section class="map-card">
+    <div class="section-head">
+      <div><h2>نقشه مفهومی طبقات</h2><p>نمایش سریع Neighborhood و وضعیت میزها؛ پایه‌ای برای اتصال بعدی به Floor Map واقعی.</p></div>
+      <div class="legend">
+        <span><i class="dot available"></i> آزاد</span><span><i class="dot reserved"></i> رزرو</span><span><i class="dot occupied"></i> مشغول</span><span><i class="dot maintenance"></i> تعمیر</span>
+      </div>
+    </div>
+    <div class="floor-map">
+      <div class="floor" *ngFor="let floor of ['Floor 1','Floor 2','Floor 3','Floor 4']">
+        <div class="floor-title"><lucide-icon [img]="icons.MapPinned"></lucide-icon>{{ floor }}</div>
+        <div class="mini-desks">
+          <span *ngFor="let desk of desks | slice:0:7" [class]="statusClass(desk.status)" [title]="desk.code">{{ desk.code }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="workspace">
+    <div class="toolbar">
+      <div class="search"><lucide-icon [img]="icons.Search"></lucide-icon><input [(ngModel)]="search" placeholder="جستجوی میز، کارمند، طبقه یا Neighborhood..." /></div>
+      <select [(ngModel)]="statusFilter"><option value="All">همه وضعیت‌ها</option><option>Available</option><option>Reserved</option><option>Occupied</option><option>Maintenance</option><option>Blocked</option></select>
+      <select [(ngModel)]="typeFilter"><option value="All">همه انواع</option><option>Hot Desk</option><option>Assigned Desk</option><option>Shared Desk</option></select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>میز</th><th>طبقه / ناحیه</th><th>نوع</th><th>وضعیت</th><th>کارمند</th><th>تجهیزات</th><th>عملیات</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let desk of filteredDesks">
+            <td><strong>{{ desk.code }}</strong><span class="muted">{{ desk.name }}</span></td>
+            <td><span>{{ desk.floor }}</span><span class="muted">{{ desk.neighborhood }} · {{ desk.zone }}</span></td>
+            <td><span class="type-pill">{{ desk.type }}</span></td>
+            <td><span class="status" [class]="statusClass(desk.status)">{{ desk.status }}</span></td>
+            <td>{{ desk.employee || '—' }}<span class="muted" *ngIf="desk.checkIn !== '-'">Check-in: {{ desk.checkIn }}</span></td>
+            <td><span class="equipment" *ngFor="let item of desk.equipment">{{ item }}</span></td>
+            <td class="actions">
+              <button *ngIf="desk.status==='Available' || desk.status==='Reserved'" class="icon-btn" title="Check-in" (click)="checkIn(desk)"><lucide-icon [img]="icons.LogIn"></lucide-icon></button>
+              <button *ngIf="desk.status==='Occupied'" class="icon-btn" title="Check-out" (click)="checkOut(desk)"><lucide-icon [img]="icons.LogOut"></lucide-icon></button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredDesks.length===0"><td colspan="7" class="empty">موردی مطابق فیلترها پیدا نشد.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <aside class="drawer" *ngIf="showReservationDrawer">
+    <div class="drawer-backdrop" (click)="showReservationDrawer=false"></div>
+    <div class="drawer-panel">
+      <div class="drawer-head"><div><small>Workplace Booking</small><h2>رزرو میز</h2></div><button (click)="showReservationDrawer=false">×</button></div>
+      <label>کارمند<input placeholder="نام کارمند"></label>
+      <label>طبقه<select><option>Floor 1</option><option>Floor 2</option><option>Floor 3</option><option>Floor 4</option></select></label>
+      <label>تاریخ رزرو<input type="date"></label>
+      <label>بازه زمانی<select><option>08:00 تا 12:00</option><option>12:00 تا 16:00</option><option>کل روز</option></select></label>
+      <div class="drawer-note"><lucide-icon [img]="icons.CalendarDays"></lucide-icon><span>در نسخه Backend، این فرم به موتور Conflict Detection، Calendar و Physical Access متصل خواهد شد.</span></div>
+      <button class="primary full" (click)="showReservationDrawer=false">ثبت درخواست رزرو</button>
+    </div>
+  </aside>
+</section>

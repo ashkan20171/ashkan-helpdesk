@@ -1,0 +1,182 @@
+<section class="resource-page" dir="rtl">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="icons.package" [size]="16"></lucide-icon> Resource & Equipment Booking</div>
+      <h1>مدیریت رزرو منابع و تجهیزات</h1>
+      <p>رزرو، تخصیص، تحویل و بازگشت تجهیزات و منابع سازمانی با اتصال به Asset، جلسه، Facility و Ticket.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn secondary"><lucide-icon [img]="icons.barcode" [size]="17"></lucide-icon> اسکن Asset</button>
+      <button class="btn primary" (click)="showNewBooking = true"><lucide-icon [img]="icons.plus" [size]="17"></lucide-icon> رزرو منبع</button>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <article class="kpi-card">
+      <div class="kpi-icon success"><lucide-icon [img]="icons.check"></lucide-icon></div>
+      <div><span>منابع آزاد</span><strong>{{ availableCount }}</strong></div>
+      <small>آماده تخصیص</small>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="icons.calendar"></lucide-icon></div>
+      <div><span>رزروهای فعال</span><strong>{{ activeBookings }}</strong></div>
+      <small>درخواست تا تحویل</small>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon warning"><lucide-icon [img]="icons.transfer"></lucide-icon></div>
+      <div><span>در حال تحویل</span><strong>{{ checkoutCount }}</strong></div>
+      <small>Checked-out</small>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon danger"><lucide-icon [img]="icons.wrench"></lucide-icon></div>
+      <div><span>نیازمند تعمیر</span><strong>{{ maintenanceCount }}</strong></div>
+      <small>منابع خارج از دسترس</small>
+    </article>
+  </div>
+
+  <div class="workspace-grid">
+    <section class="panel main-panel">
+      <div class="panel-head">
+        <div>
+          <h2>فهرست منابع</h2>
+          <p>وضعیت لحظه‌ای و قابلیت رزرو منابع قابل‌اشتراک</p>
+        </div>
+        <div class="toolbar">
+          <label class="search-box">
+            <lucide-icon [img]="icons.search" [size]="17"></lucide-icon>
+            <input [(ngModel)]="searchTerm" placeholder="جستجوی نام، Asset ID، محل..." />
+          </label>
+          <select [(ngModel)]="statusFilter">
+            <option>All</option>
+            <option>Available</option>
+            <option>Reserved</option>
+            <option>Checked-out</option>
+            <option>Maintenance</option>
+            <option>Unavailable</option>
+          </select>
+          <select [(ngModel)]="categoryFilter">
+            <option>All</option>
+            <option *ngFor="let category of resourceCategories()">{{ category }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>منبع / Asset</th>
+              <th>دسته‌بندی</th>
+              <th>محل</th>
+              <th>مالک</th>
+              <th>وضعیت</th>
+              <th>وضعیت فنی</th>
+              <th>دسترسی بعدی</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let resource of filteredResources">
+              <td>
+                <div class="resource-cell">
+                  <div class="resource-icon"><lucide-icon [img]="resource.category === 'IT Equipment' ? icons.laptop : resource.category === 'Vehicle' ? icons.truck : icons.settings" [size]="17"></lucide-icon></div>
+                  <div><strong>{{ resource.name }}</strong><small>{{ resource.id }} · {{ resource.linkedAsset }}</small></div>
+                </div>
+              </td>
+              <td><span class="category">{{ resource.category }}</span></td>
+              <td><strong>{{ resource.location }}</strong></td>
+              <td>{{ resource.owner }}</td>
+              <td><span class="status" [class]="resourceStatusClass(resource.status)">{{ resource.status }}</span></td>
+              <td><span class="condition" [class]="'condition-' + resource.condition.toLowerCase().replace(' ', '-')">{{ resource.condition }}</span></td>
+              <td><strong>{{ resource.nextAvailable }}</strong></td>
+            </tr>
+            <tr *ngIf="filteredResources.length === 0"><td colspan="7" class="empty">موردی با فیلترهای انتخاب‌شده پیدا نشد.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="side-stack">
+      <section class="panel">
+        <div class="panel-title"><h3>چرخه تخصیص</h3><lucide-icon [img]="icons.transfer" [size]="18"></lucide-icon></div>
+        <div class="flow">
+          <div class="flow-step done"><span>۱</span><div><strong>Request</strong><small>ثبت نیاز به منبع</small></div></div>
+          <div class="flow-step active"><span>۲</span><div><strong>Approval</strong><small>تأیید مسئول / مالک</small></div></div>
+          <div class="flow-step"><span>۳</span><div><strong>Ready</strong><small>بررسی سلامت و آماده‌سازی</small></div></div>
+          <div class="flow-step"><span>۴</span><div><strong>Check-out</strong><small>تحویل منبع به کاربر</small></div></div>
+          <div class="flow-step"><span>۵</span><div><strong>Return</strong><small>بازگشت و ثبت وضعیت</small></div></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title"><h3>کنترل عملیات</h3><lucide-icon [img]="icons.shield" [size]="18"></lucide-icon></div>
+        <div class="rule"><span>Asset Identity</span><strong>QR / Barcode</strong></div>
+        <div class="rule"><span>وضعیت فنی</span><strong>Condition Check</strong></div>
+        <div class="rule"><span>تحویل</span><strong>Custody Record</strong></div>
+        <div class="rule"><span>بازگشت</span><strong>Return Inspection</strong></div>
+        <div class="rule"><span>تعمیر</span><strong>Maintenance Ticket</strong></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title"><h3>یکپارچه‌سازی</h3><lucide-icon [img]="icons.settings" [size]="18"></lucide-icon></div>
+        <div class="chips"><span>Asset / CMDB</span><span>Meeting</span><span>Facility</span><span>Ticket</span><span>Employee</span><span>Warehouse</span></div>
+        <p class="muted">هر رزرو می‌تواند به Asset، جلسه، کاربر، محل نگهداری و Ticket تعمیراتی متصل شود.</p>
+      </section>
+    </aside>
+  </div>
+
+  <section class="panel bookings-panel">
+    <div class="panel-head">
+      <div><h2>رزروها و گردش تحویل</h2><p>کنترل وضعیت درخواست تا بازگشت منبع</p></div>
+      <div class="booking-summary"><span>Reserved: {{ reservedCount }}</span><span>Active: {{ activeBookings }}</span></div>
+    </div>
+    <div class="booking-grid">
+      <article class="booking-card" *ngFor="let booking of bookings">
+        <div class="booking-top">
+          <div><strong>{{ booking.resource }}</strong><small>{{ booking.id }} · {{ booking.requester }}</small></div>
+          <span class="booking-status" [class]="bookingStatusClass(booking.status)">{{ booking.status }}</span>
+        </div>
+        <div class="booking-meta">
+          <span><lucide-icon [img]="icons.clock" [size]="13"></lucide-icon>{{ booking.start }} - {{ booking.end }}</span>
+          <span><lucide-icon [img]="icons.users" [size]="13"></lucide-icon>{{ booking.quantity }} عدد</span>
+          <span><lucide-icon [img]="icons.calendar" [size]="13"></lucide-icon>{{ booking.meeting }}</span>
+        </div>
+        <p>{{ booking.purpose }}</p>
+        <div class="booking-actions">
+          <button *ngIf="booking.status === 'Requested'" class="mini success" (click)="approveBooking(booking)"><lucide-icon [img]="icons.check" [size]="15"></lucide-icon> تأیید</button>
+          <button *ngIf="booking.status === 'Approved'" class="mini" (click)="markReady(booking)"><lucide-icon [img]="icons.package" [size]="15"></lucide-icon> آماده</button>
+          <button *ngIf="booking.status === 'Ready' || booking.status === 'Approved'" class="mini" (click)="checkout(booking)"><lucide-icon [img]="icons.transfer" [size]="15"></lucide-icon> تحویل</button>
+          <button *ngIf="booking.status === 'Checked-out'" class="mini" (click)="returnResource(booking)"><lucide-icon [img]="icons.package" [size]="15"></lucide-icon> بازگشت</button>
+          <button *ngIf="booking.status === 'Requested' || booking.status === 'Approved'" class="mini danger" (click)="cancelBooking(booking)"><lucide-icon [img]="icons.cancelled" [size]="15"></lucide-icon> لغو</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <div class="drawer-backdrop" *ngIf="showNewBooking" (click)="showNewBooking = false"></div>
+  <aside class="drawer" *ngIf="showNewBooking">
+    <div class="drawer-head">
+      <div><span class="eyebrow">NEW RESOURCE BOOKING</span><h2>رزرو منبع جدید</h2></div>
+      <button class="close" (click)="showNewBooking = false"><lucide-icon [img]="icons.x"></lucide-icon></button>
+    </div>
+
+    <div class="form-grid">
+      <label>منبع<select [(ngModel)]="newBooking.resource"><option *ngFor="let resource of resources" [disabled]="resource.status === 'Maintenance' || resource.status === 'Unavailable'">{{ resource.name }}</option></select></label>
+      <label>درخواست‌کننده<input [(ngModel)]="newBooking.requester" placeholder="نام کاربر / کارمند" /></label>
+      <label class="full">هدف رزرو<input [(ngModel)]="newBooking.purpose" placeholder="مثلاً جلسه، سفر، آموزش یا رویداد" /></label>
+      <label>شروع<input type="datetime-local" [(ngModel)]="newBooking.start" /></label>
+      <label>پایان<input type="datetime-local" [(ngModel)]="newBooking.end" /></label>
+      <label>Meeting ID<input [(ngModel)]="newBooking.meeting" placeholder="MTG-..." /></label>
+      <label>تعداد<input type="number" min="1" [(ngModel)]="newBooking.quantity" /></label>
+    </div>
+
+    <div class="drawer-note">
+      <lucide-icon [img]="icons.barcode" [size]="18"></lucide-icon>
+      <span>پس از تأیید، منبع می‌تواند برای Check-out، ثبت Custody، اسکن QR/Barcode و بازگشت کنترل‌شده استفاده شود.</span>
+    </div>
+
+    <div class="drawer-actions">
+      <button class="btn secondary" (click)="showNewBooking = false">انصراف</button>
+      <button class="btn primary" (click)="createBooking()"><lucide-icon [img]="icons.plus" [size]="17"></lucide-icon> ثبت رزرو</button>
+    </div>
+  </aside>
+</section>

@@ -1,0 +1,117 @@
+<section class="catalog-page">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">SERVICE MANAGEMENT · 2.46</div>
+      <h1>Service Catalog & Request Fulfillment</h1>
+      <p>کاتالوگ خدمات سازمان، درخواست‌های سرویس، فرم‌های پویا، تأییدیه و گردش اجرای درخواست در یک مرکز یکپارچه.</p>
+    </div>
+    <div class="hero-actions">
+      <button class="btn ghost" (click)="openBuilder()"><lucide-icon [img]="icons.Settings2"></lucide-icon> Form Builder</button>
+      <button class="btn primary" (click)="openRequest()"><lucide-icon [img]="icons.Plus"></lucide-icon> درخواست جدید</button>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <article><span class="kpi-icon"><lucide-icon [img]="icons.ClipboardList"></lucide-icon></span><div><b>{{ kpi('services') }}</b><small>سرویس فعال</small></div></article>
+    <article><span class="kpi-icon"><lucide-icon [img]="icons.Workflow"></lucide-icon></span><div><b>{{ kpi('open') }}</b><small>درخواست باز</small></div></article>
+    <article><span class="kpi-icon"><lucide-icon [img]="icons.FileCheck2"></lucide-icon></span><div><b>{{ kpi('approval') }}</b><small>در انتظار تأیید</small></div></article>
+    <article><span class="kpi-icon"><lucide-icon [img]="icons.PackageCheck"></lucide-icon></span><div><b>{{ kpi('fulfillment') }}</b><small>در حال اجرا</small></div></article>
+  </div>
+
+  <div class="toolbar">
+    <label class="search"><lucide-icon [img]="icons.Search"></lucide-icon><input [(ngModel)]="search" placeholder="جستجوی سرویس، درخواست، کاربر یا دپارتمان..." /></label>
+    <select [(ngModel)]="category"><option *ngFor="let item of categories" [value]="item">{{ item }}</option></select>
+    <select [(ngModel)]="requestStatus">
+      <option value="All">همه وضعیت‌ها</option><option value="Submitted">Submitted</option><option value="Approval">Approval</option><option value="Fulfillment">Fulfillment</option><option value="Completed">Completed</option>
+    </select>
+    <button class="icon-btn"><lucide-icon [img]="icons.Filter"></lucide-icon></button>
+  </div>
+
+  <div class="workspace">
+    <section class="panel catalog">
+      <div class="panel-head"><div><h2>Service Catalog</h2><p>خدمات محبوب و استاندارد سازمان</p></div><span class="count">{{ filteredServices.length }} service</span></div>
+      <div class="service-grid">
+        <article class="service-card" *ngFor="let service of filteredServices" [class.selected]="selectedService?.id === service.id" (click)="selectService(service)">
+          <div class="service-top"><span class="service-icon"><lucide-icon [img]="icons.Headphones"></lucide-icon></span><span class="badge active">{{ service.status }}</span></div>
+          <h3>{{ service.name }}</h3>
+          <p>{{ service.description }}</p>
+          <div class="meta"><span><lucide-icon [img]="icons.UserRound"></lucide-icon>{{ service.owner }}</span><span><lucide-icon [img]="icons.Clock3"></lucide-icon>{{ service.sla }}</span></div>
+          <div class="service-foot"><b>{{ service.estimatedCost }}</b><button class="mini" (click)="openRequest(service); $event.stopPropagation()">Request <lucide-icon [img]="icons.ChevronLeft"></lucide-icon></button></div>
+        </article>
+      </div>
+    </section>
+
+    <aside class="panel detail" *ngIf="selectedService; else emptyDetail">
+      <div class="panel-head"><div><h2>{{ selectedService.name }}</h2><p>{{ selectedService.category }} · {{ selectedService.owner }}</p></div><span class="badge active">Active</span></div>
+      <p class="description">{{ selectedService.description }}</p>
+
+      <div class="detail-grid">
+        <div><small>SLA</small><b>{{ selectedService.sla }}</b></div>
+        <div><small>Estimated cost</small><b>{{ selectedService.estimatedCost }}</b></div>
+      </div>
+
+      <div class="section-title"><lucide-icon [img]="icons.Workflow"></lucide-icon><h3>Fulfillment workflow</h3></div>
+      <div class="flow">
+        <span class="done"><i>1</i>Submitted</span><b></b><span class="current"><i>2</i>Approval</span><b></b><span><i>3</i>Fulfillment</span><b></b><span><i>4</i>Completed</span>
+      </div>
+
+      <div class="section-title"><lucide-icon [img]="icons.FileCheck2"></lucide-icon><h3>Request form</h3></div>
+      <div class="field-list"><div *ngFor="let field of selectedService.fields"><span>{{ field.label }}</span><small>{{ field.type }} · {{ field.required ? 'required' : 'optional' }}</small></div></div>
+
+      <div class="relations">
+        <span><lucide-icon [img]="icons.Ticket"></lucide-icon> Ticket</span>
+        <span><lucide-icon [img]="icons.PackageCheck"></lucide-icon> Asset / CI</span>
+        <span><lucide-icon [img]="icons.UserRound"></lucide-icon> User</span>
+        <span><lucide-icon [img]="icons.Coins"></lucide-icon> Cost Center</span>
+      </div>
+      <button class="btn primary full" (click)="openRequest(selectedService)"><lucide-icon [img]="icons.Plus"></lucide-icon> ثبت درخواست برای این سرویس</button>
+    </aside>
+    <ng-template #emptyDetail><aside class="panel detail empty"><lucide-icon [img]="icons.ClipboardList"></lucide-icon><h3>یک سرویس را انتخاب کنید</h3><p>جزئیات SLA، فرم، گردش کار و ارتباطات سرویس اینجا نمایش داده می‌شود.</p></aside></ng-template>
+  </div>
+
+  <section class="panel requests">
+    <div class="panel-head"><div><h2>Service Requests</h2><p>پیگیری درخواست‌ها از ثبت تا تحویل</p></div><button class="btn ghost"><lucide-icon [img]="icons.UsersRound"></lucide-icon> Request queue</button></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Service</th><th>Requester</th><th>Priority</th><th>Status</th><th>SLA / Due</th><th>Cost center</th><th>Linked</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let req of filteredRequests">
+            <td><b>{{ req.id }}</b></td><td>{{ req.service }}</td><td>{{ req.requester }}<small>{{ req.department }}</small></td>
+            <td><span class="pill" [class]="priorityClass(req.priority)">{{ req.priority }}</span></td>
+            <td><span class="pill" [class]="statusClass(req.status)">{{ req.status }}</span></td>
+            <td>{{ req.sla }}<small>{{ req.due }}</small></td><td>{{ req.costCenter }}</td><td>{{ req.linkedTicket }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="overlay" *ngIf="showRequestForm" (click)="showRequestForm=false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head"><div><span class="eyebrow">NEW SERVICE REQUEST</span><h2>{{ selectedService?.name }}</h2></div><button class="close" (click)="showRequestForm=false">×</button></div>
+      <div class="form-grid">
+        <label *ngFor="let field of selectedService?.fields">
+          <span>{{ field.label }} <em *ngIf="field.required">*</em></span>
+          <select *ngIf="field.type === 'select'"><option *ngFor="let option of field.options">{{ option }}</option></select>
+          <input *ngIf="field.type === 'text' || field.type === 'date' || field.type === 'number'" [type]="field.type" />
+          <textarea *ngIf="field.type === 'textarea'" rows="3"></textarea>
+        </label>
+      </div>
+      <div class="request-summary"><span><lucide-icon [img]="icons.Clock3"></lucide-icon> SLA: {{ selectedService?.sla }}</span><span><lucide-icon [img]="icons.Coins"></lucide-icon> Cost: {{ selectedService?.estimatedCost }}</span><span><lucide-icon [img]="icons.ShieldCheck"></lucide-icon> Approval required</span></div>
+      <div class="modal-actions"><button class="btn ghost" (click)="showRequestForm=false">انصراف</button><button class="btn primary" (click)="submitRequest()"><lucide-icon [img]="icons.Check"></lucide-icon> ثبت درخواست</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" *ngIf="showBuilder" (click)="showBuilder=false">
+    <div class="modal builder" (click)="$event.stopPropagation()">
+      <div class="modal-head"><div><span class="eyebrow">REQUEST FORM BUILDER</span><h2>Dynamic Form Builder</h2></div><button class="close" (click)="showBuilder=false">×</button></div>
+      <p>فیلدهای پویا را برای سرویس انتخاب‌شده تعریف کنید. این فاز پایه‌ی فرم‌ساز است و persistence واقعی در backend انجام خواهد شد.</p>
+      <div class="builder-add">
+        <input [(ngModel)]="newFieldLabel" placeholder="عنوان فیلد جدید..." />
+        <select [(ngModel)]="newFieldType"><option value="text">Text</option><option value="select">Select</option><option value="textarea">Textarea</option><option value="date">Date</option><option value="number">Number</option></select>
+        <button class="btn primary" (click)="addField()"><lucide-icon [img]="icons.Plus"></lucide-icon> Add</button>
+      </div>
+      <div class="field-list large"><div *ngFor="let field of (selectedService?.fields || [])"><b>{{ field.label }}</b><span>{{ field.type }}</span><small>{{ field.required ? 'Required' : 'Optional' }}</small></div></div>
+    </div>
+  </div>
+</section>

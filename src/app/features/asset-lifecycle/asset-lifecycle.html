@@ -1,0 +1,133 @@
+<section class="asset-page">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">ASSET LIFECYCLE · INVENTORY · 2.48</div>
+      <h1>Advanced Asset Lifecycle & Inventory</h1>
+      <p>رجیستری کامل Asset، شماره سریال، Barcode/QR، تخصیص، انتقال، Check-in/Check-out، تعمیرات، گارانتی، استهلاک و Audit در یک مرکز واحد.</p>
+    </div>
+    <div class="hero-actions">
+      <button class="btn ghost" (click)="showQr=true"><lucide-icon [img]="icons.QrCode"></lucide-icon> QR / Barcode</button>
+      <button class="btn primary" (click)="showAsset=true"><lucide-icon [img]="icons.Plus"></lucide-icon> ثبت Asset</button>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <article><span><lucide-icon [img]="icons.Boxes"></lucide-icon></span><div><b>248</b><small>Total Assets</small></div></article>
+    <article><span><lucide-icon [img]="icons.UserRound"></lucide-icon></span><div><b>186</b><small>Assigned</small></div></article>
+    <article><span><lucide-icon [img]="icons.Wrench"></lucide-icon></span><div><b>11</b><small>Maintenance</small></div></article>
+    <article><span><lucide-icon [img]="icons.ShieldCheck"></lucide-icon></span><div><b>96%</b><small>Audit Compliance</small></div></article>
+  </div>
+
+  <div class="toolbar">
+    <label class="search"><lucide-icon [img]="icons.Search"></lucide-icon><input [(ngModel)]="search" placeholder="جستجوی Asset، Serial، کاربر، CI یا محل..." /></label>
+    <select [(ngModel)]="status">
+      <option value="All">همه وضعیت‌ها</option><option>In Stock</option><option>Assigned</option><option>Maintenance</option><option>Retired</option>
+    </select>
+    <button class="icon-btn"><lucide-icon [img]="icons.Filter"></lucide-icon></button>
+  </div>
+
+  <div class="layout">
+    <section class="panel">
+      <div class="panel-head"><div><h2>Asset Registry</h2><p>رجیستری مرکزی دارایی‌ها و Configuration Itemها</p></div><span class="count">{{ filteredAssets.length }} assets</span></div>
+      <div class="asset-list">
+        <article *ngFor="let asset of filteredAssets" [class.selected]="selected?.id === asset.id" (click)="select(asset)">
+          <span class="asset-icon"><lucide-icon [img]="icons.Package"></lucide-icon></span>
+          <div class="asset-main"><b>{{ asset.name }}</b><small>{{ asset.id }} · {{ asset.category }} · SN {{ asset.serial }}</small></div>
+          <span class="pill" [class]="statusClass(asset.status)">{{ asset.status }}</span>
+          <div class="asset-owner"><b>{{ asset.owner }}</b><small>{{ asset.location }}</small></div>
+          <strong>{{ asset.value }}</strong>
+        </article>
+      </div>
+    </section>
+
+    <aside class="panel detail" *ngIf="selected; else empty">
+      <div class="panel-head">
+        <div><span class="eyebrow">{{ selected.id }}</span><h2>{{ selected.name }}</h2></div>
+        <span class="pill" [class]="statusClass(selected.status)">{{ selected.status }}</span>
+      </div>
+
+      <div class="identity">
+        <div class="asset-avatar"><lucide-icon [img]="icons.Package"></lucide-icon></div>
+        <div><b>{{ selected.category }}</b><small>Serial: {{ selected.serial }}</small><small>CI: {{ selected.ci }}</small></div>
+        <button class="qr-btn" (click)="showQr=true"><lucide-icon [img]="icons.QrCode"></lucide-icon></button>
+      </div>
+
+      <div class="info-grid">
+        <div><small>Current owner</small><b>{{ selected.owner }}</b></div>
+        <div><small>Location</small><b>{{ selected.location }}</b></div>
+        <div><small>Warranty</small><b>{{ selected.warranty }}</b></div>
+        <div><small>Last audit</small><b>{{ selected.lastAudit }}</b></div>
+        <div><small>Book value</small><b>{{ selected.value }}</b></div>
+        <div><small>Lifecycle</small><b>{{ selected.status }}</b></div>
+      </div>
+
+      <div class="depreciation">
+        <div><span><lucide-icon [img]="icons.Coins"></lucide-icon> Depreciation</span><b>62% utilized</b></div>
+        <div class="bar"><i></i></div>
+        <small>Acquisition value {{ selected.value }} · Next review Dec 2026</small>
+      </div>
+
+      <h3 class="section-title"><lucide-icon [img]="icons.ArrowLeftRight"></lucide-icon> Lifecycle actions</h3>
+      <div class="actions">
+        <button class="btn primary" (click)="showMovement=true"><lucide-icon [img]="icons.UserRound"></lucide-icon> Assign / Transfer</button>
+        <button class="btn ghost"><lucide-icon [img]="icons.Wrench"></lucide-icon> Maintenance</button>
+        <button class="btn ghost"><lucide-icon [img]="icons.ClipboardCheck"></lucide-icon> Audit</button>
+        <button class="btn danger" (click)="retireSelected()"><lucide-icon [img]="icons.Archive"></lucide-icon> Retire</button>
+      </div>
+
+      <div class="relations">
+        <span><lucide-icon [img]="icons.FileKey2"></lucide-icon> Procurement</span>
+        <span><lucide-icon [img]="icons.Package"></lucide-icon> CMDB / CI</span>
+        <span><lucide-icon [img]="icons.Truck"></lucide-icon> Delivery</span>
+        <span><lucide-icon [img]="icons.History"></lucide-icon> Audit history</span>
+      </div>
+    </aside>
+    <ng-template #empty><aside class="panel detail empty"><lucide-icon [img]="icons.Boxes"></lucide-icon><h3>یک Asset را انتخاب کنید</h3><p>مشخصات، مالک، گارانتی، ارزش، Lifecycle و عملیات دارایی نمایش داده می‌شود.</p></aside></ng-template>
+  </div>
+
+  <section class="panel movements">
+    <div class="panel-head"><div><h2>Asset Movement History</h2><p>ردیابی Assignment، Transfer، Check-in/Check-out و Maintenance</p></div><button class="btn ghost"><lucide-icon [img]="icons.History"></lucide-icon> Full audit trail</button></div>
+    <div class="movement-table">
+      <div class="movement-row head"><span>ID</span><span>Asset</span><span>Type</span><span>From → To</span><span>Actor</span><span>Date</span></div>
+      <div class="movement-row" *ngFor="let m of movements">
+        <b>{{ m.id }}</b><span>{{ m.asset }}</span><span class="movement-pill" [class]="movementClass(m.type)">{{ m.type }}</span><span>{{ m.from }} → {{ m.to }}</span><span>{{ m.actor }}</span><small>{{ m.date }}</small>
+      </div>
+    </div>
+  </section>
+
+  <div class="overlay" *ngIf="showMovement" (click)="showMovement=false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head"><div><span class="eyebrow">ASSET MOVEMENT</span><h2>Assignment / Transfer</h2></div><button class="close" (click)="showMovement=false"><lucide-icon [img]="icons.X"></lucide-icon></button></div>
+      <div class="movement-preview"><span><lucide-icon [img]="icons.Package"></lucide-icon></span><div><b>{{ selected?.name }}</b><small>{{ selected?.id }} · {{ selected?.serial }}</small></div></div>
+      <div class="form-grid">
+        <label>Operation<select><option>Assignment</option><option>Transfer</option><option>Check-in</option><option>Check-out</option></select></label>
+        <label>Target User / Team<input placeholder="User or team" /></label>
+        <label>Target Location<input placeholder="Office / Warehouse / Rack" /></label>
+        <label>Reason<input placeholder="Business reason" /></label>
+        <label class="wide">Notes<textarea rows="3" placeholder="Movement notes..."></textarea></label>
+      </div>
+      <div class="modal-actions"><button class="btn ghost" (click)="showMovement=false">انصراف</button><button class="btn primary" (click)="assignSelected()"><lucide-icon [img]="icons.Check"></lucide-icon> ثبت عملیات</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" *ngIf="showQr" (click)="showQr=false">
+    <div class="modal qr-modal" (click)="$event.stopPropagation()">
+      <div class="modal-head"><div><span class="eyebrow">ASSET IDENTIFICATION</span><h2>QR / Barcode</h2></div><button class="close" (click)="showQr=false"><lucide-icon [img]="icons.X"></lucide-icon></button></div>
+      <div class="qr-box"><lucide-icon [img]="icons.QrCode"></lucide-icon><b>{{ selected?.id || 'AST-NEW' }}</b><small>{{ selected?.serial || 'Serial pending' }}</small></div>
+      <div class="code-actions"><button class="btn ghost"><lucide-icon [img]="icons.Barcode"></lucide-icon> Generate Barcode</button><button class="btn primary"><lucide-icon [img]="icons.QrCode"></lucide-icon> Generate QR</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" *ngIf="showAsset" (click)="showAsset=false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head"><div><span class="eyebrow">NEW ASSET</span><h2>ثبت دارایی جدید</h2></div><button class="close" (click)="showAsset=false"><lucide-icon [img]="icons.X"></lucide-icon></button></div>
+      <div class="form-grid">
+        <label>نام Asset<input placeholder="مثلاً Dell Latitude 7450" /></label><label>Category<input placeholder="Laptop" /></label>
+        <label>Serial Number<input placeholder="Serial..." /></label><label>Purchase Value<input placeholder="$ 0" /></label>
+        <label>Warranty<input placeholder="2027-12-01" /></label><label>Warehouse Location<input placeholder="WH-A / Shelf" /></label>
+        <label class="wide">Notes<textarea rows="3" placeholder="Asset notes..."></textarea></label>
+      </div>
+      <div class="modal-actions"><button class="btn ghost" (click)="showAsset=false">انصراف</button><button class="btn primary" (click)="createAsset()"><lucide-icon [img]="icons.Check"></lucide-icon> ثبت Asset</button></div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,124 @@
+<section class="kb-page" dir="rtl">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow">دانش سازمانی و Self-Service</div>
+      <h1>پایگاه دانش</h1>
+      <p>مرجع یکپارچه مقالات، راهنماها و پاسخ‌های متداول برای کاربران و تیم پشتیبانی.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="exportCsv()"><lucide-icon [img]="icons.fileText"></lucide-icon>خروجی CSV</button>
+      <button class="btn btn-primary" (click)="openCreate()"><lucide-icon [img]="icons.plus"></lucide-icon>مقاله جدید</button>
+    </div>
+  </header>
+
+  <div class="stats-grid">
+    <article class="stat-card"><div class="stat-icon teal"><lucide-icon [img]="icons.book"></lucide-icon></div><div><span>مقالات منتشرشده</span><strong>{{ publishedCount }}</strong><small>قابل استفاده برای کاربران</small></div></article>
+    <article class="stat-card"><div class="stat-icon amber"><lucide-icon [img]="icons.clock"></lucide-icon></div><div><span>در انتظار تأیید</span><strong>{{ pendingCount }}</strong><small>نیازمند بررسی محتوا</small></div></article>
+    <article class="stat-card"><div class="stat-icon indigo"><lucide-icon [img]="icons.eye"></lucide-icon></div><div><span>بازدید محتوا</span><strong>{{ totalViews | number }}</strong><small>مجموع داده نمونه</small></div></article>
+    <article class="stat-card"><div class="stat-icon green"><lucide-icon [img]="icons.thumbsUp"></lucide-icon></div><div><span>رضایت از محتوا</span><strong>{{ helpfulRate }}%</strong><small>مفید در برابر غیرمفید</small></div></article>
+  </div>
+
+  <section class="hero-tools">
+    <div class="search-wrap">
+      <lucide-icon [img]="icons.search"></lucide-icon>
+      <input [(ngModel)]="query" placeholder="در پایگاه دانش جست‌وجو کنید؛ عنوان، کلمه کلیدی یا موضوع..." />
+    </div>
+    <button class="feature-toggle" [class.active]="featuredOnly" (click)="featuredOnly = !featuredOnly">
+      <lucide-icon [img]="icons.star"></lucide-icon>مقالات منتخب
+    </button>
+  </section>
+
+  <section class="category-strip">
+    <button *ngFor="let category of categories" [class.active]="activeCategory === category" (click)="selectCategory(category)">
+      <lucide-icon [img]="category === 'سؤالات متداول' ? icons.faq : icons.book"></lucide-icon>{{ category }}
+    </button>
+  </section>
+
+  <section class="content-grid">
+    <main class="article-panel">
+      <div class="toolbar">
+        <div><strong>{{ filteredArticles.length }} مقاله</strong><span>محتوای قابل مشاهده در این نما</span></div>
+        <select [(ngModel)]="statusFilter"><option *ngFor="let status of statuses" [value]="status.value">{{ status.label }}</option></select>
+      </div>
+
+      <article class="article-row" *ngFor="let article of filteredArticles" (click)="openDetails(article)">
+        <div class="article-icon" [class.featured]="article.featured"><lucide-icon [img]="article.category === 'سؤالات متداول' ? icons.faq : icons.book"></lucide-icon></div>
+        <div class="article-main">
+          <div class="title-line"><h3>{{ article.title }}</h3><span class="status-pill" [ngClass]="statusClass(article.status)">{{ statusLabel(article.status) }}</span></div>
+          <p>{{ article.summary }}</p>
+          <div class="meta"><span>{{ article.category }}</span><span>•</span><span>{{ article.author }}</span><span>•</span><span>{{ article.views | number }} بازدید</span><span>•</span><span>{{ article.updatedAt }}</span></div>
+          <div class="tags"><span *ngFor="let tag of article.tags"><lucide-icon [img]="icons.tag"></lucide-icon>{{ tag }}</span></div>
+        </div>
+        <div class="row-action"><button (click)="$event.stopPropagation(); openEdit(article)" title="ویرایش"><lucide-icon [img]="icons.edit"></lucide-icon></button></div>
+      </article>
+
+      <div class="empty" *ngIf="filteredArticles.length === 0"><lucide-icon [img]="icons.search"></lucide-icon><strong>مقاله‌ای پیدا نشد</strong><span>عبارت جست‌وجو یا فیلترها را تغییر دهید.</span></div>
+    </main>
+
+    <aside class="insights">
+      <div class="aside-title"><div><span>عملکرد محتوا</span><strong>مقالات پربازدید</strong></div><lucide-icon [img]="icons.trend"></lucide-icon></div>
+      <div class="top-article" *ngFor="let article of topArticles; let i = index">
+        <b>{{ i + 1 }}</b><div><strong>{{ article.title }}</strong><span><lucide-icon [img]="icons.eye"></lucide-icon>{{ article.views | number }} بازدید</span></div>
+      </div>
+
+      <div class="suggestion">
+        <div class="suggestion-icon"><lucide-icon [img]="icons.idea"></lucide-icon></div>
+        <strong>پیشنهاد هوشمند</strong>
+        <p>در نسخه Backend می‌توان هنگام ثبت تیکت، بر اساس عنوان و متن تیکت، مقالات مرتبط را پیشنهاد داد.</p>
+      </div>
+      <div class="faq-box"><lucide-icon [img]="icons.faq"></lucide-icon><div><strong>Self-Service</strong><p>هدف این بخش کاهش تیکت‌های تکراری و افزایش حل مسئله توسط کاربر است.</p></div></div>
+    </aside>
+  </section>
+
+  <div class="modal-backdrop" *ngIf="selectedArticle" (click)="closeDetails()">
+    <section class="detail-modal" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeDetails()"><lucide-icon [img]="icons.x"></lucide-icon></button>
+      <div class="detail-top">
+        <div class="article-icon big"><lucide-icon [img]="selectedArticle.category === 'سؤالات متداول' ? icons.faq : icons.book"></lucide-icon></div>
+        <div><span class="status-pill" [ngClass]="statusClass(selectedArticle.status)">{{ statusLabel(selectedArticle.status) }}</span><h2>{{ selectedArticle.title }}</h2><p>{{ selectedArticle.category }} · {{ selectedArticle.author }} · {{ selectedArticle.updatedAt }}</p></div>
+      </div>
+
+      <div class="detail-summary">{{ selectedArticle.summary }}</div>
+      <div class="article-content">{{ selectedArticle.content }}</div>
+      <div class="tag-list"><span *ngFor="let tag of selectedArticle.tags"><lucide-icon [img]="icons.tag"></lucide-icon>{{ tag }}</span></div>
+
+      <div class="linked"><strong>ماژول‌های مرتبط</strong><span *ngFor="let module of selectedArticle.linkedModules">{{ module }}</span></div>
+
+      <div class="feedback">
+        <span>آیا این مقاله مفید بود؟</span>
+        <button (click)="rateArticle(selectedArticle, true)"><lucide-icon [img]="icons.thumbsUp"></lucide-icon>بله {{ selectedArticle.helpful }}</button>
+        <button (click)="rateArticle(selectedArticle, false)">خیر {{ selectedArticle.notHelpful }}</button>
+      </div>
+
+      <div class="detail-actions">
+        <button class="btn btn-secondary" (click)="openEdit(selectedArticle)"><lucide-icon [img]="icons.edit"></lucide-icon>ویرایش</button>
+        <button class="btn btn-secondary" (click)="addVersion(selectedArticle)"><lucide-icon [img]="icons.fileCheck"></lucide-icon>نسخه جدید</button>
+        <button class="btn btn-primary" *ngIf="selectedArticle.status === 'pending'" (click)="publish(selectedArticle)"><lucide-icon [img]="icons.check"></lucide-icon>تأیید و انتشار</button>
+        <button class="btn btn-danger" (click)="deleteArticle(selectedArticle)"><lucide-icon [img]="icons.trash"></lucide-icon>حذف</button>
+      </div>
+
+      <div class="versions">
+        <button class="version-toggle" (click)="showVersions = !showVersions"><span><lucide-icon [img]="icons.clock"></lucide-icon>تاریخچه نسخه‌ها</span><lucide-icon [img]="icons.chevron"></lucide-icon></button>
+        <div *ngIf="showVersions" class="version-list"><div *ngFor="let version of selectedArticle.versions"><b>v{{ version.version }}</b><span>{{ version.note }}</span><small>{{ version.author }} · {{ version.date }}</small></div></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showModal" (click)="showModal = false">
+    <section class="form-modal" (click)="$event.stopPropagation()">
+      <div class="modal-title"><div><span>مدیریت دانش</span><h2>{{ isEditing ? 'ویرایش مقاله' : 'ثبت مقاله جدید' }}</h2></div><button class="modal-close static" (click)="showModal = false"><lucide-icon [img]="icons.x"></lucide-icon></button></div>
+      <div class="form-grid">
+        <label>عنوان مقاله<input [(ngModel)]="form.title" placeholder="عنوان واضح و قابل جست‌وجو" /></label>
+        <label>دسته‌بندی<select [(ngModel)]="form.category"><option *ngFor="let category of categories.slice(1)">{{ category }}</option></select></label>
+        <label>نویسنده<input [(ngModel)]="form.author" placeholder="نام نویسنده" /></label>
+        <label>وضعیت<select [(ngModel)]="form.status"><option *ngFor="let status of statuses.slice(1)" [value]="status.value">{{ status.label }}</option></select></label>
+        <label class="full">خلاصه مقاله<textarea [(ngModel)]="form.summary" rows="2" placeholder="خلاصه‌ای که در نتایج جست‌وجو نمایش داده می‌شود"></textarea></label>
+        <label class="full">متن مقاله<textarea [(ngModel)]="form.content" rows="7" placeholder="محتوای اصلی مقاله"></textarea></label>
+        <label>برچسب‌ها<input [ngModel]="(form.tags || []).join(', ')" (ngModelChange)="updateFormTags($event)" placeholder="VPN, شبکه, عیب‌یابی" /></label>
+        <label>ماژول‌های مرتبط<input [ngModel]="(form.linkedModules || []).join(', ')" (ngModelChange)="updateFormLinkedModules($event)" placeholder="تیکتینگ, SLA" /></label>
+        <label class="check-field"><input type="checkbox" [(ngModel)]="form.featured" /> مقاله منتخب باشد</label>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" (click)="showModal = false">انصراف</button><button class="btn btn-primary" (click)="saveArticle()"><lucide-icon [img]="icons.check"></lucide-icon>ذخیره مقاله</button></div>
+    </section>
+  </div>
+</section>

@@ -1,0 +1,57 @@
+<section class="page" dir="rtl">
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="icons.BarChart3"></lucide-icon> WORKFORCE INTELLIGENCE</div>
+      <h1>تحلیل حضور و Workforce Insights</h1>
+      <p>تصویر مدیریتی از حضور، بهره‌وری زمانی، Hybrid Work و روندهای نیروی انسانی.</p>
+    </div>
+    <button class="export"><lucide-icon [img]="icons.Download"></lucide-icon> آماده‌سازی گزارش</button>
+  </header>
+
+  <section class="filters">
+    <div><lucide-icon [img]="icons.CalendarDays"></lucide-icon><label>بازه تحلیل<select [(ngModel)]="period"><option>Daily</option><option>Weekly</option><option>Monthly</option></select></label></div>
+    <div><lucide-icon [img]="icons.Building2"></lucide-icon><label>دپارتمان<select [(ngModel)]="department"><option>All</option><option>Technology</option><option>Operations</option><option>Finance</option></select></label></div>
+    <div><lucide-icon [img]="icons.UsersRound"></lucide-icon><label>تیم<select [(ngModel)]="selectedTeam"><option>All</option><option *ngFor="let t of teams">{{t.team}}</option></select></label></div>
+  </section>
+
+  <section class="kpis">
+    <article><span><lucide-icon [img]="icons.UsersRound"></lucide-icon></span><small>Attendance Rate</small><strong>{{avgAttendance}}%</strong><em>+3.2% نسبت به دوره قبل</em></article>
+    <article><span class="green"><lucide-icon [img]="icons.TrendingUp"></lucide-icon></span><small>Punctuality Rate</small><strong>{{avgPunctuality}}%</strong><em>+2.1% نسبت به دوره قبل</em></article>
+    <article><span class="blue"><lucide-icon [img]="icons.Clock3"></lucide-icon></span><small>Average Working Hours</small><strong>{{avgHours}}h</strong><em>بر مبنای حضور ثبت‌شده</em></article>
+    <article><span class="red"><lucide-icon [img]="icons.AlertTriangle"></lucide-icon></span><small>Total No-show</small><strong>{{totalNoShow}}</strong><em>نیازمند بررسی مدیر</em></article>
+  </section>
+
+  <section class="analytics">
+    <div class="section-head"><div><h2>Attendance Trend</h2><p>روند نمونه حضور در دوره انتخاب‌شده</p></div><span><lucide-icon [img]="icons.Activity"></lucide-icon> Live-ready</span></div>
+    <div class="trend">
+      <div class="trend-label"><span>شنبه</span><b>91%</b></div><div class="track"><i style="width:91%"></i></div>
+      <div class="trend-label"><span>یکشنبه</span><b>94%</b></div><div class="track"><i style="width:94%"></i></div>
+      <div class="trend-label"><span>دوشنبه</span><b>96%</b></div><div class="track"><i style="width:96%"></i></div>
+      <div class="trend-label"><span>سه‌شنبه</span><b>92%</b></div><div class="track"><i style="width:92%"></i></div>
+      <div class="trend-label"><span>چهارشنبه</span><b>95%</b></div><div class="track"><i style="width:95%"></i></div>
+    </div>
+  </section>
+
+  <section class="team-card">
+    <div class="section-head"><div><h2>Team Attendance Comparison</h2><p>مقایسه تیم‌ها بر اساس حضور، punctuality و Hybrid Work</p></div><span class="secure"><lucide-icon [img]="icons.ShieldCheck"></lucide-icon> Management View</span></div>
+    <div class="table">
+      <div class="table-head"><span>تیم</span><span>Attendance</span><span>Punctuality</span><span>No-show</span><span>Avg Hours</span><span>Hybrid</span></div>
+      <div class="table-row" *ngFor="let t of filteredTeams">
+        <strong>{{t.team}}</strong>
+        <div class="metric"><b>{{t.attendance}}%</b><span><i [style.width]="barWidth(t.attendance)"></i></span></div>
+        <div class="metric"><b>{{t.punctuality}}%</b><span><i [style.width]="barWidth(t.punctuality)"></i></span></div>
+        <span class="no-show">{{t.noShow}}</span>
+        <strong>{{t.avgHours}}h</strong>
+        <span class="hybrid">{{t.hybrid}}%</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="insight-grid">
+    <article><div class="icon"><lucide-icon [img]="icons.TrendingUp"></lucide-icon></div><div><b>بهترین روند</b><p>Product & Design با 96% حضور، بالاترین نرخ این دوره را دارد.</p></div></article>
+    <article><div class="icon orange"><lucide-icon [img]="icons.Clock3"></lucide-icon></div><div><b>تمرکز مدیریتی</b><p>Customer Support پایین‌ترین Punctuality را دارد و نیازمند بررسی Policy است.</p></div></article>
+    <article><div class="icon red"><lucide-icon [img]="icons.AlertTriangle"></lucide-icon></div><div><b>No-show Watch</b><p>تعداد No-show برای تیم‌ها در این لایه به‌صورت مدیریتی قابل پایش است.</p></div></article>
+  </section>
+
+  <div class="note"><lucide-icon [img]="icons.ShieldCheck"></lucide-icon><span><b>Backend-ready analytics foundation:</b> در نسخه نهایی، این داشبورد مستقیماً از Attendance، Desk Reservation، Physical Access، Employee و HR داده خواهد گرفت.</span></div>
+</section>

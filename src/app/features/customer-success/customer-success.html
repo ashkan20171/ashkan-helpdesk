@@ -1,0 +1,129 @@
+<section class="page" dir="rtl">
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><i-lucide [img]="HeartPulse" [size]="16"></i-lucide> Customer Success Control Center</div>
+      <h1>مرکز Customer Success و سلامت مشتریان</h1>
+      <p>پایش Health Score، میزان Adoption، ریسک ریزش، تمدید، توسعه حساب و مسیر کامل عمر هر Tenant.</p>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" type="button" (click)="showTask.set(true)"><i-lucide [img]="Plus" [size]="17"></i-lucide> کار جدید</button>
+      <button class="btn primary" type="button" (click)="flash('Health Scoreها و سیگنال‌های مصرف Refresh شدند.')"><i-lucide [img]="RefreshCw" [size]="17"></i-lucide> بروزرسانی</button>
+    </div>
+  </header>
+
+  @if(notice()){<div class="notice">{{notice()}}</div>}
+
+  <section class="kpis">
+    <article class="kpi"><span class="ico green"><i-lucide [img]="HeartPulse" [size]="20"></i-lucide></span><div><small>میانگین Health Score</small><strong>{{avgHealth()}}%</strong><em>Portfolio Health</em></div></article>
+    <article class="kpi"><span class="ico purple"><i-lucide [img]="BarChart3" [size]="20"></i-lucide></span><div><small>میانگین Adoption</small><strong>{{avgAdoption()}}%</strong><em>Feature Adoption</em></div></article>
+    <article class="kpi"><span class="ico orange"><i-lucide [img]="AlertTriangle" [size]="20"></i-lucide></span><div><small>مشتریان در ریسک</small><strong>{{atRiskCount()}}</strong><em>{{renewalCount()}} در Renewal</em></div></article>
+    <article class="kpi"><span class="ico blue"><i-lucide [img]="CircleDollarSign" [size]="20"></i-lucide></span><div><small>MRR Portfolio</small><strong>${{mrr()}}K</strong><em>Expansion Signals: +{{expansion()}}K</em></div></article>
+  </section>
+
+  <nav class="tabs">
+    <button [class.active]="tab()==='overview'" (click)="setTab('overview')">نمای کلی</button>
+    <button [class.active]="tab()==='portfolio'" (click)="setTab('portfolio')">Portfolio مشتریان</button>
+    <button [class.active]="tab()==='onboarding'" (click)="setTab('onboarding')">Onboarding</button>
+    <button [class.active]="tab()==='playbooks'" (click)="setTab('playbooks')">Success Playbooks</button>
+    <button [class.active]="tab()==='journey'" (click)="setTab('journey')">Customer Journey</button>
+  </nav>
+
+  @if(tab()==='overview'){
+    <div class="grid main">
+      <article class="card portfolio-card">
+        <div class="card-head"><div><span class="eyebrow">Customer Portfolio</span><h2>نبض مشتریان</h2></div><span class="pill">{{activeCount()}} مشتری فعال</span></div>
+        <div class="customer-list">
+          @for(c of customers(); track c.id){
+            <button class="customer-row" type="button" (click)="openCustomer(c)">
+              <div class="avatar">{{c.name.slice(0,1)}}</div>
+              <div class="customer-name"><strong>{{c.name}}</strong><small>{{c.plan}} · {{c.owner}}</small></div>
+              <div class="health"><span>Health</span><b>{{c.health}}%</b><div class="meter"><i [style.width.%]="c.health"></i></div></div>
+              <div class="adoption"><span>Adoption</span><b>{{c.adoption}}%</b></div>
+              <span class="lifecycle" [class]="lifecycleClass(c.lifecycle)">{{c.lifecycle}}</span>
+              <i-lucide [img]="ChevronLeft" [size]="16"></i-lucide>
+            </button>
+          }
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head"><div><span class="eyebrow">Risk Radar</span><h2>سیگنال‌های مدیریتی</h2></div><i-lucide [img]="BellRing" [size]="21"></i-lucide></div>
+        <div class="signal danger"><i-lucide [img]="TrendingDown" [size]="18"></i-lucide><div><strong>پارس داده</strong><p>Health 38% · Adoption 24% · SLA 76%</p></div><button class="mini" (click)="triggerPlaybook('Rescue At-Risk')">Rescue</button></div>
+        <div class="signal warning"><i-lucide [img]="Clock3" [size]="18"></i-lucide><div><strong>راهکاران نوین</strong><p>Renewal نزدیک است · Adoption 71%</p></div><button class="mini" (click)="triggerPlaybook('Renewal Radar')">Renewal</button></div>
+        <div class="signal success"><i-lucide [img]="TrendingUp" [size]="18"></i-lucide><div><strong>شرکت آشیان</strong><p>Usage بالا · فرصت AI + Analytics</p></div><button class="mini" (click)="triggerPlaybook('Expansion Signal')">Expand</button></div>
+      </article>
+    </div>
+    <div class="grid three">
+      <article class="metric-card"><span><i-lucide [img]="Target" [size]="18"></i-lucide></span><div><small>Activation</small><strong>82%</strong><p>رسیدن مشتری به اولین Value</p></div></article>
+      <article class="metric-card"><span><i-lucide [img]="Sparkles" [size]="18"></i-lucide></span><div><small>Feature Adoption</small><strong>68%</strong><p>استفاده از قابلیت‌های کلیدی</p></div></article>
+      <article class="metric-card"><span><i-lucide [img]="Zap" [size]="18"></i-lucide></span><div><small>Expansion Coverage</small><strong>61%</strong><p>حساب‌های دارای فرصت توسعه</p></div></article>
+    </div>
+  }
+
+  @if(tab()==='portfolio'){
+    <article class="card">
+      <div class="card-head"><div><span class="eyebrow">Tenant Health Portfolio</span><h2>Customer Health Score Matrix</h2></div><span class="pill">5 Tenant</span></div>
+      <div class="table-wrap"><table><thead><tr><th>مشتری</th><th>Lifecycle</th><th>Health</th><th>Adoption</th><th>Users</th><th>Tickets</th><th>SLA</th><th>Renewal</th><th>Risk</th></tr></thead><tbody>
+        @for(c of customers(); track c.id){
+          <tr (click)="openCustomer(c)">
+            <td><strong>{{c.name}}</strong><small>{{c.plan}} · {{c.owner}}</small></td>
+            <td><span class="lifecycle" [class]="lifecycleClass(c.lifecycle)">{{c.lifecycle}}</span></td>
+            <td><div class="score"><b>{{c.health}}%</b><div class="meter"><i [style.width.%]="c.health"></i></div></div></td>
+            <td>{{c.adoption}}%</td><td>{{c.activeUsers}} / {{c.users}}</td><td>{{c.tickets | number}}</td><td>{{c.sla}}%</td><td>{{c.renewal}}</td>
+            <td><span class="risk" [class.high]="c.risk==='زیاد'">{{c.risk}}</span></td>
+          </tr>
+        }
+      </tbody></table></div>
+    </article>
+  }
+
+  @if(tab()==='onboarding'){
+    <div class="grid two">
+      <article class="card"><div class="card-head"><div><span class="eyebrow">Onboarding Progress</span><h2>پیشرفت استقرار مشتریان</h2></div><i-lucide [img]="Building2" [size]="21"></i-lucide></div>
+        @for(c of customers(); track c.id){<div class="onboard"><div class="line"><strong>{{c.name}}</strong><span>{{c.adoption}}%</span></div><div class="meter big"><i [style.width.%]="c.adoption"></i></div><small>{{c.lifecycle==='Onboarding'?'در حال استقرار':c.lifecycle==='Trial'?'آزمایشی':'فعال'}}</small></div>}
+      </article>
+      <article class="card"><div class="card-head"><div><span class="eyebrow">Activation Checklist</span><h2>چک‌لیست Success</h2></div><i-lucide [img]="CheckCircle2" [size]="21"></i-lucide></div>
+        <div class="check done"><i-lucide [img]="CheckCircle2" [size]="18"></i-lucide><span>Workspace و کاربران ایجاد شده</span></div>
+        <div class="check done"><i-lucide [img]="CheckCircle2" [size]="18"></i-lucide><span>Ticketing و SLA فعال شده</span></div>
+        <div class="check"><i-lucide [img]="Clock3" [size]="18"></i-lucide><span>اولین KPI موفقیت ثبت شود</span></div>
+        <div class="check"><i-lucide [img]="Clock3" [size]="18"></i-lucide><span>Feature Adoption به ۶۰٪ برسد</span></div>
+        <div class="check"><i-lucide [img]="Clock3" [size]="18"></i-lucide><span>Value Review برگزار شود</span></div>
+      </article>
+    </div>
+  }
+
+  @if(tab()==='playbooks'){
+    <article class="card"><div class="card-head"><div><span class="eyebrow">Customer Success Automation</span><h2>Success Playbooks</h2></div><button class="btn primary small" (click)="showTask.set(true)"><i-lucide [img]="Plus" [size]="15"></i-lucide> Playbook Task</button></div>
+      <div class="playbooks">@for(p of playbooks(); track p.name){<div class="playbook"><div class="pb-icon"><i-lucide [img]="ShieldCheck" [size]="20"></i-lucide></div><div class="pb-main"><strong>{{p.name}}</strong><small>Trigger: {{p.trigger}}</small><p>{{p.action}}</p></div><div><span class="priority">{{p.priority}}</span><small class="owner">{{p.owner}}</small></div><button class="mini" (click)="triggerPlaybook(p.name)">اجرا</button></div>}</div>
+    </article>
+  }
+
+  @if(tab()==='journey'){
+    <article class="card journey-card"><div class="card-head"><div><span class="eyebrow">Lifecycle Orchestration</span><h2>Customer Journey</h2></div><span class="pill">End-to-End</span></div>
+      <div class="journey">@for(j of journey(); track j.stage){<div class="journey-step" [class.done]="j.done"><div class="dot">@if(j.done){✓}@else{•}</div><div><strong>{{j.stage}}</strong><small>{{j.date}}</small><p>{{j.detail}}</p></div></div>}</div>
+    </article>
+  }
+</section>
+
+@if(selected(); as c){
+  <div class="backdrop" (click)="selected.set(null)"><aside class="drawer" (click)="$event.stopPropagation()">
+    <button class="close" (click)="selected.set(null)"><i-lucide [img]="X" [size]="18"></i-lucide></button>
+    <div class="drawer-avatar">{{c.name.slice(0,1)}}</div><span class="eyebrow">{{c.plan}} · {{c.lifecycle}}</span><h2>{{c.name}}</h2><p class="muted">Owner: {{c.owner}}</p>
+    <div class="drawer-score"><div><small>Health Score</small><strong>{{c.health}}%</strong><span>{{healthLabel(c.health)}}</span></div><div class="ring"><i [style.--value]="c.health+'%'"></i>{{c.health}}</div></div>
+    <div class="drawer-grid"><div><small>Adoption</small><strong>{{c.adoption}}%</strong></div><div><small>Active Users</small><strong>{{c.activeUsers}}</strong></div><div><small>SLA</small><strong>{{c.sla}}%</strong></div><div><small>MRR</small><strong>${{c.mrr}}K</strong></div></div>
+    <div class="section-title">Next Best Actions</div>
+    <button class="action-card" (click)="triggerPlaybook(c.health<50?'Rescue At-Risk':'Adoption Boost')"><i-lucide [img]="Target" [size]="17"></i-lucide><span>اجرای Success Playbook<small>بر اساس وضعیت فعلی مشتری</small></span><i-lucide [img]="ChevronLeft" [size]="15"></i-lucide></button>
+    <button class="action-card" (click)="showTask.set(true);selected.set(null)"><i-lucide [img]="Plus" [size]="17"></i-lucide><span>ثبت Customer Success Task<small>برای پیگیری دستی</small></span><i-lucide [img]="ChevronLeft" [size]="15"></i-lucide></button>
+  </aside></div>
+}
+
+@if(showTask()){
+  <div class="backdrop" (click)="showTask.set(false)"><form class="modal" (click)="$event.stopPropagation()" (submit)="$event.preventDefault();addTask()">
+    <div class="modal-head"><div><span class="eyebrow">Customer Success</span><h2>ثبت کار جدید</h2></div><button class="close" type="button" (click)="showTask.set(false)"><i-lucide [img]="X" [size]="18"></i-lucide></button></div>
+    <label>عنوان کار<input [(ngModel)]="task.title" name="taskTitle" placeholder="مثلاً برگزاری Value Review"></label>
+    <label>مشتری<input [(ngModel)]="task.customer" name="taskCustomer" placeholder="نام Tenant"></label>
+    <label>مسئول<input [(ngModel)]="task.owner" name="taskOwner"></label>
+    <label>سررسید<input [(ngModel)]="task.due" name="taskDue" placeholder="۱۴۰۵/۱۰/۱۵"></label>
+    <button class="btn primary full" type="submit">ثبت کار</button>
+  </form></div>
+}

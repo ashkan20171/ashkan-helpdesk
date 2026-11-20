@@ -1,0 +1,98 @@
+
+<section class="omni-page" dir="rtl">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Omnichannel Service Desk</span>
+      <h1>مدیریت پیشرفته تیکت و مسیریابی</h1>
+      <p>یک صندوق ورودی برای تمام کانال‌ها، صف‌های هوشمند و گردش کار SLA-aware.</p>
+    </div>
+    <div class="header-actions">
+      <button class="ghost-btn" type="button" (click)="exportCsv()">خروجی CSV</button>
+      <button class="primary-btn" type="button" (click)="showToast('ساخت تیکت جدید از Omnichannel آماده است.')"><i-lucide [img]="Plus" [size]="16"></i-lucide> تیکت جدید</button>
+    </div>
+  </header>
+
+  <section class="metric-grid">
+    <article class="metric-card"><span class="metric-icon blue"><i-lucide [img]="MessageCircle" [size]="19"></i-lucide></span><div><small>تیکت‌های فعال</small><strong>{{ openCount() }}</strong><em>در همه کانال‌ها</em></div></article>
+    <article class="metric-card"><span class="metric-icon red"><i-lucide [img]="Zap" [size]="19"></i-lucide></span><div><small>ریسک SLA</small><strong>{{ urgentCount() }}</strong><em>نیازمند اقدام</em></div></article>
+    <article class="metric-card"><span class="metric-icon amber"><i-lucide [img]="UsersRound" [size]="19"></i-lucide></span><div><small>منتظر مشتری</small><strong>{{ waitingCount() }}</strong><em>در حالت انتظار</em></div></article>
+    <article class="metric-card"><span class="metric-icon green"><i-lucide [img]="Globe" [size]="19"></i-lucide></span><div><small>کانال‌های فعال</small><strong>{{ channelCount() }}</strong><em>صندوق یکپارچه</em></div></article>
+  </section>
+
+  <section class="channel-strip">
+    @for (channel of channels; track channel.key) {
+      <div class="channel-card">
+        <span class="channel-icon"><i-lucide [img]="channel.icon" [size]="18"></i-lucide></span>
+        <div><strong>{{ channel.label }}</strong><small>{{ channel.count }} مکالمه امروز</small></div>
+        <span class="connection" [class.ready]="channel.state === 'آماده'"><i></i>{{ channel.state }}</span>
+      </div>
+    }
+  </section>
+
+  <section class="workspace-grid">
+    <div class="inbox-card">
+      <div class="card-head">
+        <div><h2>صندوق ورودی یکپارچه</h2><p>مسیریابی بر اساس کانال، اولویت، تیم و وضعیت SLA</p></div>
+        <span class="smart-badge"><i-lucide [img]="ShieldCheck" [size]="14"></i-lucide> SLA-aware routing</span>
+      </div>
+
+      <div class="filters">
+        <div class="search-box"><i-lucide [img]="Search" [size]="16"></i-lucide><input [(ngModel)]="search" placeholder="جستجو در تیکت، مشتری، تیم یا کارشناس..."></div>
+        <select [(ngModel)]="channelFilter"><option>همه</option><option>پورتال</option><option>ایمیل</option><option>Live Chat</option><option>WhatsApp</option><option>تلفن</option><option>API</option></select>
+        <select [(ngModel)]="priorityFilter"><option>همه</option><option>بحرانی</option><option>بالا</option><option>متوسط</option><option>پایین</option></select>
+        <select [(ngModel)]="slaFilter"><option>همه</option><option>در محدوده</option><option>نزدیک نقض</option><option>نقض‌شده</option><option>متوقف</option></select>
+      </div>
+
+      <div class="ticket-list">
+        @for (ticket of filteredTickets(); track ticket.id) {
+          <button class="ticket-row" type="button" (click)="selectTicket(ticket)" [class.critical]="ticket.sla === 'نقض‌شده'">
+            <span class="ticket-channel"><i-lucide [img]="channelIcon(ticket.channel)" [size]="17"></i-lucide></span>
+            <span class="ticket-main"><strong>{{ ticket.subject }}</strong><small>{{ ticket.id }} · {{ ticket.requester }} · {{ ticket.updated }}</small></span>
+            <span class="ticket-meta"><b [class]="'priority p-' + ticket.priority">{{ ticket.priority }}</b><small>{{ ticket.team }}</small></span>
+            <span class="sla-pill" [class]="ticket.sla === 'نقض‌شده' ? 'danger' : ticket.sla === 'نزدیک نقض' ? 'warning' : ticket.sla === 'متوقف' ? 'paused' : 'ok'">{{ ticket.sla }}</span>
+          </button>
+        } @empty {
+          <div class="empty-state">تیکتی با فیلترهای انتخاب‌شده پیدا نشد.</div>
+        }
+      </div>
+    </div>
+
+    <aside class="routing-card">
+      <div class="card-head compact"><div><h2>مسیریابی هوشمند</h2><p>پیش‌نمایش تصمیم موتور Routing</p></div><i-lucide [img]="Zap" [size]="20"></i-lucide></div>
+      <div class="route-rule"><span>۱</span><div><strong>کانال</strong><small>WhatsApp / Email / Portal</small></div><b>→</b></div>
+      <div class="route-rule"><span>۲</span><div><strong>اولویت</strong><small>بحرانی → سطح ۲</small></div><b>→</b></div>
+      <div class="route-rule"><span>۳</span><div><strong>SLA</strong><small>نزدیک نقض → Escalation</small></div><b>→</b></div>
+      <div class="route-rule"><span>۴</span><div><strong>تخصیص</strong><small>Round Robin بین اعضای تیم</small></div><b>✓</b></div>
+      <div class="queue-box"><div><strong>صف‌های فعال</strong><span>۷ صف</span></div><p>Service Desk · شبکه · مالی · تدارکات · Integration</p></div>
+    </aside>
+  </section>
+
+  <section class="lower-grid">
+    <article class="tool-card">
+      <div class="card-head compact"><div><h2>Template و Macro</h2><p>پاسخ‌های آماده برای افزایش سرعت کارشناسان</p></div><i-lucide [img]="Send" [size]="18"></i-lucide></div>
+      @for (template of templates; track template.shortcut) {
+        <button class="template-row" type="button" (click)="applyTemplate(template)"><span>{{ template.shortcut }}</span><div><strong>{{ template.name }}</strong><small>{{ template.text }}</small></div><b>استفاده</b></button>
+      }
+    </article>
+    <article class="tool-card">
+      <div class="card-head compact"><div><h2>مدیریت رابطه تیکت‌ها</h2><p>برای Merge / Split و Parent-Child</p></div><i-lucide [img]="GitMerge" [size]="18"></i-lucide></div>
+      <div class="relation-preview"><div class="parent-node">INC-2048 · درخواست اصلی</div><span>↕</span><div class="child-nodes"><span>INC-2050 · مشکل VPN</span><span>INC-2051 · دسترسی مالی</span></div></div>
+      <div class="relation-actions"><button type="button" (click)="showToast('نمای Parent/Child باز شد.')"><i-lucide [img]="GitMerge" [size]="15"></i-lucide> ادغام تیکت‌ها</button><button type="button" (click)="showToast('تیکت فرزند ایجاد شد.')"><i-lucide [img]="Split" [size]="15"></i-lucide> Split</button></div>
+    </article>
+  </section>
+
+  @if (activeTicket(); as ticket) {
+    <div class="modal-backdrop" (click)="closeTicket()">
+      <section class="ticket-modal" (click)="$event.stopPropagation()">
+        <header><div><span class="modal-kicker">{{ ticket.id }} · {{ channelLabel(ticket.channel) }}</span><h2>{{ ticket.subject }}</h2><p>{{ ticket.requester }} · {{ ticket.team }} · {{ ticket.agent }}</p></div><button class="close-btn" type="button" (click)="closeTicket()"><i-lucide [img]="X" [size]="18"></i-lucide></button></header>
+        <div class="modal-actions"><button type="button" (click)="routeSelected()"><i-lucide [img]="UsersRound" [size]="15"></i-lucide> Round Robin</button><button type="button" (click)="mergeSelected()"><i-lucide [img]="GitMerge" [size]="15"></i-lucide> Merge</button><button type="button" (click)="splitSelected()"><i-lucide [img]="Split" [size]="15"></i-lucide> Split</button><span class="sla-pill" [class]="ticket.sla === 'نقض‌شده' ? 'danger' : ticket.sla === 'نزدیک نقض' ? 'warning' : 'ok'">{{ ticket.sla }}</span></div>
+        <div class="timeline">
+          @for (item of timeline(); track $index) { <div class="timeline-item" [class]="item.type"><span></span><div><strong>{{ item.title }}</strong><p>{{ item.text }}</p><small>{{ item.time }}</small></div></div> }
+        </div>
+        <div class="reply-box"><textarea [(ngModel)]="replyText" placeholder="پاسخ خود را بنویسید..."></textarea><button type="button" (click)="sendReply()">ارسال پاسخ <i-lucide [img]="Send" [size]="15"></i-lucide></button></div>
+      </section>
+    </div>
+  }
+
+  @if (toast()) { <div class="toast"><i-lucide [img]="CheckCircle2" [size]="16"></i-lucide>{{ toast() }}</div> }
+</section>

@@ -1,0 +1,99 @@
+<section class="procurement-page">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">PROCUREMENT · ASSET OPERATIONS · 2.47</div>
+      <h1>Advanced Asset Request & Procurement</h1>
+      <p>از درخواست خرید و تأیید بودجه تا مقایسه Vendor، سفارش خرید، موجودی، تحویل و تخصیص Asset در یک جریان یکپارچه.</p>
+    </div>
+    <div class="hero-actions">
+      <button class="btn ghost" (click)="showQuotes=true"><lucide-icon [img]="icons.ArrowLeftRight"></lucide-icon> مقایسه پیشنهادها</button>
+      <button class="btn primary" (click)="showNew=true"><lucide-icon [img]="icons.Plus"></lucide-icon> درخواست خرید</button>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <article><span><lucide-icon [img]="icons.ShoppingCart"></lucide-icon></span><div><b>12</b><small>درخواست فعال</small></div></article>
+    <article><span><lucide-icon [img]="icons.FileCheck2"></lucide-icon></span><div><b>4</b><small>در انتظار تأیید</small></div></article>
+    <article><span><lucide-icon [img]="icons.Coins"></lucide-icon></span><div><b>$18.4K</b><small>بودجه در جریان</small></div></article>
+    <article><span><lucide-icon [img]="icons.Boxes"></lucide-icon></span><div><b>3</b><small>مورد نیازمند تأمین</small></div></article>
+  </div>
+
+  <div class="toolbar">
+    <label class="search"><lucide-icon [img]="icons.Search"></lucide-icon><input [(ngModel)]="search" placeholder="جستجوی درخواست، کالا، کاربر یا Vendor..." /></label>
+    <select [(ngModel)]="status">
+      <option value="All">همه وضعیت‌ها</option><option>Draft</option><option>Approval</option><option>Quoting</option><option>Purchase Order</option><option>Delivery</option><option>Completed</option>
+    </select>
+    <button class="icon-btn"><lucide-icon [img]="icons.Filter"></lucide-icon></button>
+  </div>
+
+  <div class="layout">
+    <section class="panel">
+      <div class="panel-head"><div><h2>Procurement Requests</h2><p>چرخه خرید و تأمین تجهیزات و خدمات</p></div><span class="count">{{ filteredRequests.length }} requests</span></div>
+      <div class="request-list">
+        <article *ngFor="let req of filteredRequests" [class.selected]="selected?.id === req.id" (click)="select(req)">
+          <div class="request-main"><span class="request-icon"><lucide-icon [img]="icons.Package"></lucide-icon></span><div><b>{{ req.id }} · {{ req.item }}</b><small>{{ req.requester }} · Qty {{ req.quantity }} · {{ req.linkedService }}</small></div></div>
+          <span class="pill" [class]="statusClass(req.status)">{{ req.status }}</span>
+          <strong>{{ req.budget }}</strong>
+        </article>
+      </div>
+    </section>
+
+    <aside class="panel detail" *ngIf="selected; else noSelection">
+      <div class="panel-head"><div><span class="eyebrow">{{ selected.id }}</span><h2>{{ selected.item }}</h2></div><span class="pill" [class]="statusClass(selected.status)">{{ selected.status }}</span></div>
+      <div class="info-grid">
+        <div><small>Requester</small><b>{{ selected.requester }}</b></div><div><small>Quantity</small><b>{{ selected.quantity }}</b></div>
+        <div><small>Budget</small><b>{{ selected.budget }}</b></div><div><small>Vendor</small><b>{{ selected.vendor }}</b></div>
+        <div><small>Due</small><b>{{ selected.due }}</b></div><div><small>Service Request</small><b>{{ selected.linkedService }}</b></div>
+      </div>
+
+      <h3 class="section-title"><lucide-icon [img]="icons.Workflow"></lucide-icon> Procurement lifecycle</h3>
+      <div class="timeline">
+        <span class="done"><i>✓</i>Request</span><b></b><span class="done"><i>✓</i>Approval</span><b></b><span class="current"><i>3</i>Quoting</span><b></b><span><i>4</i>PO</span><b></b><span><i>5</i>Delivery</span><b></b><span><i>6</i>Asset</span>
+      </div>
+
+      <div class="action-row">
+        <button class="btn primary" (click)="openQuotes()"><lucide-icon [img]="icons.ArrowLeftRight"></lucide-icon> مقایسه Vendor</button>
+        <button class="btn ghost"><lucide-icon [img]="icons.ClipboardCheck"></lucide-icon> Approval history</button>
+      </div>
+      <div class="links">
+        <span><lucide-icon [img]="icons.ShoppingCart"></lucide-icon> Purchase Order</span>
+        <span><lucide-icon [img]="icons.Truck"></lucide-icon> Delivery tracking</span>
+        <span><lucide-icon [img]="icons.Boxes"></lucide-icon> Asset assignment</span>
+      </div>
+    </aside>
+    <ng-template #noSelection><aside class="panel detail empty"><lucide-icon [img]="icons.ShoppingCart"></lucide-icon><h3>یک درخواست خرید را انتخاب کنید</h3><p>جزئیات بودجه، Vendor، گردش تأیید و تحویل اینجا نمایش داده می‌شود.</p></aside></ng-template>
+  </div>
+
+  <section class="panel inventory">
+    <div class="panel-head"><div><h2>Stock & Warehouse</h2><p>موجودی قابل تخصیص، رزرو شده و نقطه سفارش</p></div><button class="btn ghost"><lucide-icon [img]="icons.Warehouse"></lucide-icon> Warehouse view</button></div>
+    <div class="stock-grid">
+      <article *ngFor="let item of stock">
+        <div class="stock-top"><span class="stock-icon"><lucide-icon [img]="icons.Boxes"></lucide-icon></span><span class="health" [class.low]="stockHealth(item)==='low'">{{ stockHealth(item)==='low' ? 'Reorder' : 'Healthy' }}</span></div>
+        <h3>{{ item.name }}</h3><small>{{ item.sku }} · {{ item.location }}</small>
+        <div class="stock-values"><div><b>{{ item.available }}</b><span>Available</span></div><div><b>{{ item.reserved }}</b><span>Reserved</span></div><div><b>{{ item.reorder }}</b><span>Reorder</span></div></div>
+      </article>
+    </div>
+  </section>
+
+  <div class="overlay" *ngIf="showQuotes" (click)="showQuotes=false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head"><div><span class="eyebrow">VENDOR QUOTE COMPARISON</span><h2>مقایسه پیشنهادهای خرید</h2></div><button class="close" (click)="showQuotes=false"><lucide-icon [img]="icons.X"></lucide-icon></button></div>
+      <div class="quote-table">
+        <div class="quote-row head"><span>Vendor</span><span>Price</span><span>Delivery</span><span>Warranty</span><span>Score</span><span></span></div>
+        <div class="quote-row" *ngFor="let q of quotes" [class.recommended]="q.recommended">
+          <span><b>{{ q.vendor }}</b><small>{{ q.recommended ? 'Recommended' : 'Alternative' }}</small></span><strong>{{ q.price }}</strong><span>{{ q.delivery }}</span><span>{{ q.warranty }}</span><b>{{ q.score }}/100</b>
+          <button class="choose" [class.selected]="q.recommended"><lucide-icon [img]="q.recommended ? icons.Check : icons.Plus"></lucide-icon></button>
+        </div>
+      </div>
+      <div class="modal-footer"><span><lucide-icon [img]="icons.ShieldCheck"></lucide-icon> Selection requires approval before PO creation.</span><button class="btn primary" (click)="showQuotes=false">ثبت انتخاب Vendor</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" *ngIf="showNew" (click)="showNew=false">
+    <div class="modal small" (click)="$event.stopPropagation()">
+      <div class="modal-head"><div><span class="eyebrow">NEW PROCUREMENT REQUEST</span><h2>درخواست خرید جدید</h2></div><button class="close" (click)="showNew=false"><lucide-icon [img]="icons.X"></lucide-icon></button></div>
+      <div class="form-grid"><label>کالا / خدمت<input placeholder="مثلاً Laptop" /></label><label>تعداد<input type="number" value="1" /></label><label>بودجه<input placeholder="$ 0" /></label><label>Cost Center<input placeholder="CC-200" /></label><label class="wide">توضیحات<textarea rows="4" placeholder="Business justification..."></textarea></label></div>
+      <div class="modal-actions"><button class="btn ghost" (click)="showNew=false">انصراف</button><button class="btn primary" (click)="createRequest()"><lucide-icon [img]="icons.Check"></lucide-icon> ایجاد درخواست</button></div>
+    </div>
+  </div>
+</section>

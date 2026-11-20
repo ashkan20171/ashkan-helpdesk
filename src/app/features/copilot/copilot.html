@@ -1,0 +1,98 @@
+<section class="copilot-page" dir="rtl">
+  <div class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow"><i-lucide [img]="Sparkles" [size]="16"></i-lucide> Intelligent HelpDesk Assistant</div>
+      <h1>Ashkan Copilot</h1>
+      <p>دستیار هوشمند آماده برای تحلیل Ticket، Knowledge Base، SLA، Customer Health، Asset و Workflow در یک لایه تصمیم‌یار واحد.</p>
+      <div class="hero-actions">
+        <button class="btn primary" type="button" (click)="analyze()" [disabled]="busy()">
+          <i-lucide [img]="busy() ? RefreshCw : BrainCircuit" [size]="18"></i-lucide>
+          {{ busy() ? 'در حال تحلیل…' : 'تحلیل هوشمند' }}
+        </button>
+        <span class="ready"><span></span> AI-ready foundation</span>
+      </div>
+    </div>
+    <div class="hero-orbit">
+      <div class="orbit-ring ring-one"></div>
+      <div class="orbit-ring ring-two"></div>
+      <div class="core"><i-lucide [img]="Bot" [size]="38"></i-lucide><small>AI</small></div>
+    </div>
+  </div>
+
+  <div class="mode-tabs">
+    <button [class.active]="mode() === 'agent'" (click)="setMode('agent')"><i-lucide [img]="Headset" [size]="17"></i-lucide> Copilot کارشناس</button>
+    <button [class.active]="mode() === 'manager'" (click)="setMode('manager')"><i-lucide [img]="Gauge" [size]="17"></i-lucide> Copilot مدیر</button>
+    <button [class.active]="mode() === 'customer'" (click)="setMode('customer')"><i-lucide [img]="UserRound" [size]="17"></i-lucide> Copilot مشتری</button>
+  </div>
+  <div class="mode-note">{{ modeDescription() }}</div>
+
+  <div class="metrics">
+    <article><span class="metric-icon purple"><i-lucide [img]="Lightbulb" [size]="20"></i-lucide></span><div><strong>{{ activeInsights() }}</strong><small>بینش مهم</small></div></article>
+    <article><span class="metric-icon green"><i-lucide [img]="CheckCircle2" [size]="20"></i-lucide></span><div><strong>{{ avgConfidence() }}%</strong><small>میانگین اطمینان</small></div></article>
+    <article><span class="metric-icon amber"><i-lucide [img]="ShieldCheck" [size]="20"></i-lucide></span><div><strong>۷</strong><small>هشدار SLA</small></div></article>
+    <article><span class="metric-icon blue"><i-lucide [img]="Target" [size]="20"></i-lucide></span><div><strong>۱۲</strong><small>Next Best Action</small></div></article>
+  </div>
+
+  <div class="workspace-grid">
+    <section class="panel insights-panel">
+      <div class="panel-head">
+        <div><span class="section-kicker">Decision Intelligence</span><h2>پیشنهادهای هوشمند</h2></div>
+        <button class="btn ghost" type="button" (click)="analyze()"><i-lucide [img]="RefreshCw" [size]="16"></i-lucide> بازتحلیل</button>
+      </div>
+
+      <div class="insights">
+        @for (item of insights(); track trackById($index, item)) {
+          <article class="insight-card" [class.high]="item.impact === 'high'">
+            <div class="insight-icon"><i-lucide [img]="item.kind === 'ticket' ? Ticket : item.kind === 'knowledge' ? FileSearch : item.kind === 'sla' ? ShieldCheck : item.kind === 'customer' ? HeartPulse : item.kind === 'asset' ? ClipboardCheck : Zap" [size]="20"></i-lucide></div>
+            <div class="insight-body">
+              <div class="insight-top"><span>{{ item.id }}</span><b>{{ item.confidence }}%</b></div>
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.summary }}</p>
+              <div class="insight-foot"><small><i-lucide [img]="Target" [size]="13"></i-lucide>{{ item.action }}</small><button type="button" (click)="runInsight(item)">بررسی <i-lucide [img]="ChevronLeft" [size]="14"></i-lucide></button></div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <aside class="panel chat-panel">
+      <div class="panel-head"><div><span class="section-kicker">Ask Ashkan</span><h2>گفت‌وگو با Copilot</h2></div><span class="online"><span></span> آماده</span></div>
+      <div class="chat-list">
+        @for (item of conversations(); track $index) {
+          <div class="message" [class.user]="item.role === 'user'">
+            <div class="avatar"><i-lucide [img]="item.role === 'user' ? UserRound : Bot" [size]="16"></i-lucide></div>
+            <p>{{ item.text }}</p>
+          </div>
+        }
+      </div>
+      <div class="chat-input">
+        <textarea [(ngModel)]="query" rows="3" placeholder="مثلاً: چرا SLA این مشتری در حال افت است؟"></textarea>
+        <button class="send" type="button" (click)="ask()"><i-lucide [img]="Send" [size]="18"></i-lucide></button>
+      </div>
+      <div class="suggestions">
+        <button type="button" (click)="query.set('تیکت‌های بحرانی امروز را تحلیل کن')">تیکت‌های بحرانی امروز</button>
+        <button type="button" (click)="query.set('مشتریان در معرض ریسک را پیدا کن')">مشتریان پرریسک</button>
+      </div>
+    </aside>
+  </div>
+
+  @if (showInspector() && selected(); as item) {
+    <div class="modal-backdrop" (click)="showInspector.set(false)">
+      <section class="inspector" (click)="$event.stopPropagation()">
+        <button class="close" type="button" (click)="showInspector.set(false)"><i-lucide [img]="X" [size]="18"></i-lucide></button>
+        <div class="inspector-icon"><i-lucide [img]="Sparkles" [size]="24"></i-lucide></div>
+        <span class="section-kicker">Copilot Recommendation</span>
+        <h2>{{ item.title }}</h2>
+        <p>{{ item.summary }}</p>
+        <div class="confidence"><span>Confidence</span><strong>{{ item.confidence }}%</strong><div><i [style.width.%]="item.confidence"></i></div></div>
+        <div class="reason-box"><i-lucide [img]="HelpCircle" [size]="17"></i-lucide><span>این پیشنهاد برای بررسی انسانی طراحی شده و تا زمان اتصال به سرویس AI واقعی، هیچ Action مخربی را خودکار اجرا نمی‌کند.</span></div>
+        <div class="inspector-actions">
+          <button class="btn ghost" type="button" (click)="showInspector.set(false)">بستن</button>
+          <button class="btn primary" type="button" (click)="applyAction()"><i-lucide [img]="Play" [size]="16"></i-lucide> قرار دادن در صف اجرا</button>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (notice()) { <div class="toast"><i-lucide [img]="Sparkles" [size]="17"></i-lucide>{{ notice() }}</div> }
+</section>

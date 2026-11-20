@@ -1,0 +1,62 @@
+<section class="page-shell approval-page">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow">WORKFLOW & GOVERNANCE</div>
+      <h1>مرکز Workflow و تأییدیه‌ها</h1>
+      <p>مدیریت درخواست‌های در انتظار، زنجیره‌های تأیید و SLA تصمیم‌گیری در یک نمای یکپارچه.</p>
+    </div>
+    <button class="primary" type="button" (click)="createWorkflow()"><i-lucide [img]="Plus" [size]="17"></i-lucide> Workflow جدید</button>
+  </header>
+
+  <div class="kpi-grid">
+    <article><span class="icon blue"><i-lucide [img]="Clock3" [size]="19"></i-lucide></span><div><small>در انتظار تصمیم</small><strong>{{ pendingCount }}</strong><em>نیازمند اقدام</em></div></article>
+    <article><span class="icon red"><i-lucide [img]="CircleAlert" [size]="19"></i-lucide></span><div><small>بحرانی</small><strong>{{ criticalCount }}</strong><em>نزدیک به SLA</em></div></article>
+    <article><span class="icon green"><i-lucide [img]="CheckCircle2" [size]="19"></i-lucide></span><div><small>تأییدشده امروز</small><strong>{{ completedToday }}</strong><em>تصمیم نهایی</em></div></article>
+    <article><span class="icon purple"><i-lucide [img]="GitBranch" [size]="19"></i-lucide></span><div><small>Workflow فعال</small><strong>{{ workflows.filter(w => w.active).length }}</strong><em>در حال اجرا</em></div></article>
+  </div>
+
+  <div class="tab-row">
+    <button [class.active]="activeTab === 'inbox'" (click)="activeTab='inbox'">Approval Inbox</button>
+    <button [class.active]="activeTab === 'workflows'" (click)="activeTab='workflows'">Workflowها</button>
+  </div>
+
+  @if (activeTab === 'inbox') {
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>صندوق تأییدیه‌ها</h2><span>{{ filteredApprovals.length }} مورد قابل مشاهده</span></div>
+        <div class="toolbar">
+          <label class="search"><i-lucide [img]="Search" [size]="16"></i-lucide><input [(ngModel)]="search" placeholder="جستجوی درخواست، فرد یا شناسه..." /></label>
+          <label class="select"><i-lucide [img]="Filter" [size]="15"></i-lucide><select [(ngModel)]="statusFilter"><option>همه</option><option>در انتظار</option><option>تأیید شد</option><option>رد شد</option><option>منقضی</option></select></label>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>درخواست</th><th>درخواست‌کننده</th><th>تأییدکننده فعلی</th><th>مرحله</th><th>SLA</th><th>وضعیت</th><th></th></tr></thead>
+        <tbody>@for (item of filteredApprovals; track item.id) {
+          <tr [class.critical-row]="item.priority === 'بحرانی' && item.status === 'در انتظار'">
+            <td><div class="request"><strong>{{ item.title }}</strong><span>{{ item.id }} · {{ item.type }}</span></div></td>
+            <td>{{ item.requester }}</td><td>{{ item.owner }}</td><td><span class="step">{{ item.level }}</span></td>
+            <td><span class="due" [class.warning]="item.status === 'در انتظار'">{{ item.due }}</span></td>
+            <td><span class="status" [class.pending]="item.status==='در انتظار'" [class.approved]="item.status==='تأیید شد'" [class.rejected]="item.status==='رد شد'">{{ item.status }}</span></td>
+            <td><button class="more" (click)="open(item)" aria-label="جزئیات"><i-lucide [img]="MoreHorizontal" [size]="18"></i-lucide></button></td>
+          </tr>
+        }</tbody></table>
+      </div>
+    </section>
+
+    <section class="insight-grid">
+      <article class="panel compact"><div class="panel-title"><h2>زنجیره تأیید</h2><i-lucide [img]="ArrowLeftRight" [size]="18"></i-lucide></div><div class="chain"><span>ثبت درخواست</span><b>→</b><span>سرپرست</span><b>→</b><span>مدیر واحد</span><b>→</b><span>مالی</span></div><p>Routing بر اساس دپارتمان، مبلغ و حساسیت درخواست انجام می‌شود.</p></article>
+      <article class="panel compact"><div class="panel-title"><h2>Governance</h2><i-lucide [img]="ShieldCheck" [size]="18"></i-lucide></div><ul class="checks"><li><i-lucide [img]="Check" [size]="15"></i-lucide> ثبت کامل تصمیم‌ها در Audit Trail</li><li><i-lucide [img]="Check" [size]="15"></i-lucide> Delegation برای جانشین موقت</li><li><i-lucide [img]="Check" [size]="15"></i-lucide> Escalation خودکار پس از SLA</li></ul></article>
+    </section>
+  } @else {
+    <section class="workflow-grid">
+      @for (workflow of workflows; track workflow.name) {
+        <article class="workflow-card"><div class="wf-top"><span class="wf-icon"><i-lucide [img]="GitBranch" [size]="19"></i-lucide></span><span [class.off]="!workflow.active" class="active-pill">{{ workflow.active ? 'فعال' : 'غیرفعال' }}</span></div><h3>{{ workflow.name }}</h3><p>{{ workflow.scope }}</p><div class="wf-meta"><span><b>{{ workflow.steps }}</b> مرحله</span><span><b>{{ workflow.approvals }}</b> تأیید</span><span>SLA <b>{{ workflow.sla }}</b></span></div><div class="progress"><span [style.width.%]="workflow.active ? 72 : 18"></span></div></article>
+      }
+    </section>
+  }
+
+  @if (selected) {
+    <div class="modal-backdrop" (click)="selected=null"><article class="modal" (click)="$event.stopPropagation()"><div class="modal-head"><div><small>{{ selected.id }}</small><h2>{{ selected.title }}</h2></div><button (click)="selected=null">×</button></div><div class="detail-grid"><div><span>درخواست‌کننده</span><b>{{ selected.requester }}</b></div><div><span>تأییدکننده</span><b>{{ selected.owner }}</b></div><div><span>مرحله</span><b>{{ selected.level }}</b></div><div><span>SLA</span><b>{{ selected.due }}</b></div></div><div class="approval-timeline"><span class="done">ثبت درخواست</span><span class="done">بررسی سرپرست</span><span class="current">تأیید فعلی</span><span>مالی</span></div><div class="modal-actions"><button class="danger" type="button" (click)="decide('رد شد')"><i-lucide [img]="XCircle" [size]="16"></i-lucide> رد درخواست</button><button class="primary" type="button" (click)="decide('تأیید شد')"><i-lucide [img]="CheckCircle2" [size]="16"></i-lucide> تأیید درخواست</button></div></article></div>
+  }
+  @if (toast) { <div class="toast">{{ toast }}</div> }
+</section>

@@ -1,0 +1,58 @@
+
+<section class="users-page" dir="rtl">
+  <header class="page-header">
+    <div><span class="eyebrow">Identity & Access Management</span><h1>کاربران، نقش‌ها و دسترسی‌ها</h1><p>مدیریت متمرکز حساب‌ها، Roleها، Permissionها و وضعیت امنیتی کاربران.</p></div>
+    <div class="header-actions"><button class="ghost-btn" (click)="exportCsv()"><i-lucide [img]="Download" [size]="15"></i-lucide> خروجی CSV</button><button class="primary-btn" (click)="openCreate()"><i-lucide [img]="UserPlus" [size]="16"></i-lucide> کاربر جدید</button></div>
+  </header>
+
+  <section class="metrics">
+    <article><span class="icon blue"><i-lucide [img]="UsersRound" [size]="18"></i-lucide></span><div><small>کل کاربران</small><strong>{{users().length}}</strong><em>حساب ثبت‌شده</em></div></article>
+    <article><span class="icon green"><i-lucide [img]="CheckCircle2" [size]="18"></i-lucide></span><div><small>فعال</small><strong>{{activeCount()}}</strong><em>قابل استفاده</em></div></article>
+    <article><span class="icon amber"><i-lucide [img]="ShieldCheck" [size]="18"></i-lucide></span><div><small>MFA فعال</small><strong>{{mfaCount()}}</strong><em>امنیت بیشتر</em></div></article>
+    <article><span class="icon red"><i-lucide [img]="Lock" [size]="18"></i-lucide></span><div><small>قفل / در انتظار</small><strong>{{lockedCount()+pendingCount()}}</strong><em>نیازمند بررسی</em></div></article>
+  </section>
+
+  <section class="role-cards">
+    @for(r of roles();track r.key){<button class="role-card" [class]="r.color" (click)="roleFilter=r.label"><span class="role-card-icon"><i-lucide [img]="r.key==='customer'?UserRound:r.key==='agent'?Headset:r.key==='manager'?Building2:ShieldCheck" [size]="18"></i-lucide></span><div><strong>{{r.label}}</strong><small>{{r.description}}</small></div><b>{{r.users}}</b></button>}
+    <button class="matrix-card" (click)="openRoleMatrix()"><i-lucide [img]="KeyRound" [size]="20"></i-lucide><div><strong>Permission Matrix</strong><small>مقایسه دسترسی نقش‌ها</small></div></button>
+  </section>
+
+  <section class="main-card">
+    <div class="card-head"><div><h2>فهرست کاربران</h2><p>جستجو، فیلتر، و مدیریت وضعیت حساب‌ها</p></div><span class="result-count">{{filteredUsers().length}} کاربر</span></div>
+    <div class="filters"><div class="search"><i-lucide [img]="Search" [size]="16"></i-lucide><input [(ngModel)]="search" placeholder="نام، ایمیل، شناسه یا واحد..."></div><select [(ngModel)]="roleFilter"><option>همه</option>@for(r of roles();track r.key){<option>{{r.label}}</option>}</select><select [(ngModel)]="statusFilter"><option>همه</option><option>فعال</option><option>غیرفعال</option><option>قفل‌شده</option><option>در انتظار تأیید</option></select><select [(ngModel)]="departmentFilter"><option>همه</option>@for(d of departments();track d){<option>{{d}}</option>}</select></div>
+    <div class="table">
+      <div class="thead"><span>کاربر</span><span>نقش</span><span>واحد / سازمان</span><span>امنیت</span><span>وضعیت</span><span>عملیات</span></div>
+      @for(u of filteredUsers();track u.id){
+        <div class="tr">
+          <button class="user-cell" (click)="selectUser(u)"><span class="avatar">{{u.name.slice(0,1)}}</span><div><strong>{{u.name}}</strong><small>{{u.email}} · {{u.id}}</small></div></button>
+          <div><b class="role-pill">{{ROLE_LABELS[u.role]}}</b></div>
+          <div><strong>{{u.department}}</strong><small>{{u.tenant}}</small></div>
+          <div class="security-cell"><span [class.on]="u.mfa"><i></i>{{u.mfa?'MFA فعال':'MFA خاموش'}}</span><small>آخرین ورود: {{u.lastLogin}}</small></div>
+          <div><span class="status" [class]="u.status==='فعال'?'active':u.status==='قفل‌شده'?'locked':u.status==='در انتظار تأیید'?'pending':'off'">{{u.status}}</span></div>
+          <div class="actions"><button title="ویرایش" (click)="editUser(u)"><i-lucide [img]="Edit3" [size]="15"></i-lucide></button><button title="قفل / فعال" (click)="toggleStatus(u)"><i-lucide [img]="u.status==='فعال'?Lock:Unlock" [size]="15"></i-lucide></button><button title="حذف" class="danger" (click)="deleteUser(u)"><i-lucide [img]="Trash2" [size]="15"></i-lucide></button></div>
+        </div>
+      } @empty {<div class="empty">کاربری با فیلترهای انتخاب‌شده پیدا نشد.</div>}
+    </div>
+  </section>
+
+  @if(showModal()){
+    <div class="backdrop" (click)="closeModal()"><section class="modal large" (click)="$event.stopPropagation()">
+      <header><div><span>USER MANAGEMENT</span><h2>{{editingId?'ویرایش کاربر':'ایجاد کاربر جدید'}}</h2><p>اطلاعات هویتی، نقش و Permissionهای اختصاصی</p></div><button class="close" (click)="closeModal()"><i-lucide [img]="X" [size]="18"></i-lucide></button></header>
+      <div class="form-grid"><label>نام و نام خانوادگی<input [(ngModel)]="form.name"></label><label>ایمیل<input type="email" [(ngModel)]="form.email"></label><label>موبایل<input [(ngModel)]="form.mobile"></label><label>واحد<select [(ngModel)]="form.department"><option>Service Desk</option><option>شبکه</option><option>مالی</option><option>تدارکات</option><option>IT</option><option>فروش</option></select></label><label>نقش<select [(ngModel)]="form.role" (ngModelChange)="roleChanged()"><option value="admin">مدیر سامانه</option><option value="manager">مدیر پشتیبانی</option><option value="agent">کارشناس پشتیبانی</option><option value="customer">کاربر / مشتری</option></select></label><label>Tenant<input [(ngModel)]="form.tenant"></label><label>وضعیت<select [(ngModel)]="form.status"><option>فعال</option><option>غیرفعال</option><option>قفل‌شده</option><option>در انتظار تأیید</option></select></label><label class="check"><input type="checkbox" [(ngModel)]="form.mfa"><span>MFA فعال باشد</span></label></div>
+      <div class="permissions-editor"><div class="section-title"><strong>Permissionهای اختصاصی</strong><small>می‌توانید دسترسی‌های پیش‌فرض نقش را تغییر دهید.</small></div><div class="perm-grid">@for(g of permissionGroups;track g.title){<div><b>{{g.title}}</b>@for(k of g.keys;track k){<button type="button" [class.granted]="hasPermission(k)" (click)="togglePermission(k)"><i>{{hasPermission(k)?'✓':'+'}}</i>{{PERMISSION_LABELS[k]}}</button>}</div>}</div></div>
+      <footer><button class="ghost-btn" (click)="closeModal()">انصراف</button><button class="primary-btn" (click)="saveUser()"><i-lucide [img]="Save" [size]="15"></i-lucide> ذخیره کاربر</button></footer>
+    </section></div>
+  }
+
+  @if(showRoleModal()){
+    <div class="backdrop" (click)="closeRoleMatrix()"><section class="modal matrix-modal" (click)="$event.stopPropagation()">
+      <header><div><span>ROLE & PERMISSION MATRIX</span><h2>ماتریس دسترسی نقش‌ها</h2><p>نمای کلی Permissionهای پیش‌فرض هر نقش</p></div><button class="close" (click)="closeRoleMatrix()"><i-lucide [img]="X" [size]="18"></i-lucide></button></header>
+      <div class="matrix"><div class="matrix-head"><span>Permission</span><b>مدیر</b><b>مدیر پشتیبانی</b><b>کارشناس</b><b>مشتری</b></div>@for(k of allPermissions;track k){<div class="matrix-row"><span>{{PERMISSION_LABELS[k]}}</span><i [class.yes]="rolePermission('admin',k)">{{rolePermission('admin',k)?'✓':'—'}}</i><i [class.yes]="rolePermission('manager',k)">{{rolePermission('manager',k)?'✓':'—'}}</i><i [class.yes]="rolePermission('agent',k)">{{rolePermission('agent',k)?'✓':'—'}}</i><i [class.yes]="rolePermission('customer',k)">{{rolePermission('customer',k)?'✓':'—'}}</i></div>}</div>
+    </section></div>
+  }
+
+  @if(showDetail() && selectedUser(); as u){
+    <div class="backdrop" (click)="closeDetail()"><section class="modal detail-modal" (click)="$event.stopPropagation()"><header><div><span>{{u.id}}</span><h2>{{u.name}}</h2><p>{{u.email}} · {{ROLE_LABELS[u.role]}}</p></div><button class="close" (click)="closeDetail()"><i-lucide [img]="X" [size]="18"></i-lucide></button></header><div class="detail-grid"><div><small>وضعیت</small><strong>{{u.status}}</strong></div><div><small>واحد</small><strong>{{u.department}}</strong></div><div><small>MFA</small><strong>{{u.mfa?'فعال':'غیرفعال'}}</strong></div><div><small>آخرین ورود</small><strong>{{u.lastLogin}}</strong></div></div><h3>Permissionهای موثر</h3><div class="chips">@for(p of u.permissions;track p){<span>{{PERMISSION_LABELS[p]}}</span>}</div></section></div>
+  }
+  @if(toast()){<div class="toast"><i-lucide [img]="CheckCircle2" [size]="16"></i-lucide>{{toast()}}</div>}
+</section>

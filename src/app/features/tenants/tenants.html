@@ -1,0 +1,68 @@
+<div class="tenant-page">
+  <section class="hero"><div><span class="eyebrow">SAAS CONTROL PLANE</span><h1>مدیریت سازمان‌ها و فضاهای کاری</h1><p>سازمان‌های مستقل، دامنه‌ها، طرح‌های اشتراک و سیاست‌های پایه چندمستاجری را مدیریت کنید.</p></div><button class="primary" (click)="newTenant()">＋ ایجاد سازمان جدید</button></section>
+  <section class="metrics">
+    <article><span class="metric-icon teal">▦</span><div><small>کل سازمان‌ها</small><strong>{{ tenants.length }}</strong><em>فضاهای کاری ثبت‌شده</em></div></article>
+    <article><span class="metric-icon green">✓</span><div><small>سازمان‌های فعال</small><strong>{{ activeCount }}</strong><em>در حال استفاده</em></div></article>
+    <article><span class="metric-icon blue">♙</span><div><small>کاربران تجمیعی</small><strong>{{ totalUsers.toLocaleString('fa-IR') }}</strong><em>در تمام مستأجرها</em></div></article>
+    <article><span class="metric-icon amber">▤</span><div><small>تیکت‌های تجمیعی</small><strong>{{ totalTickets.toLocaleString('fa-IR') }}</strong><em>داده‌های نمونه</em></div></article>
+  </section>
+  <nav class="tabs">@for (tab of ['سازمان‌ها','دامنه‌ها','طرح‌های اشتراک','سیاست‌های چندمستاجری']; track tab) { <button [class.active]="activeTab === tab" (click)="activeTab = tab">{{ tab }}</button> }</nav>
+  @if (activeTab === 'سازمان‌ها') {
+    <section class="panel">
+      <div class="panel-head"><div><h2>فهرست سازمان‌ها</h2><p>هر سازمان یک فضای کاری مستقل با کاربران و داده‌های اختصاصی است.</p></div><button class="secondary" (click)="exportCsv()">↓ خروجی CSV</button></div>
+      <div class="filters"><input [(ngModel)]="search" placeholder="جستجو بر اساس نام، شناسه، دامنه یا مدیر..."><select [(ngModel)]="statusFilter"><option>همه</option><option>فعال</option><option>آزمایشی</option><option>تعلیق‌شده</option></select></div>
+      <div class="tenant-list">
+        @for (tenant of filteredTenants; track tenant.id) {
+          <article class="tenant-row">
+            <div class="org-avatar" [style.background]="tenant.color">{{ tenant.name.slice(0,1) }}</div>
+            <div class="org-main"><strong>{{ tenant.name }}</strong><small>{{ tenant.slug }} · {{ tenant.domain }}</small><div class="org-meta"><span>مدیر: {{ tenant.owner }}</span><span>{{ tenant.region }}</span></div></div>
+            <div class="org-stat"><strong>{{ tenant.users.toLocaleString('fa-IR') }}</strong><small>کاربر</small></div>
+            <div class="org-stat"><strong>{{ tenant.tickets.toLocaleString('fa-IR') }}</strong><small>تیکت</small></div>
+            <span class="plan">{{ tenant.plan }}</span><span class="status" [class.active]="tenant.status === 'فعال'" [class.trial]="tenant.status === 'آزمایشی'">{{ tenant.status }}</span>
+            <div class="actions"><button title="مشاهده جزئیات" (click)="selected = tenant">جزئیات</button><button title="ویرایش" (click)="editTenant(tenant)">ویرایش</button><button title="تغییر وضعیت" (click)="toggleStatus(tenant)">{{ tenant.status === 'فعال' ? 'تعلیق' : 'فعال‌سازی' }}</button><button title="ورود نمایشی به سازمان" (click)="switchTenant(tenant)">ورود</button></div>
+          </article>
+        } @empty { <div class="empty">سازمانی با این مشخصات پیدا نشد.</div> }
+      </div>
+    </section>
+  }
+  @if (activeTab === 'دامنه‌ها') {
+    <section class="panel">
+      <div class="panel-head"><div><h2>دامنه‌ها و زیردامنه‌ها</h2><p>نگاشت دامنه‌ها به فضای کاری سازمان‌ها و وضعیت تأیید SSL.</p></div></div>
+      <div class="domain-add"><label>دامنه یا زیردامنه<input [(ngModel)]="domainDraft.domain" placeholder="support.example.com"></label><label>سازمان<select [(ngModel)]="domainDraft.tenantId">@for (t of tenants; track t.id) { <option [value]="t.id">{{ t.name }}</option> }</select></label><label>نوع دامنه<select [(ngModel)]="domainDraft.type"><option>اصلی</option><option>دامنه اختصاصی</option><option>زیردامنه</option></select></label><button class="primary" (click)="addDomain()">افزودن دامنه</button></div>
+      <div class="domain-table"><div class="table-head"><span>دامنه</span><span>سازمان</span><span>نوع</span><span>مالکیت</span><span>SSL</span><span></span></div>
+        @for (d of domains; track d.domain) { <div class="table-row"><strong>{{ d.domain }}</strong><span>{{ d.tenant }}</span><span>{{ d.type }}</span><span class="pill" [class.good]="d.verified">{{ d.verified ? 'تأییدشده' : 'در انتظار تأیید' }}</span><span class="pill" [class.good]="d.ssl">{{ d.ssl ? 'فعال' : 'غیرفعال' }}</span><button class="remove" (click)="removeDomain(d.domain)">حذف</button></div> }
+      </div>
+      <div class="notice">برای اتصال دامنه اختصاصی در محیط عملیاتی، ثبت DNS، تأیید مالکیت و صدور گواهی TLS باید در سرویس زیرساخت انجام شود.</div>
+    </section>
+  }
+  @if (activeTab === 'طرح‌های اشتراک') {
+    <section class="plans">
+      <article class="plan-card"><span class="plan-label">شروع سریع</span><h2>Starter</h2><strong>۵۰ کاربر</strong><p>مناسب تیم‌ها و سازمان‌های کوچک</p><ul><li>پورتال کاربران</li><li>مدیریت تیکت و پایگاه دانش</li><li>گزارش‌های پایه</li><li>پشتیبانی استاندارد</li></ul><small>{{ starterCount }} سازمان در این طرح</small></article>
+      <article class="plan-card featured"><span class="plan-label">محبوب سازمانی</span><h2>Professional</h2><strong>۵۰۰ کاربر</strong><p>برای سازمان‌های در حال رشد</p><ul><li>تمام امکانات Starter</li><li>گردش‌کار و SLA پیشرفته</li><li>یکپارچه‌سازی و API</li><li>دامنه اختصاصی</li></ul><small>{{ professionalCount }} سازمان در این طرح</small></article>
+      <article class="plan-card"><span class="plan-label">سازمانی</span><h2>Enterprise</h2><strong>سقف سفارشی</strong><p>برای ساختارهای بزرگ و پیچیده</p><ul><li>تمام امکانات Professional</li><li>سیاست‌های امنیتی سفارشی</li><li>گزارش‌گیری پیشرفته</li><li>پشتیبانی اختصاصی</li></ul><small>{{ enterpriseCount }} سازمان در این طرح</small></article>
+    </section>
+  }
+  @if (activeTab === 'سیاست‌های چندمستاجری') {
+    <section class="panel policy-panel"><div class="panel-head"><div><h2>سیاست‌های پلتفرم</h2><p>تنظیمات پایه مدل چندمستاجری برای نسخه نمایشی پنل.</p></div><span class="policy-badge">پیش‌نمایش</span></div>
+      <label>مدل جداسازی داده‌ها<select [(ngModel)]="settings.isolation"><option>پایگاه داده مستقل منطقی</option><option>Schema مجزا برای هر سازمان</option><option>پایگاه داده مستقل فیزیکی</option></select><small>انتخاب واقعی این مدل نیازمند طراحی و پیاده‌سازی در لایه داده بک‌اند است.</small></label>
+      <label>طرح پیش‌فرض سازمان جدید<select [(ngModel)]="settings.defaultPlan"><option>Starter</option><option>Professional</option><option>Enterprise</option></select></label>
+      <label>دوره آزمایشی (روز)<input type="number" min="0" max="365" [(ngModel)]="settings.trialDays"></label>
+      <div class="toggle-row"><div><strong>اجازه استفاده از دامنه اختصاصی</strong><small>نمایش امکان ثبت دامنه اختصاصی برای سازمان‌ها</small></div><input type="checkbox" [(ngModel)]="settings.allowCustomDomain"></div>
+      <div class="toggle-row"><div><strong>الزام احراز هویت چندمرحله‌ای</strong><small>سیاست پیشنهادی امنیتی برای کاربران سازمانی</small></div><input type="checkbox" [(ngModel)]="settings.enforceMfa"></div>
+      <div class="toggle-row"><div><strong>تأیید ثبت‌نام سازمان جدید</strong><small>سازمان جدید پیش از فعال‌سازی نیازمند تأیید مدیر پلتفرم باشد</small></div><input type="checkbox" [(ngModel)]="settings.signupApproval"></div>
+      <button class="primary" (click)="notify('تنظیمات نمایشی ذخیره شد؛ اعمال عملیاتی پس از اتصال بک‌اند انجام می‌شود.')">ذخیره سیاست‌ها</button>
+    </section>
+    <section class="security-grid"><article><span>01</span><strong>Tenant Context</strong><p>شناسایی مستأجر از هویت معتبر و دامنه درخواست؛ نه از ورودی قابل‌اعتماد کاربر.</p></article><article><span>02</span><strong>Data Isolation</strong><p>اعمال فیلتر مستأجر در تمام پرس‌وجوها و جلوگیری از دسترسی بین‌سازمانی.</p></article><article><span>03</span><strong>Tenant-aware Audit</strong><p>ثبت شناسه سازمان در رویدادهای ممیزی و گزارش‌های امنیتی.</p></article></section>
+  }
+  @if (showForm) {
+    <div class="overlay" (click)="showForm = false"><section class="modal" (click)="$event.stopPropagation()"><header><div><h2>{{ editingId ? 'ویرایش سازمان' : 'ایجاد سازمان جدید' }}</h2><p>مشخصات فضای کاری و مدیر اولیه را وارد کنید.</p></div><button class="close" (click)="showForm = false">×</button></header>
+      <label>نام سازمان<input [(ngModel)]="draft.name" placeholder="نام رسمی سازمان"></label><div class="two-col"><label>شناسه یکتا<input [(ngModel)]="draft.slug" placeholder="company-slug" dir="ltr"></label><label>دامنه پیش‌فرض<input [(ngModel)]="draft.domain" placeholder="company.ashkan.app" dir="ltr"></label></div>
+      <div class="two-col"><label>طرح اشتراک<select [(ngModel)]="draft.plan"><option>Starter</option><option>Professional</option><option>Enterprise</option></select></label><label>وضعیت<select [(ngModel)]="draft.status"><option>آزمایشی</option><option>فعال</option><option>تعلیق‌شده</option></select></label></div>
+      <label>مدیر سازمان<input [(ngModel)]="draft.owner" placeholder="نام مدیر اولیه"></label><label>منطقه استقرار<input [(ngModel)]="draft.region"></label><footer><button class="secondary" (click)="showForm = false">انصراف</button><button class="primary" (click)="saveTenant()">ذخیره سازمان</button></footer>
+    </section></div>
+  }
+  @if (selected) {
+    <div class="overlay" (click)="selected = null"><section class="modal detail" (click)="$event.stopPropagation()"><header><div><h2>{{ selected.name }}</h2><p>{{ selected.domain }} · {{ selected.id }}</p></div><button class="close" (click)="selected = null">×</button></header><div class="detail-grid"><div><small>طرح اشتراک</small><strong>{{ selected.plan }}</strong></div><div><small>وضعیت</small><strong>{{ selected.status }}</strong></div><div><small>کاربران</small><strong>{{ selected.users }}</strong></div><div><small>تیکت‌ها</small><strong>{{ selected.tickets }}</strong></div><div><small>مدیر سازمان</small><strong>{{ selected.owner }}</strong></div><div><small>تاریخ ایجاد</small><strong>{{ selected.created }}</strong></div></div><div class="notice">این صفحه نمای کلی متادیتای سازمان است. داده‌های عملیاتی هر سازمان باید با کنترل دسترسی سمت سرور جدا نگه داشته شوند.</div><footer><button class="secondary" (click)="selected = null">بستن</button><button class="primary" (click)="editTenant(selected); selected = null">ویرایش سازمان</button></footer></section></div>
+  }
+  @if (toast) { <div class="toast">{{ toast }}</div> }
+</div>

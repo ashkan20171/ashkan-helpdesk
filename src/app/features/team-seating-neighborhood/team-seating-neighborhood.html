@@ -1,0 +1,62 @@
+<section class="page" dir="rtl">
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="icons.MapPinned"></lucide-icon> Team Seating & Neighborhoods</div>
+      <h1>برنامه‌ریزی صندلی تیم‌ها و Neighborhood</h1>
+      <p>تخصیص تیم‌ها به فضای کاری، مدیریت Seat Allocation و کنترل تراکم تیمی.</p>
+    </div>
+    <button class="primary" (click)="showAssignmentDrawer=true"><lucide-icon [img]="icons.UserPlus"></lucide-icon> تخصیص تیم</button>
+  </header>
+
+  <section class="kpis">
+    <article><span><lucide-icon [img]="icons.UsersRound"></lucide-icon></span><div><small>کل صندلی‌ها</small><strong>{{totalSeats}}</strong></div></article>
+    <article><span class="purple"><lucide-icon [img]="icons.Armchair"></lucide-icon></span><div><small>اختصاص‌یافته</small><strong>{{assignedSeats}}</strong></div></article>
+    <article><span class="cyan"><lucide-icon [img]="icons.Shuffle"></lucide-icon></span><div><small>Shared Seat</small><strong>{{sharedSeats}}</strong></div></article>
+    <article><span class="orange"><lucide-icon [img]="icons.TrendingUp"></lucide-icon></span><div><small>میانگین تراکم</small><strong>{{avgDensity}}%</strong></div></article>
+    <article><span class="red"><lucide-icon [img]="icons.MapPinned"></lucide-icon></span><div><small>نیازمند جابه‌جایی</small><strong>{{relocations}}</strong></div></article>
+  </section>
+
+  <section class="planning">
+    <div class="section-head">
+      <div><h2>Team Seating Plan</h2><p>نمایش ظرفیت، مدل کاری و وضعیت تراکم هر تیم</p></div>
+      <div class="legend"><i class="healthy"></i> مناسب <i class="tight"></i> فشرده <i class="relocate"></i> نیازمند جابه‌جایی</div>
+    </div>
+    <div class="floor-map">
+      <div class="floor-title"><lucide-icon [img]="icons.Building2"></lucide-icon><strong>HQ · Workplace Neighborhood Map</strong><span>Floor 1 — Floor 4</span></div>
+      <div class="neighborhoods">
+        <div class="neighborhood" *ngFor="let p of plans" [class]="statusClass(p.status)">
+          <small>{{p.floor}}</small><strong>{{p.neighborhood}}</strong><span>{{p.team}}</span><b>{{p.density}}%</b>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="workspace">
+    <div class="toolbar">
+      <div class="search"><lucide-icon [img]="icons.Search"></lucide-icon><input [(ngModel)]="search" placeholder="جستجوی تیم، واحد یا Neighborhood..." /></div>
+      <select [(ngModel)]="modeFilter"><option value="All">همه مدل‌های کاری</option><option>Hybrid</option><option>On-site</option><option>Remote</option></select>
+    </div>
+    <div class="cards">
+      <article *ngFor="let p of filteredPlans" class="team-card">
+        <div class="head"><div><small>{{p.department}}</small><h3>{{p.team}}</h3><p>{{p.neighborhood}} · {{p.floor}}</p></div><span [class]="statusClass(p.status)">{{p.status}}</span></div>
+        <div class="metrics"><div><small>Seats</small><strong>{{p.seats}}</strong></div><div><small>Assigned</small><strong>{{p.assigned}}</strong></div><div><small>Shared</small><strong>{{p.shared}}</strong></div><div><small>Density</small><strong>{{p.density}}%</strong></div></div>
+        <div class="bar"><span [style.width.%]="p.density"></span></div>
+        <div class="foot"><span class="mode"><lucide-icon [img]="icons.CalendarDays"></lucide-icon>{{p.mode}}</span><button (click)="showAssignmentDrawer=true"><lucide-icon [img]="icons.Shuffle"></lucide-icon> جابه‌جایی / تخصیص</button></div>
+      </article>
+      <div *ngIf="filteredPlans.length===0" class="empty">تیمی با فیلترهای انتخاب‌شده پیدا نشد.</div>
+    </div>
+  </section>
+
+  <aside *ngIf="showAssignmentDrawer" class="drawer">
+    <div class="backdrop" (click)="showAssignmentDrawer=false"></div>
+    <div class="panel">
+      <header><div><small>SEATING ALLOCATION</small><h2>تخصیص تیم به Neighborhood</h2></div><button (click)="showAssignmentDrawer=false">×</button></header>
+      <label>تیم / واحد<select><option>Platform Engineering</option><option>Customer Support</option><option>Product & Design</option><option>Finance</option></select></label>
+      <label>Neighborhood<select><option>Engineering Hub</option><option>Support Pod</option><option>Product Neighborhood</option><option>Finance Corner</option><option>Leadership Zone</option></select></label>
+      <label>تعداد صندلی<input type="number" min="1" placeholder="20"></label>
+      <label>مدل کاری<select><option>Hybrid</option><option>On-site</option><option>Remote</option></select></label>
+      <div class="note"><lucide-icon [img]="icons.ShieldCheck"></lucide-icon> در Backend نهایی، ظرفیت، قوانین Seating، Employee Assignment، Desk Availability و Physical Access پیش از ثبت بررسی می‌شوند.</div>
+      <button class="primary full" (click)="showAssignmentDrawer=false">ثبت Seating Plan</button>
+    </div>
+  </aside>
+</section>

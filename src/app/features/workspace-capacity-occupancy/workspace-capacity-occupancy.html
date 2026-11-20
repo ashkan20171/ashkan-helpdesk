@@ -1,0 +1,69 @@
+<section class="page" dir="rtl">
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="icons.Gauge"></lucide-icon> Workplace Analytics</div>
+      <h1>مدیریت ظرفیت و اشغال فضای کاری</h1>
+      <p>پایش ظرفیت ساختمان، طبقات، Zone و Neighborhood برای برنامه‌ریزی هوشمند فضای کاری.</p>
+    </div>
+    <button class="primary" (click)="showAllocationDrawer=true"><lucide-icon [img]="icons.Plus"></lucide-icon> تخصیص فضای کاری</button>
+  </header>
+
+  <div class="kpis">
+    <article><span class="icon"><lucide-icon [img]="icons.Building2"></lucide-icon></span><div><small>ظرفیت کل</small><strong>{{ totalCapacity }}</strong><em>نفر</em></div></article>
+    <article><span class="icon purple"><lucide-icon [img]="icons.Users"></lucide-icon></span><div><small>اشغال فعلی</small><strong>{{ totalOccupied }}</strong><em>نفر</em></div></article>
+    <article><span class="icon cyan"><lucide-icon [img]="icons.TrendingUp"></lucide-icon></span><div><small>نرخ استفاده</small><strong>{{ utilization }}%</strong><em>Utilization</em></div></article>
+    <article><span class="icon orange"><lucide-icon [img]="icons.Armchair"></lucide-icon></span><div><small>میزهای قابل استفاده</small><strong>{{ totalDesks }}</strong><em>Desk</em></div></article>
+    <article><span class="icon red"><lucide-icon [img]="icons.AlertTriangle"></lucide-icon></span><div><small>ریسک ظرفیت</small><strong>{{ nearCapacity + overCapacity }}</strong><em>Area</em></div></article>
+  </div>
+
+  <section class="heat-card">
+    <div class="section-head">
+      <div><h2>Heatmap مفهومی اشغال فضا</h2><p>شدت رنگ بر اساس نرخ Occupancy هر Workspace Area نمایش داده می‌شود.</p></div>
+      <div class="scale"><span>کم</span><i></i><i></i><i></i><i></i><span>زیاد</span></div>
+    </div>
+    <div class="heat-grid">
+      <div class="heat-cell" *ngFor="let area of areas" [class]="statusClass(area.status)">
+        <div><span>{{ area.floor }}</span><strong>{{ area.neighborhood }}</strong></div>
+        <b>{{ utilizationOf(area) }}%</b>
+        <small>{{ area.occupied }} / {{ area.capacity }} نفر</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="workspace">
+    <div class="toolbar">
+      <div class="search"><lucide-icon [img]="icons.Search"></lucide-icon><input [(ngModel)]="search" placeholder="جستجوی فضا، طبقه، Zone یا تیم..." /></div>
+      <select [(ngModel)]="statusFilter"><option value="All">همه وضعیت‌ها</option><option>Healthy</option><option>Near Capacity</option><option>Over Capacity</option><option>Blocked</option></select>
+    </div>
+    <div class="cards">
+      <article class="area-card" *ngFor="let area of filteredAreas">
+        <div class="area-head">
+          <div class="title"><span class="building"><lucide-icon [img]="icons.Layers3"></lucide-icon></span><div><h3>{{ area.name }}</h3><p>{{ area.building }} · {{ area.floor }} · {{ area.zone }}</p></div></div>
+          <span class="status" [class]="statusClass(area.status)">{{ area.status }}</span>
+        </div>
+        <div class="metrics">
+          <div><small>Capacity</small><strong>{{ area.capacity }}</strong></div>
+          <div><small>Occupied</small><strong>{{ area.occupied }}</strong></div>
+          <div><small>Desks</small><strong>{{ area.desks }}</strong></div>
+          <div><small>Utilization</small><strong>{{ utilizationOf(area) }}%</strong></div>
+        </div>
+        <div class="progress"><span [style.width.%]="Math.min(utilizationOf(area), 100)"></span></div>
+        <div class="teams"><span *ngFor="let team of area.assignedTeams"><lucide-icon [img]="icons.UsersRound"></lucide-icon>{{ team }}</span></div>
+      </article>
+      <div *ngIf="filteredAreas.length===0" class="empty">موردی مطابق فیلترها پیدا نشد.</div>
+    </div>
+  </section>
+
+  <aside class="drawer" *ngIf="showAllocationDrawer">
+    <div class="backdrop" (click)="showAllocationDrawer=false"></div>
+    <div class="panel">
+      <div class="drawer-head"><div><small>Capacity Planning</small><h2>تخصیص فضای کاری</h2></div><button (click)="showAllocationDrawer=false">×</button></div>
+      <label>تیم / واحد<input placeholder="مثلاً Engineering"></label>
+      <label>ساختمان<select><option>HQ</option><option>Branch 01</option></select></label>
+      <label>طبقه<select><option>Floor 1</option><option>Floor 2</option><option>Floor 3</option><option>Floor 4</option></select></label>
+      <label>تعداد نفرات<input type="number" min="1" placeholder="20"></label>
+      <div class="note"><lucide-icon [img]="icons.MapPinned"></lucide-icon><span>در نسخه Backend، تخصیص با ظرفیت واقعی، Desk Inventory، Calendar، Employee و Physical Access اعتبارسنجی خواهد شد.</span></div>
+      <button class="primary full" (click)="showAllocationDrawer=false">ثبت Allocation Plan</button>
+    </div>
+  </aside>
+</section>

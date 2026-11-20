@@ -1,0 +1,57 @@
+<div class="sla-page" dir="rtl">
+  <header class="page-heading">
+    <div><div class="eyebrow">SERVICE LEVEL MANAGEMENT <span>فاز ۲.۳۴</span></div><h1>مدیریت پیشرفته SLA و Escalation</h1><p>تعهدات خدماتی، تقویم کاری، پایش زمان و تشدید خودکار را یکجا مدیریت کنید.</p></div>
+    <div class="heading-actions"><button class="button ghost" (click)="activeTab==='policies'?exportPolicies():exportCsv()">↓ خروجی CSV</button><button class="button primary" (click)="openCreate()">＋ تعریف سیاست SLA</button></div>
+  </header>
+
+  <section class="stats">
+    <article><span class="icon blue">◷</span><div><small>سیاست‌های فعال</small><strong>{{activeCount}}</strong><em>از {{policies.length}} سیاست</em></div></article>
+    <article><span class="icon amber">!</span><div><small>نزدیک نقض SLA</small><strong>{{nearBreachCount}}</strong><em>نیازمند پایش</em></div></article>
+    <article><span class="icon red">×</span><div><small>نقض‌شده</small><strong>{{breachedCount}}</strong><em>در صف Escalation</em></div></article>
+    <article><span class="icon green">✓</span><div><small>نرخ انطباق</small><strong>{{complianceRate}}٪</strong><em>بر اساس موارد پایش‌شده</em></div></article>
+    <article><span class="icon violet">⌁</span><div><small>میانگین پاسخ</small><strong>{{avgResponse}} <small>دقیقه</small></strong><em>سیاست‌های فعال</em></div></article>
+  </section>
+
+  <nav class="tabs">
+    <button [class.active]="activeTab==='policies'" (click)="activeTab='policies'">سیاست‌ها <span>{{policies.length}}</span></button>
+    <button [class.active]="activeTab==='monitor'" (click)="activeTab='monitor'">پایش SLA <span>{{monitors.length}}</span></button>
+    <button [class.active]="activeTab==='calendars'" (click)="activeTab='calendars'">تقویم‌های کاری</button>
+    <button [class.active]="activeTab==='escalations'" (click)="activeTab='escalations'">Escalation</button>
+  </nav>
+
+  @if(activeTab==='policies'){
+  <section class="panel">
+    <div class="panel-head"><div><h2>سیاست‌های سطح خدمات</h2><p>تعهد زمانی را بر اساس اولویت، قرارداد و مشتری تنظیم کنید.</p></div><div class="filters"><input [(ngModel)]="search" placeholder="جستجو..." aria-label="جستجو"><select [(ngModel)]="priorityFilter"><option value="">همه اولویت‌ها</option><option>بحرانی</option><option>بالا</option><option>متوسط</option><option>پایین</option></select><select [(ngModel)]="statusFilter"><option value="">همه وضعیت‌ها</option><option>فعال</option><option>غیرفعال</option></select></div></div>
+    <div class="table-wrap"><table><thead><tr><th>سیاست</th><th>اولویت</th><th>پاسخ</th><th>حل</th><th>تقویم</th><th>توقف هنگام انتظار</th><th>Escalation</th><th>وضعیت</th><th></th></tr></thead><tbody>
+    @for(p of filteredPolicies;track p.id){<tr><td><strong>{{p.name}}</strong><small>{{p.code}} · {{p.customerScope}}</small></td><td><span class="priority" [attr.data-p]="p.priority">{{p.priority}}</span></td><td>{{p.response}} دقیقه</td><td>{{p.resolution}} ساعت</td><td>{{p.calendar}}</td><td><span class="bool" [class.yes]="p.pauseOnPending">{{p.pauseOnPending?'فعال':'غیرفعال'}}</span></td><td>{{p.escalation.length}} مرحله</td><td><button class="status" [class.on]="p.status==='فعال'" (click)="toggle(p)">{{p.status}}</button></td><td><button class="link" (click)="edit(p)">ویرایش</button></td></tr>}
+    @empty{<tr><td colspan="9" class="empty">سیاستی پیدا نشد.</td></tr>}</tbody></table></div>
+  </section>
+  }
+
+  @if(activeTab==='monitor'){
+  <section class="panel">
+    <div class="panel-head"><div><h2>پایش زنده تعهدات SLA</h2><p>وضعیت پاسخ و حل هر تیکت و زمان باقی‌مانده را بررسی کنید.</p></div><div class="filters"><input [(ngModel)]="search" placeholder="تیکت، موضوع یا مسئول..."><select [(ngModel)]="monitorFilter"><option>همه</option><option>در محدوده</option><option>نزدیک نقض</option><option>نقض‌شده</option><option>متوقف</option></select></div></div>
+    <div class="monitor-grid">@for(m of filteredMonitor;track m.id){<article class="monitor-card"><div class="monitor-top"><div><strong>{{m.id}}</strong><span class="priority" [attr.data-p]="m.priority">{{m.priority}}</span></div><span class="state" [attr.data-state]="m.state">{{m.state}}</span></div><h3>{{m.subject}}</h3><p>{{m.policy}} · مسئول: {{m.owner}}</p><div class="progress"><span [style.width.%]="m.progress"></span></div><div class="monitor-meta"><span>{{m.progress}}٪ سپری‌شده</span><strong>{{m.remaining}}</strong></div><div class="due"><span>پاسخ: {{m.responseDue}}</span><span>حل: {{m.resolutionDue}}</span></div><footer><button class="link" (click)="inspect(m)">جزئیات</button><button class="link" (click)="runEscalation(m)">اجرای Escalation</button><button class="pause" (click)="pause(m)">{{m.state==='متوقف'?'ادامه SLA':'توقف SLA'}}</button></footer></article>}</div>
+  </section>
+  }
+
+  @if(activeTab==='calendars'){
+  <section class="card-grid">@for(c of calendars;track c.name){<article class="calendar-card"><div class="calendar-icon">▦</div><h3>{{c.name}}</h3><p>{{c.description}}</p><div><span>{{c.hours}}</span><span>{{c.holidays}}</span></div><button class="link">مدیریت تقویم ←</button></article>}</section>
+  <div class="info-box"><strong>منطق محاسبه زمان</strong><p>در نسخه متصل، موتور SLA بر اساس منطقه زمانی سازمان، ساعات کاری، تعطیلات رسمی و وضعیت انتظار مشتری زمان تعهد را محاسبه خواهد کرد. این صفحه در حال حاضر داده‌های نمایشی دارد.</p></div>
+  }
+
+  @if(activeTab==='escalations'){
+  <section class="escalation-layout"><article class="panel"><div class="panel-head"><div><h2>مراحل تشدید</h2><p>الگوی Escalation پیشنهادی برای سیاست‌های فعال.</p></div></div>@for(level of ['هشدار','سرپرست','مدیر ارشد'];track level;let i=$index){<div class="level"><div class="level-no">{{i+1}}</div><div><strong>{{level}}</strong><p>{{level==='هشدار'?'پیش از نقض، مسئول تیکت مطلع می‌شود.':level==='سرپرست'?'در آستانه نقض، تیکت به سرپرست Escalate می‌شود.':'پس از نقض، اعلان مدیریتی و رویداد ممیزی ثبت می‌شود.'}}</p></div><span>{{level==='هشدار'?'۷۵٪':level==='سرپرست'?'۹۰٪':'۱۰۰٪'}}</span></div>}</article>
+    <article class="panel"><h2>کنترل‌های Escalation</h2><div class="control-row"><span>هشدار پیش از نقض</span><b>۷۵٪</b></div><div class="control-row"><span>Escalation سرپرست</span><b>۹۰٪</b></div><div class="control-row"><span>Escalation مدیر ارشد</span><b>۱۰۰٪</b></div><div class="control-row"><span>ثبت در Audit Log</span><b class="green-text">فعال</b></div><div class="control-row"><span>ارسال اعلان</span><b class="green-text">فعال</b></div></article></section>
+  }
+
+  @if(dialogOpen){<div class="backdrop" (click)="close()"><section class="dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true"><header><div><small>SLA POLICY BUILDER</small><h2>{{editingId?'ویرایش سیاست SLA':'تعریف سیاست جدید'}}</h2></div><button class="close" (click)="close()">×</button></header><div class="dialog-body">
+    <div class="form-grid"><label>نام سیاست<input [(ngModel)]="form.name"></label><label>کد سیاست<input [(ngModel)]="form.code"></label><label>اولویت<select [(ngModel)]="form.priority"><option>بحرانی</option><option>بالا</option><option>متوسط</option><option>پایین</option></select></label><label>تقویم کاری<select [(ngModel)]="form.calendar"><option>۲۴×۷</option><option>روزهای کاری سازمان</option><option>ساعات اداری</option></select></label><label>پاسخ اولیه (دقیقه)<input type="number" min="1" [(ngModel)]="form.response"></label><label>زمان حل (ساعت)<input type="number" min="1" [(ngModel)]="form.resolution"></label><label>محدوده مشتری<input [(ngModel)]="form.customerScope"></label><label>محدوده قرارداد<input [(ngModel)]="form.contractScope"></label><label class="full">توضیحات<textarea rows="2" [(ngModel)]="form.description"></textarea></label></div>
+    <label class="check"><input type="checkbox" [(ngModel)]="form.pauseOnPending"> توقف محاسبه SLA هنگام انتظار برای پاسخ مشتری</label>
+    <div class="esc-builder"><div class="builder-head"><strong>مراحل Escalation</strong><button class="link" (click)="addEscalation()">＋ افزودن مرحله</button></div>@for(e of form.escalation;track $index){<div class="esc-row"><select [(ngModel)]="e.level"><option>هشدار</option><option>سرپرست</option><option>مدیر ارشد</option></select><input type="number" [(ngModel)]="e.threshold" min="1" max="100" placeholder="%"><input [(ngModel)]="e.action" placeholder="اقدام"><label class="mini-check"><input type="checkbox" [(ngModel)]="e.enabled"> فعال</label><button class="remove" (click)="removeEscalation($index)">×</button></div>}</div>
+  </div><footer><button class="button ghost" (click)="close()">انصراف</button><button class="button primary" (click)="save()">ذخیره سیاست</button></footer></section></div>}
+
+  @if(monitorDetailOpen&&selectedMonitor){<div class="backdrop" (click)="monitorDetailOpen=false"><section class="detail-dialog" (click)="$event.stopPropagation()"><header><div><small>{{selectedMonitor.id}}</small><h2>{{selectedMonitor.subject}}</h2></div><button class="close" (click)="monitorDetailOpen=false">×</button></header><div class="detail-body"><div class="detail-stat"><span>وضعیت</span><strong>{{selectedMonitor.state}}</strong></div><div class="detail-stat"><span>پیشرفت SLA</span><strong>{{selectedMonitor.progress}}٪</strong></div><div class="detail-stat"><span>باقی‌مانده</span><strong>{{selectedMonitor.remaining}}</strong></div><div class="timeline"><div><b>ثبت تیکت</b><span>ساعت ۰۸:۱۰</span></div><div><b>پاسخ اولیه</b><span>{{selectedMonitor.responseDue}}</span></div><div><b>مهلت حل</b><span>{{selectedMonitor.resolutionDue}}</span></div></div><div class="info-box"><strong>Escalation</strong><p>{{selectedMonitor.escalated?'این تیکت قبلاً Escalate شده است.':'هنوز Escalation انجام نشده است.'}}</p></div></div></section></div>}
+  @if(notice){<div class="toast">✓ {{notice}}</div>}
+  <p class="disclaimer">نسخه نمایشی فاز ۲.۳۴ · محاسبه واقعی زمان، تقویم و Escalation در Backend پیاده‌سازی خواهد شد.</p>
+</div>

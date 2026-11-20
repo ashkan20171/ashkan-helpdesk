@@ -1,0 +1,88 @@
+<div class="hr-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">HUMAN RESOURCES</span>
+      <h1>مدیریت منابع انسانی</h1>
+      <p>پرونده پرسنلی، حضور و غیاب، مرخصی، شیفت و مأموریت‌ها را یکجا مدیریت کنید.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn secondary" (click)="exportCsv()"><lucide-icon [img]="icons.download"></lucide-icon> خروجی کارکنان</button>
+      <button class="btn primary" (click)="openEmployee()"><lucide-icon [img]="icons.plus"></lucide-icon> نیروی جدید</button>
+    </div>
+  </header>
+
+  <section class="metrics">
+    <article><div class="metric-icon teal"><lucide-icon [img]="icons.users"></lucide-icon></div><div><span>کل کارکنان</span><strong>{{ employees.length }}</strong><small>{{ activeEmployees }} نفر فعال</small></div></article>
+    <article><div class="metric-icon green"><lucide-icon [img]="icons.check"></lucide-icon></div><div><span>حضور امروز</span><strong>{{ presentToday }}</strong><small>از {{ employees.length }} نفر</small></div></article>
+    <article><div class="metric-icon amber"><lucide-icon [img]="icons.calendar"></lucide-icon></div><div><span>درخواست مرخصی</span><strong>{{ pendingLeaves }}</strong><small>در انتظار بررسی</small></div></article>
+    <article><div class="metric-icon indigo"><lucide-icon [img]="icons.clock"></lucide-icon></div><div><span>میانگین ساعت کار</span><strong>۷.۸</strong><small>ساعت امروز</small></div></article>
+  </section>
+
+  <nav class="tabs">
+    <button [class.active]="activeTab === 'employees'" (click)="activeTab='employees'"><lucide-icon [img]="icons.users"></lucide-icon> پرونده کارکنان</button>
+    <button [class.active]="activeTab === 'attendance'" (click)="activeTab='attendance'"><lucide-icon [img]="icons.clock"></lucide-icon> حضور و غیاب</button>
+    <button [class.active]="activeTab === 'leave'" (click)="activeTab='leave'"><lucide-icon [img]="icons.calendar"></lucide-icon> مرخصی‌ها</button>
+    <button [class.active]="activeTab === 'shifts'" (click)="activeTab='shifts'"><lucide-icon [img]="icons.users"></lucide-icon> شیفت‌بندی</button>
+    <button [class.active]="activeTab === 'missions'" (click)="activeTab='missions'"><lucide-icon [img]="icons.file"></lucide-icon> مأموریت‌ها</button>
+  </nav>
+
+  <section *ngIf="activeTab === 'employees'" class="panel">
+    <div class="toolbar">
+      <div class="search"><lucide-icon [img]="icons.search"></lucide-icon><input [(ngModel)]="searchTerm" placeholder="جستجوی نام، کد، سمت یا ایمیل..." /></div>
+      <select [(ngModel)]="departmentFilter"><option value="all">همه دپارتمان‌ها</option><option *ngFor="let d of departments" [value]="d">{{ d }}</option></select>
+      <select [(ngModel)]="statusFilter"><option value="all">همه وضعیت‌ها</option><option value="active">فعال</option><option value="leave">مرخصی</option><option value="inactive">غیرفعال</option></select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>کارمند</th><th>دپارتمان</th><th>سمت</th><th>مدیر مستقیم</th><th>تاریخ استخدام</th><th>وضعیت</th><th></th></tr></thead>
+        <tbody>
+          <tr *ngFor="let employee of filteredEmployees">
+            <td><div class="person"><span class="avatar">{{ employee.name.charAt(0) }}</span><div><strong>{{ employee.name }}</strong><small>{{ employee.code }} · {{ employee.email }}</small></div></div></td>
+            <td>{{ employee.department }}</td><td>{{ employee.position }}</td><td>{{ employee.manager || '---' }}</td><td>{{ employee.hireDate }}</td>
+            <td><span class="status" [class]="employee.status">{{ employee.status === 'active' ? 'فعال' : employee.status === 'leave' ? 'مرخصی' : 'غیرفعال' }}</span></td>
+            <td><button class="icon-btn" (click)="openEmployee(employee)" title="ویرایش"><lucide-icon [img]="icons.file"></lucide-icon></button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section *ngIf="activeTab === 'attendance'" class="panel">
+    <div class="panel-heading"><div><h2>گزارش حضور و غیاب امروز</h2><p>ثبت ساعت ورود و خروج و وضعیت حضور کارکنان.</p></div><button class="btn primary"><lucide-icon [img]="icons.plus"></lucide-icon> ثبت رکورد</button></div>
+    <div class="table-wrap"><table><thead><tr><th>کارمند</th><th>تاریخ</th><th>ورود</th><th>خروج</th><th>ساعت کار</th><th>وضعیت</th></tr></thead>
+      <tbody><tr *ngFor="let row of attendance"><td><strong>{{ row.employeeName }}</strong></td><td>{{ row.date }}</td><td>{{ row.checkIn }}</td><td>{{ row.checkOut }}</td><td>{{ row.hours }} ساعت</td><td><span class="status" [class]="row.status">{{ row.status === 'present' ? 'حاضر' : row.status === 'late' ? 'تأخیر' : row.status === 'absent' ? 'غایب' : 'دورکاری' }}</span></td></tr></tbody>
+    </table></div>
+  </section>
+
+  <section *ngIf="activeTab === 'leave'" class="panel">
+    <div class="panel-heading"><div><h2>درخواست‌های مرخصی</h2><p>بررسی و مدیریت گردش درخواست‌های مرخصی کارکنان.</p></div><button class="btn primary" (click)="openLeave()"><lucide-icon [img]="icons.plus"></lucide-icon> درخواست مرخصی</button></div>
+    <div class="table-wrap"><table><thead><tr><th>کارمند</th><th>نوع</th><th>بازه</th><th>روز</th><th>دلیل</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+      <tbody><tr *ngFor="let leave of leaves"><td><strong>{{ leave.employeeName }}</strong></td><td>{{ leave.type }}</td><td>{{ leave.startDate }} تا {{ leave.endDate }}</td><td>{{ leave.days }}</td><td>{{ leave.reason }}</td><td><span class="status" [class]="leave.status">{{ leave.status === 'pending' ? 'در انتظار' : leave.status === 'approved' ? 'تأیید شده' : 'رد شده' }}</span></td><td class="actions"><button *ngIf="leave.status==='pending'" class="mini approve" (click)="setLeaveStatus(leave,'approved')">تأیید</button><button *ngIf="leave.status==='pending'" class="mini reject" (click)="setLeaveStatus(leave,'rejected')">رد</button><button class="icon-btn" (click)="openLeave(leave)"><lucide-icon [img]="icons.file"></lucide-icon></button></td></tr></tbody>
+    </table></div>
+  </section>
+
+  <section *ngIf="activeTab === 'shifts'" class="cards-grid">
+    <article class="shift-card" *ngFor="let shift of shifts"><div class="shift-top"><span class="shift-dot" [class]="shift.color"></span><span>{{ shift.title }}</span></div><strong>{{ shift.start }} — {{ shift.end }}</strong><p>{{ shift.employees }} نفر در این شیفت</p><button class="btn secondary">مدیریت اعضا</button></article>
+  </section>
+
+  <section *ngIf="activeTab === 'missions'" class="panel">
+    <div class="panel-heading"><div><h2>مأموریت‌های سازمانی</h2><p>برنامه‌ریزی، پیگیری و ثبت مأموریت‌های کارکنان.</p></div><button class="btn primary"><lucide-icon [img]="icons.plus"></lucide-icon> مأموریت جدید</button></div>
+    <div class="table-wrap"><table><thead><tr><th>کارمند</th><th>مقصد</th><th>بازه</th><th>هدف</th><th>وضعیت</th></tr></thead>
+      <tbody><tr *ngFor="let mission of missions"><td><strong>{{ mission.employeeName }}</strong></td><td>{{ mission.destination }}</td><td>{{ mission.startDate }} تا {{ mission.endDate }}</td><td>{{ mission.purpose }}</td><td><span class="status" [class]="mission.status">{{ mission.status === 'planned' ? 'برنامه‌ریزی‌شده' : mission.status === 'ongoing' ? 'در حال انجام' : 'تکمیل‌شده' }}</span></td></tr></tbody>
+    </table></div>
+  </section>
+
+  <div class="modal-backdrop" *ngIf="showEmployeeModal">
+    <div class="modal"><div class="modal-head"><div><span class="eyebrow">EMPLOYEE PROFILE</span><h2>{{ editingEmployeeId ? 'ویرایش پرونده پرسنلی' : 'افزودن نیروی جدید' }}</h2></div><button class="icon-btn" (click)="showEmployeeModal=false"><lucide-icon [img]="icons.close"></lucide-icon></button></div>
+      <div class="form-grid"><label>کد پرسنلی<input [(ngModel)]="employeeForm.code"></label><label>نام و نام خانوادگی<input [(ngModel)]="employeeForm.name"></label><label>دپارتمان<select [(ngModel)]="employeeForm.department"><option *ngFor="let d of departments" [value]="d">{{ d }}</option></select></label><label>سمت<input [(ngModel)]="employeeForm.position"></label><label>مدیر مستقیم<input [(ngModel)]="employeeForm.manager"></label><label>تاریخ استخدام<input type="date" [(ngModel)]="employeeForm.hireDate"></label><label>تلفن<input [(ngModel)]="employeeForm.phone"></label><label>ایمیل<input type="email" [(ngModel)]="employeeForm.email"></label></div>
+      <div class="modal-actions"><button class="btn secondary" (click)="showEmployeeModal=false">انصراف</button><button class="btn primary" (click)="saveEmployee()">ذخیره پرونده</button></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showLeaveModal">
+    <div class="modal"><div class="modal-head"><div><span class="eyebrow">LEAVE REQUEST</span><h2>{{ selectedLeave ? 'ویرایش درخواست مرخصی' : 'ثبت درخواست مرخصی' }}</h2></div><button class="icon-btn" (click)="showLeaveModal=false"><lucide-icon [img]="icons.close"></lucide-icon></button></div>
+      <div class="form-grid"><label>کارمند<select [(ngModel)]="leaveForm.employeeId"><option *ngFor="let e of employees" [ngValue]="e.id">{{ e.name }}</option></select></label><label>نوع مرخصی<select [(ngModel)]="leaveForm.type"><option>استحقاقی</option><option>استعلاجی</option><option>ساعتی</option><option>بدون حقوق</option></select></label><label>تاریخ شروع<input type="date" [(ngModel)]="leaveForm.startDate"></label><label>تاریخ پایان<input type="date" [(ngModel)]="leaveForm.endDate"></label><label>تعداد روز<input type="number" min="0.5" step="0.5" [(ngModel)]="leaveForm.days"></label><label class="wide">دلیل<textarea [(ngModel)]="leaveForm.reason" rows="3"></textarea></label></div>
+      <div class="modal-actions"><button class="btn secondary" (click)="showLeaveModal=false">انصراف</button><button class="btn primary" (click)="saveLeave()">ذخیره درخواست</button></div>
+    </div>
+  </div>
+</div>

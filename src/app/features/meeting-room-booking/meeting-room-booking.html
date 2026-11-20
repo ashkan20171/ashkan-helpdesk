@@ -1,0 +1,165 @@
+<section class="meeting-page" dir="rtl">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="icons.calendar" [size]="16"></lucide-icon> Meeting & Room Booking</div>
+      <h1>مدیریت جلسات و رزرو اتاق</h1>
+      <p>تقویم جلسات، ظرفیت اتاق‌ها، تجهیزات، تداخل رزرو و اتصال به مراجعین و Facility در یک فضای یکپارچه.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn secondary"><lucide-icon [img]="icons.calendar" [size]="17"></lucide-icon> نمای تقویم</button>
+      <button class="btn primary" (click)="showNewMeeting = true"><lucide-icon [img]="icons.plus" [size]="17"></lucide-icon> رزرو جلسه</button>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="icons.calendar"></lucide-icon></div>
+      <div><span>جلسات امروز</span><strong>{{ todayMeetings }}</strong></div>
+      <small>برنامه‌ریزی‌شده و انجام‌شده</small>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon active"><lucide-icon [img]="icons.video"></lucide-icon></div>
+      <div><span>جلسه در حال برگزاری</span><strong>{{ activeMeetings }}</strong></div>
+      <small>اتاق‌های درگیر</small>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon success"><lucide-icon [img]="icons.door"></lucide-icon></div>
+      <div><span>اتاق آزاد</span><strong>{{ availableRooms }}</strong></div>
+      <small>آماده رزرو</small>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon warning"><lucide-icon [img]="icons.users"></lucide-icon></div>
+      <div><span>مهمان جلسه</span><strong>{{ visitorAttendees }}</strong></div>
+      <small>قابل اتصال به Visitor Management</small>
+    </article>
+  </div>
+
+  <div class="workspace-grid">
+    <section class="panel main-panel">
+      <div class="panel-head">
+        <div>
+          <h2>برنامه جلسات</h2>
+          <p>جلسات امروز و وضعیت رزرو اتاق‌ها</p>
+        </div>
+        <div class="toolbar">
+          <label class="search-box">
+            <lucide-icon [img]="icons.search" [size]="17"></lucide-icon>
+            <input [(ngModel)]="searchTerm" placeholder="جستجوی جلسه، برگزارکننده یا اتاق..." />
+          </label>
+          <select [(ngModel)]="statusFilter">
+            <option>All</option>
+            <option>Scheduled</option>
+            <option>In Progress</option>
+            <option>Completed</option>
+            <option>Cancelled</option>
+          </select>
+          <select [(ngModel)]="roomFilter">
+            <option>All</option>
+            <option *ngFor="let room of rooms">{{ room.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>جلسه</th>
+              <th>زمان</th>
+              <th>اتاق</th>
+              <th>شرکت‌کنندگان</th>
+              <th>وضعیت</th>
+              <th>مهمان</th>
+              <th>اقدام</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let meeting of filteredMeetings">
+              <td>
+                <div class="meeting-cell">
+                  <div class="meeting-icon"><lucide-icon [img]="meeting.type === 'External' ? icons.users : icons.video" [size]="17"></lucide-icon></div>
+                  <div><strong>{{ meeting.title }}</strong><small>{{ meeting.id }} · {{ meeting.organizer }} · {{ meeting.type }}</small></div>
+                </div>
+              </td>
+              <td><strong>{{ meeting.start }} - {{ meeting.end }}</strong><small>{{ meeting.date }}</small></td>
+              <td><strong>{{ meeting.room }}</strong><small>{{ roomLocation(meeting.room) }}</small></td>
+              <td><span class="attendees"><lucide-icon [img]="icons.users" [size]="13"></lucide-icon>{{ meeting.attendees }}</span></td>
+              <td><span class="status" [class]="meetingStatusClass(meeting.status)">{{ meeting.status }}</span></td>
+              <td><span class="guest-count">{{ meeting.visitorCount }}</span></td>
+              <td>
+                <div class="row-actions">
+                  <button *ngIf="meeting.status === 'Scheduled'" class="mini success" title="شروع" (click)="startMeeting(meeting)"><lucide-icon [img]="icons.video" [size]="15"></lucide-icon></button>
+                  <button *ngIf="meeting.status === 'In Progress'" class="mini" title="پایان" (click)="finishMeeting(meeting)"><lucide-icon [img]="icons.check" [size]="15"></lucide-icon></button>
+                  <button *ngIf="meeting.status === 'Scheduled'" class="mini danger" title="لغو" (click)="cancelMeeting(meeting)"><lucide-icon [img]="icons.cancelled" [size]="15"></lucide-icon></button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="filteredMeetings.length === 0"><td colspan="7" class="empty">موردی با فیلترهای انتخاب‌شده پیدا نشد.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="side-stack">
+      <section class="panel">
+        <div class="panel-title"><h3>اتاق‌ها و ظرفیت</h3><lucide-icon [img]="icons.door" [size]="18"></lucide-icon></div>
+        <div class="room-list">
+          <article class="room-card" *ngFor="let room of rooms">
+            <div class="room-top">
+              <div><strong>{{ room.name }}</strong><small>{{ room.location }} · ظرفیت {{ room.capacity }} نفر</small></div>
+              <span class="room-status" [class]="roomStatusClass(room.status)">{{ room.status }}</span>
+            </div>
+            <div class="equipment">
+              <span *ngFor="let item of room.equipment">{{ item }}</span>
+            </div>
+            <div class="room-bottom"><span>رزرو بعدی</span><strong>{{ room.nextBooking }}</strong></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title"><h3>قواعد رزرو</h3><lucide-icon [img]="icons.filter" [size]="18"></lucide-icon></div>
+        <div class="rule"><span>ظرفیت اتاق</span><strong>کنترل خودکار</strong></div>
+        <div class="rule"><span>تداخل زمانی</span><strong>جلوگیری از رزرو</strong></div>
+        <div class="rule"><span>تجهیزات</span><strong>پیشنهاد بر اساس نیاز</strong></div>
+        <div class="rule"><span>مهمان خارجی</span><strong>Visitor Pass</strong></div>
+        <div class="rule"><span>جلسات حساس</span><strong>Restricted Zone</strong></div>
+      </section>
+
+      <section class="panel integrations">
+        <div class="panel-title"><h3>یکپارچه‌سازی</h3><lucide-icon [img]="icons.wrench" [size]="18"></lucide-icon></div>
+        <div class="chips"><span>Visitor</span><span>Facility</span><span>Physical Access</span><span>Employee</span><span>Ticket</span><span>Calendar</span></div>
+        <p>هر Meeting می‌تواند به Visitor، اتاق، تجهیزات، Access Zone و Ticket مرتبط شود.</p>
+      </section>
+    </aside>
+  </div>
+
+  <div class="drawer-backdrop" *ngIf="showNewMeeting" (click)="showNewMeeting = false"></div>
+  <aside class="drawer" *ngIf="showNewMeeting">
+    <div class="drawer-head">
+      <div><span class="eyebrow">NEW MEETING</span><h2>رزرو جلسه جدید</h2></div>
+      <button class="close" (click)="showNewMeeting = false"><lucide-icon [img]="icons.x"></lucide-icon></button>
+    </div>
+
+    <div class="form-grid">
+      <label class="full">عنوان جلسه<input [(ngModel)]="newMeeting.title" placeholder="مثلاً جلسه برنامه‌ریزی محصول" /></label>
+      <label>برگزارکننده<input [(ngModel)]="newMeeting.organizer" placeholder="نام مسئول جلسه" /></label>
+      <label>اتاق<select [(ngModel)]="newMeeting.room"><option *ngFor="let room of rooms" [disabled]="room.status === 'Maintenance'">{{ room.name }}</option></select></label>
+      <label>تاریخ<input type="date" [(ngModel)]="newMeeting.date" /></label>
+      <label>نوع جلسه<select [(ngModel)]="newMeeting.type"><option>Internal</option><option>External</option><option>Interview</option><option>Training</option></select></label>
+      <label>شروع<input type="time" [(ngModel)]="newMeeting.start" /></label>
+      <label>پایان<input type="time" [(ngModel)]="newMeeting.end" /></label>
+      <label>تعداد شرکت‌کنندگان<input type="number" min="1" [(ngModel)]="newMeeting.attendees" /></label>
+    </div>
+
+    <div class="capacity-note">
+      <lucide-icon [img]="icons.users" [size]="18"></lucide-icon>
+      <span>ظرفیت اتاق، تداخل رزرو، تجهیزات و اتصال به Visitor در لایه‌های بعدی به‌صورت API/Rule Engine نهایی می‌شوند.</span>
+    </div>
+
+    <div class="drawer-actions">
+      <button class="btn secondary" (click)="showNewMeeting = false">انصراف</button>
+      <button class="btn primary" (click)="createMeeting()"><lucide-icon [img]="icons.plus" [size]="17"></lucide-icon> ثبت رزرو</button>
+    </div>
+  </aside>
+</section>

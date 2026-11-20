@@ -1,0 +1,121 @@
+<section class="notifications-page" dir="rtl">
+  <header class="page-header">
+    <div><div class="eyebrow">Communication & Workflow Center</div><h1>مرکز اطلاع‌رسانی</h1><p>مدیریت اعلان‌ها، رویدادهای سازمانی و ترجیحات دریافت پیام در یک مکان.</p></div>
+    <div class="header-actions"><button class="btn btn-secondary" *ngIf="activeTab === 'inbox'" (click)="markAllRead()"><lucide-icon [img]="icons.checkAll"></lucide-icon>خواندن همه</button><button class="btn btn-secondary" (click)="openComposer()"><lucide-icon [img]="icons.message"></lucide-icon>ارسال پیام</button><button class="btn btn-primary" *ngIf="activeTab === 'templates'" (click)="openCreateTemplate()"><lucide-icon [img]="icons.plus"></lucide-icon>الگوی جدید</button></div>
+  </header>
+
+  <div class="summary-grid">
+    <article><div class="summary-icon teal"><lucide-icon [img]="icons.bellRing"></lucide-icon></div><div><span>خوانده‌نشده</span><strong>{{ unreadCount }}</strong></div></article>
+    <article><div class="summary-icon indigo"><lucide-icon [img]="icons.clock"></lucide-icon></div><div><span>امروز</span><strong>{{ todayCount }}</strong></div></article>
+    <article><div class="summary-icon amber"><lucide-icon [img]="icons.archive"></lucide-icon></div><div><span>بایگانی‌شده</span><strong>{{ archivedCount }}</strong></div></article>
+    <article><div class="summary-icon green"><lucide-icon [img]="icons.mail"></lucide-icon></div><div><span>کانال‌ها</span><strong>۲</strong><small>درون‌برنامه‌ای و ایمیل</small></div></article>
+  </div>
+
+  <nav class="tabs">
+    <button [class.active]="activeTab === 'inbox'" (click)="setTab('inbox')"><lucide-icon [img]="icons.bell"></lucide-icon>صندوق اعلان‌ها <b *ngIf="unreadCount">{{ unreadCount }}</b></button>
+    <button [class.active]="activeTab === 'templates'" (click)="setTab('templates')"><lucide-icon [img]="icons.file"></lucide-icon>الگوهای پیام</button>
+    <button [class.active]="activeTab === 'preferences'" (click)="setTab('preferences')"><lucide-icon [img]="icons.settings"></lucide-icon>ترجیحات دریافت</button>
+    <button [class.active]="activeTab === 'channels'" (click)="setTab('channels')"><lucide-icon [img]="icons.zap"></lucide-icon>کانال‌ها</button>
+    <button [class.active]="activeTab === 'rules'" (click)="setTab('rules')"><lucide-icon [img]="icons.settings"></lucide-icon>قواعد ارسال</button>
+  </nav>
+
+  <ng-container *ngIf="activeTab === 'inbox'">
+    <div class="inbox-layout">
+      <section class="inbox-panel">
+        <div class="toolbar">
+          <label class="search"><lucide-icon [img]="icons.search"></lucide-icon><input [(ngModel)]="query" placeholder="جست‌وجو در اعلان‌ها..." /></label>
+          <select [(ngModel)]="kindFilter"><option value="all">همه دسته‌ها</option><option value="ticket">تیکت</option><option value="approval">تأیید</option><option value="system">سیستم</option><option value="mention">اشاره</option><option value="security">امنیت</option></select>
+          <select [(ngModel)]="readFilter"><option value="all">همه وضعیت‌ها</option><option value="unread">خوانده‌نشده</option><option value="read">خوانده‌شده</option></select>
+        </div>
+        <div class="inbox-heading"><strong>اعلان‌های اخیر</strong><span>{{ visibleNotifications.length }} مورد</span></div>
+        <article class="notification-row" *ngFor="let item of visibleNotifications" [class.unread]="!item.read" [class.selected]="selected?.id === item.id" (click)="openNotification(item)">
+          <div class="notification-icon" [ngClass]="kindClass(item.kind)"><lucide-icon [img]="iconFor(item.kind)"></lucide-icon></div>
+          <div class="notification-copy"><div class="title-line"><h3>{{ item.title }}</h3><span class="priority" [ngClass]="priorityClass(item.priority)">{{ priorityLabel(item.priority) }}</span></div><p>{{ item.message }}</p><div class="meta"><span>{{ item.sender }}</span><span>•</span><span>{{ item.date }}</span><span>{{ item.time }}</span><span class="kind-label">{{ kindLabel(item.kind) }}</span></div></div>
+          <div class="row-actions" (click)="$event.stopPropagation()">
+            <button *ngIf="!item.read" title="علامت‌گذاری به‌عنوان خوانده‌شده" (click)="markRead(item)"><lucide-icon [img]="icons.check"></lucide-icon></button>
+            <button *ngIf="item.read" title="علامت‌گذاری به‌عنوان خوانده‌نشده" (click)="markUnread(item)"><lucide-icon [img]="icons.mail"></lucide-icon></button>
+            <button title="بایگانی" (click)="archive(item)"><lucide-icon [img]="icons.archive"></lucide-icon></button>
+            <button title="حذف" (click)="delete(item)"><lucide-icon [img]="icons.trash"></lucide-icon></button>
+          </div>
+        </article>
+        <div class="empty" *ngIf="visibleNotifications.length === 0"><lucide-icon [img]="icons.bell"></lucide-icon><strong>اعلانی وجود ندارد</strong><span>فیلترها را تغییر دهید یا بعداً دوباره بررسی کنید.</span></div>
+      </section>
+
+      <aside class="detail-panel">
+        <ng-container *ngIf="selected; else noSelection">
+          <div class="detail-top"><div class="notification-icon large" [ngClass]="kindClass(selected.kind)"><lucide-icon [img]="iconFor(selected.kind)"></lucide-icon></div><div><span class="priority" [ngClass]="priorityClass(selected.priority)">{{ priorityLabel(selected.priority) }}</span><h2>{{ selected.title }}</h2></div></div>
+          <p class="detail-message">{{ selected.message }}</p>
+          <div class="detail-fields"><div><span>فرستنده</span><strong>{{ selected.sender }}</strong></div><div><span>شناسه مرجع</span><strong>{{ selected.reference }}</strong></div><div><span>تاریخ</span><strong>{{ selected.date }} · {{ selected.time }}</strong></div><div><span>دسته</span><strong>{{ kindLabel(selected.kind) }}</strong></div></div>
+          <div class="detail-footer"><button class="btn btn-secondary" (click)="archive(selected)"><lucide-icon [img]="icons.archive"></lucide-icon>بایگانی</button><button class="btn btn-secondary" (click)="delete(selected)"><lucide-icon [img]="icons.trash"></lucide-icon>حذف اعلان</button></div>
+        </ng-container>
+        <ng-template #noSelection><div class="no-selection"><lucide-icon [img]="icons.bell"></lucide-icon><strong>اعلان را انتخاب کنید</strong><span>برای مشاهده جزئیات، روی یکی از اعلان‌ها کلیک کنید.</span></div></ng-template>
+      </aside>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="activeTab === 'templates'">
+    <section class="templates-panel">
+      <div class="section-heading"><div><h2>الگوهای پیام</h2><p>متن‌های استاندارد برای اعلان‌های پرتکرار و رویدادهای گردش کار.</p></div></div>
+      <article class="template-row" *ngFor="let template of templates">
+        <div class="template-icon"><lucide-icon [img]="icons.file"></lucide-icon></div>
+        <div class="template-main"><h3>{{ template.name }}</h3><p>{{ template.subject }}</p><small>{{ template.channel }}</small><code>{{ template.body }}</code></div>
+        <span class="template-status" [class.off]="!template.active">{{ template.active ? 'فعال' : 'غیرفعال' }}</span>
+        <div class="template-actions"><button (click)="openEditTemplate(template)" title="ویرایش"><lucide-icon [img]="icons.edit"></lucide-icon></button><button (click)="toggleTemplate(template)" title="فعال/غیرفعال"><lucide-icon [img]="icons.zap"></lucide-icon></button></div>
+      </article>
+    </section>
+  </ng-container>
+
+  <ng-container *ngIf="activeTab === 'preferences'">
+    <section class="preferences-panel">
+      <div class="section-heading"><div><h2>ترجیحات دریافت اعلان</h2><p>کانال‌های دریافت هر گروه از پیام‌ها را مشخص کنید.</p></div><span class="note"><lucide-icon [img]="icons.info"></lucide-icon>هشدارهای امنیتی مهم ممکن است مستقل از ترجیحات کاربر ارسال شوند.</span></div>
+      <div class="preference-head"><span>گروه اعلان</span><span>درون‌برنامه‌ای</span><span>ایمیل</span></div>
+      <div class="preference-row" *ngFor="let pref of preferences"><div><strong>{{ pref.label }}</strong><p>{{ pref.description }}</p></div><label class="switch"><input type="checkbox" [(ngModel)]="pref.inApp" /><span></span></label><label class="switch"><input type="checkbox" [(ngModel)]="pref.email" /><span></span></label></div>
+      <div class="save-note"><lucide-icon [img]="icons.check"></lucide-icon>تغییرات این صفحه در نسخه نمایشی به‌صورت محلی نگهداری می‌شوند.</div>
+    </section>
+  </ng-container>
+
+
+  <ng-container *ngIf="activeTab === 'channels'">
+    <section class="channels-panel">
+      <div class="section-heading"><div><h2>کانال‌های ارتباطی</h2><p>وضعیت اتصال و سلامت کانال‌های ارسال پیام را کنترل کنید.</p></div></div>
+      <div class="channel-grid">
+        <article class="channel-card" *ngFor="let channel of channels">
+          <div class="channel-top"><div class="channel-badge"><lucide-icon [img]="channel.name === 'درون‌برنامه‌ای' ? icons.bell : channel.name === 'Email' ? icons.mail : channel.name === 'SMS' ? icons.message : icons.users"></lucide-icon></div><span [class.off]="!channel.enabled">{{ channel.status }}</span></div>
+          <h3>{{ channel.name }}</h3><p>{{ channel.detail }}</p>
+          <div class="channel-meta"><span>Health</span><strong>{{ channel.health }}</strong></div>
+          <button class="btn btn-secondary channel-btn" [disabled]="!channel.enabled">{{ channel.enabled ? 'مدیریت اتصال' : 'پیکربندی کانال' }}</button>
+        </article>
+      </div>
+    </section>
+  </ng-container>
+
+  <ng-container *ngIf="activeTab === 'rules'">
+    <section class="rules-panel">
+      <div class="section-heading"><div><h2>قواعد ارسال و Notification Rules</h2><p>مشخص کنید هر رویداد از چه کانالی و برای چه گروهی ارسال شود.</p></div><button class="btn btn-primary"><lucide-icon [img]="icons.plus"></lucide-icon>قاعده جدید</button></div>
+      <article class="rule-row" *ngFor="let rule of rules">
+        <div class="rule-icon"><lucide-icon [img]="icons.zap"></lucide-icon></div><div class="rule-main"><h3>{{ rule.name }}</h3><p>{{ rule.event }} · {{ rule.audience }}</p></div><span class="rule-channel">{{ rule.channels }}</span><span class="template-status" [class.off]="!rule.active">{{ rule.active ? 'فعال' : 'غیرفعال' }}</span><button class="icon-btn" (click)="toggleRule(rule)"><lucide-icon [img]="icons.zap"></lucide-icon></button>
+      </article>
+    </section>
+  </ng-container>
+
+  <div class="modal-backdrop" *ngIf="showComposer" (click)="showComposer = false">
+    <section class="form-modal" (click)="$event.stopPropagation()">
+      <div class="modal-title"><div><span>COMMUNICATION CENTER</span><h2>ارسال پیام</h2></div><button class="close" (click)="showComposer = false"><lucide-icon [img]="icons.x"></lucide-icon></button></div>
+      <div class="form-grid"><label>کانال<select [(ngModel)]="composer.channel"><option>درون‌برنامه‌ای</option><option>Email</option><option>SMS</option><option>WhatsApp</option></select></label><label>گیرنده<input [(ngModel)]="composer.recipient" placeholder="کاربر، تیم یا ایمیل" /></label><label class="full">موضوع<input [(ngModel)]="composer.subject" /></label><label class="full">متن پیام<textarea rows="6" [(ngModel)]="composer.message"></textarea></label></div>
+      <div class="modal-footer"><button class="btn btn-secondary" (click)="showComposer = false">انصراف</button><button class="btn btn-primary" (click)="sendMessage()"><lucide-icon [img]="icons.send"></lucide-icon>ارسال پیام</button></div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showTemplateModal" (click)="showTemplateModal = false">
+    <section class="form-modal" (click)="$event.stopPropagation()">
+      <div class="modal-title"><div><span>Notification Templates</span><h2>{{ editingTemplate ? 'ویرایش الگو' : 'ایجاد الگوی پیام' }}</h2></div><button class="close" (click)="showTemplateModal = false"><lucide-icon [img]="icons.x"></lucide-icon></button></div>
+      <div class="form-grid">
+        <label>نام الگو<input [(ngModel)]="templateForm.name" placeholder="مثلاً ارجاع تیکت" /></label>
+        <label>کانال ارسال<input [(ngModel)]="templateForm.channel" placeholder="درون‌برنامه‌ای و ایمیل" /></label>
+        <label class="full">موضوع پیام<input [(ngModel)]="templateForm.subject" /></label>
+        <label class="full">متن پیام<textarea rows="5" [(ngModel)]="templateForm.body" placeholder="از متغیرهایی مانند {{'{{ticket.number}}'}} استفاده کنید."></textarea></label>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" (click)="showTemplateModal = false">انصراف</button><button class="btn btn-primary" (click)="saveTemplate()"><lucide-icon [img]="icons.check"></lucide-icon>ذخیره الگو</button></div>
+    </section>
+  </div>
+</section>

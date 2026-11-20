@@ -1,0 +1,58 @@
+<section class="page" dir="rtl">
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="icons.CalendarCheck2"></lucide-icon> WORKPLACE ATTENDANCE & CHECK-IN</div>
+      <h1>مدیریت حضور و غیاب Workplace</h1>
+      <p>ترکیب Desk Reservation، Check-in، Physical Access و سیاست‌های Hybrid برای یک تصویر واحد از حضور کارکنان.</p>
+    </div>
+    <button class="primary" (click)="showCheckIn=true"><lucide-icon [img]="icons.ScanLine"></lucide-icon> ثبت Check-in</button>
+  </header>
+
+  <section class="kpis">
+    <article><span><lucide-icon [img]="icons.UsersRound"></lucide-icon></span><div><small>حضور فعال</small><strong>{{presentCount}}</strong></div></article>
+    <article><span class="orange"><lucide-icon [img]="icons.Clock3"></lucide-icon></span><div><small>تأخیر</small><strong>{{lateCount}}</strong></div></article>
+    <article><span class="red"><lucide-icon [img]="icons.AlertTriangle"></lucide-icon></span><div><small>No-show</small><strong>{{noShowCount}}</strong></div></article>
+    <article><span class="purple"><lucide-icon [img]="icons.TrendingUp"></lucide-icon></span><div><small>Remote امروز</small><strong>{{remoteCount}}</strong></div></article>
+  </section>
+
+  <section class="signals">
+    <div class="signal-title"><div><h2>Attendance Control Center</h2><p>منبع رویداد حضور در یک Timeline واحد تجمیع می‌شود.</p></div><span><lucide-icon [img]="icons.ShieldCheck"></lucide-icon> Policy Active</span></div>
+    <div class="signal-grid">
+      <div><lucide-icon [img]="icons.LogIn"></lucide-icon><b>Check-in</b><small>Desk / QR / Access</small></div>
+      <div><lucide-icon [img]="icons.Clock3"></lucide-icon><b>Late Detection</b><small>بررسی زمان ورود نسبت به Policy</small></div>
+      <div><lucide-icon [img]="icons.AlertTriangle"></lucide-icon><b>No-show</b><small>تشخیص عدم حضور پس از Grace Period</small></div>
+      <div><lucide-icon [img]="icons.LogOut"></lucide-icon><b>Check-out</b><small>ثبت پایان حضور و محاسبه مدت</small></div>
+    </div>
+  </section>
+
+  <section class="workspace">
+    <div class="toolbar">
+      <div class="search"><lucide-icon [img]="icons.Search"></lucide-icon><input [(ngModel)]="search" placeholder="جستجوی کارمند، تیم، Desk یا منبع..." /></div>
+      <select [(ngModel)]="statusFilter"><option value="All">همه وضعیت‌ها</option><option>Present</option><option>Late</option><option>No-show</option><option>Checked-out</option><option>Remote</option></select>
+      <select [(ngModel)]="sourceFilter"><option value="All">همه منابع</option><option>Desk Check-in</option><option>QR</option><option>Physical Access</option><option>Manual</option></select>
+    </div>
+
+    <div class="list">
+      <article class="row" *ngFor="let r of filteredRecords">
+        <div class="person"><div class="avatar"><lucide-icon [img]="icons.UsersRound"></lucide-icon></div><div><strong>{{r.employee}}</strong><small>{{r.team}}</small></div></div>
+        <div class="place"><lucide-icon [img]="icons.MapPin"></lucide-icon><div><strong>{{r.desk}}</strong><small>{{r.neighborhood}}</small></div></div>
+        <div class="time"><div><strong>{{r.checkIn}}</strong><small>ورود</small></div><span>→</span><div><strong>{{r.checkOut}}</strong><small>خروج</small></div></div>
+        <div class="source"><span>{{r.source}}</span><small *ngIf="r.lateMinutes">+{{r.lateMinutes}} دقیقه تأخیر</small></div>
+        <span class="status" [class]="statusClass(r.status)">{{r.status}}</span>
+      </article>
+      <div class="empty" *ngIf="filteredRecords.length===0">رکوردی با فیلترهای انتخاب‌شده پیدا نشد.</div>
+    </div>
+  </section>
+
+  <aside *ngIf="showCheckIn" class="drawer">
+    <div class="backdrop" (click)="showCheckIn=false"></div>
+    <div class="panel">
+      <header><div><small>WORKPLACE CHECK-IN</small><h2>ثبت حضور</h2></div><button (click)="showCheckIn=false">×</button></header>
+      <div class="scanner"><div class="scan-icon"><lucide-icon [img]="icons.QrCode"></lucide-icon></div><strong>QR / Desk Check-in</strong><p>کد میز یا QR فضای کاری را اسکن کنید تا رزرو و حضور همزمان اعتبارسنجی شوند.</p></div>
+      <label>کارمند<select><option>سارا احمدی</option><option>علی رضایی</option><option>مریم کریمی</option></select></label>
+      <label>Desk<select><option>D-204 — Engineering Hub</option><option>D-118 — Support Pod</option><option>D-032 — Product Neighborhood</option></select></label>
+      <div class="validation"><lucide-icon [img]="icons.ShieldCheck"></lucide-icon><div><strong>Attendance Validation</strong><p>در Backend نهایی، Reservation، Physical Access، Work Mode، Grace Period و Employee Policy قبل از ثبت بررسی می‌شوند.</p></div></div>
+      <button class="primary full" (click)="checkInNow()">تأیید و ثبت حضور</button>
+    </div>
+  </aside>
+</section>

@@ -1,0 +1,83 @@
+<div class="automation-page">
+  <section class="page-intro">
+    <div><div class="eyebrow">AUTOMATION CENTER <span>فاز ۲.۳۳</span></div><h1>موتور قوانین و اتوماسیون</h1><p>رویدادها را به تصمیم‌ها و اقدام‌های هوشمند تبدیل کنید؛ بدون انجام کارهای تکراری.</p></div>
+    <button class="primary-btn" type="button" (click)="openNewRule()">＋ ایجاد قانون جدید</button>
+  </section>
+
+  <section class="metric-grid">
+    <article class="metric-card"><span class="metric-icon purple">⌘</span><div><small>قوانین فعال</small><strong>{{ activeCount }}</strong><em>از {{ rules.length }} قانون</em></div></article>
+    <article class="metric-card"><span class="metric-icon blue">↻</span><div><small>کل اجراها</small><strong>{{ totalRuns | number }}</strong><em>مجموع اجرای ثبت‌شده</em></div></article>
+    <article class="metric-card"><span class="metric-icon green">✓</span><div><small>اجرای موفق</small><strong>{{ successCount }}</strong><em>در تاریخچه اخیر</em></div></article>
+    <article class="metric-card"><span class="metric-icon orange">!</span><div><small>اجرای ناموفق</small><strong>{{ failureCount }}</strong><em>نیازمند بررسی</em></div></article>
+  </section>
+
+  <nav class="tab-bar" aria-label="بخش‌های اتوماسیون">
+    <button [class.active]="activeTab === 'rules'" (click)="activeTab='rules'">قوانین <span>{{ rules.length }}</span></button>
+    <button [class.active]="activeTab === 'history'" (click)="activeTab='history'">تاریخچه اجرا</button>
+    <button [class.active]="activeTab === 'schedules'" (click)="activeTab='schedules'">زمان‌بندی‌ها <span>{{ schedules.length }}</span></button>
+    <button [class.active]="activeTab === 'templates'" (click)="activeTab='templates'">قالب‌های آماده</button>
+  </nav>
+
+  @if (activeTab === 'rules') {
+    <section class="content-panel">
+      <div class="panel-heading"><div><h2>کتابخانه قوانین</h2><p>قوانین رویدادمحور و شرطی را مدیریت و آزمایش کنید.</p></div><div class="toolbar"><input [(ngModel)]="search" placeholder="جستجو در قوانین..." aria-label="جستجو در قوانین"><select [(ngModel)]="statusFilter" aria-label="فیلتر وضعیت"><option>همه</option><option>فعال</option><option>متوقف</option></select></div></div>
+      <div class="rules-list">
+        @for (rule of filteredRules; track rule.id) {
+          <article class="rule-card">
+            <div class="rule-main"><div class="rule-symbol">⌘</div><div class="rule-copy"><div class="rule-title"><h3>{{ rule.name }}</h3><span class="status-pill" [class.paused]="rule.status==='متوقف'">{{ rule.status }}</span></div><p>{{ rule.description }}</p><div class="rule-meta"><span>{{ rule.trigger }}</span><span>نسخه {{ rule.version }}</span><span>{{ rule.runs }} اجرا</span><span>آخرین اجرا: {{ rule.lastRun }}</span></div></div></div>
+            <div class="rule-flow"><div><small>اگر / WHEN</small><strong>{{ rule.conditions.length }} شرط · {{ rule.logic }}</strong><p>{{ rule.conditions[0].field }} {{ rule.conditions[0].operator }} {{ rule.conditions[0].value }}</p></div><b>→</b><div><small>آنگاه / THEN</small><strong>{{ rule.actions.length }} اقدام</strong><p>{{ rule.actions[0] }}</p></div></div>
+            <div class="rule-actions"><button type="button" class="text-btn" (click)="simulateRule(rule)">▷ آزمایش</button><button type="button" class="text-btn" (click)="editRule(rule)">ویرایش</button><button type="button" class="text-btn" (click)="duplicateRule(rule)">کپی</button><button type="button" class="text-btn danger" (click)="deleteRule(rule)">حذف</button><button type="button" class="toggle-btn" [class.on]="rule.status==='فعال'" (click)="toggleRule(rule)">{{ rule.status==='فعال' ? 'متوقف‌کردن' : 'فعال‌سازی' }}</button></div>
+          </article>
+        } @empty { <div class="empty-state">قانونی با این مشخصات پیدا نشد.</div> }
+      </div>
+    </section>
+  }
+
+  @if (activeTab === 'history') {
+    <section class="content-panel">
+      <div class="panel-heading"><div><h2>تاریخچه اجرای قوانین</h2><p>نتیجه اجراها، مدت زمان و جزئیات خطاها را بررسی کنید.</p></div><div class="toolbar"><input [(ngModel)]="search" placeholder="جستجو در اجراها..."><select [(ngModel)]="runFilter"><option>همه</option><option>موفق</option><option>ناموفق</option><option>در حال اجرا</option></select><button class="secondary-btn" (click)="exportRuns()">↓ خروجی CSV</button></div></div>
+      <div class="table-wrap"><table><thead><tr><th>قانون / محرک</th><th>هدف</th><th>وضعیت</th><th>زمان اجرا</th><th>مدت</th><th></th></tr></thead><tbody>
+        @for (run of filteredExecutions; track run.id) { <tr><td><strong>{{ run.rule }}</strong><small>{{ run.trigger }}</small></td><td>{{ run.target }}</td><td><span class="status-pill" [class.failed]="run.status==='ناموفق'">{{ run.status }}</span></td><td>{{ run.time }}</td><td>{{ run.duration }} ms</td><td><button class="text-btn" (click)="inspectRun(run)">جزئیات</button></td></tr> }
+      </tbody></table></div>
+      @if (!filteredExecutions.length) { <div class="empty-state">اجرایی برای نمایش وجود ندارد.</div> }
+    </section>
+  }
+
+  @if (activeTab === 'schedules') {
+    <section class="content-panel">
+      <div class="panel-heading"><div><h2>وظایف زمان‌بندی‌شده</h2><p>اجرای دوره‌ای بررسی‌ها و اقدام‌های خودکار.</p></div><span class="info-note">زمان‌ها نمونه و نمایشی هستند</span></div>
+      <div class="schedule-list">@for (job of schedules; track job.id) { <article class="schedule-card"><div class="schedule-icon">◷</div><div class="schedule-copy"><strong>{{ job.name }}</strong><span>{{ job.schedule }} · اجرای بعدی: {{ job.nextRun }}</span></div><span class="status-pill" [class.paused]="job.status==='متوقف'">{{ job.status }}</span><button class="text-btn" (click)="runSchedule(job)">اجرای دستی</button><button class="text-btn" (click)="toggleSchedule(job)">{{ job.status==='فعال' ? 'توقف' : 'فعال‌سازی' }}</button></article> }</div>
+    </section>
+  }
+
+  @if (activeTab === 'templates') {
+    <section class="template-grid">@for (template of templates; track template.name) { <article class="template-card"><div class="template-icon">✧</div><h3>{{ template.name }}</h3><p>{{ template.description }}</p><div class="template-meta"><span>محرک: {{ template.trigger }}</span><span>{{ template.actions.length }} اقدام پیشنهادی</span></div><button class="secondary-btn" (click)="useTemplate(template)">استفاده از قالب ←</button></article> }</section>
+  }
+
+  @if (showEditor) {
+    <div class="modal-backdrop" (click)="showEditor=false"><section class="editor-modal" role="dialog" aria-modal="true" aria-label="ویرایش قانون" (click)="$event.stopPropagation()">
+      <header><div><small>RULE BUILDER</small><h2>{{ editingId === null ? 'ساخت قانون جدید' : 'ویرایش قانون اتوماسیون' }}</h2></div><button class="close-btn" (click)="showEditor=false">×</button></header>
+      <div class="editor-body">
+        <label>نام قانون<input [(ngModel)]="ruleForm.name" placeholder="مثلاً تخصیص تیکت‌های فوری"></label>
+        <label>توضیحات<textarea [(ngModel)]="ruleForm.description" rows="2" placeholder="هدف و عملکرد قانون را توضیح دهید"></textarea></label>
+        <div class="form-two"><label>رویداد آغازگر<select [(ngModel)]="ruleForm.trigger"><option>ایجاد تیکت</option><option>تغییر وضعیت تیکت</option><option>تغییر اولویت</option><option>زمان‌بندی‌شده</option><option>ثبت پاسخ جدید</option></select></label><label>دسته‌بندی<input [(ngModel)]="ruleForm.category"></label></div>
+        <div class="builder-section"><div class="builder-title"><strong>۱. شرایط اجرا</strong><span>WHEN</span></div><div class="logic-row">اجرای قانون در صورت برقراری <select [(ngModel)]="ruleForm.logic"><option value="AND">تمام شرایط (AND)</option><option value="OR">حداقل یک شرط (OR)</option></select></div>
+          @for (condition of ruleForm.conditions; track $index) { <div class="condition-row"><select [(ngModel)]="condition.field"><option>وضعیت</option><option>اولویت</option><option>دسته‌بندی</option><option>واحد سازمانی</option><option>زمان باقی‌مانده SLA</option><option>آخرین پاسخ</option></select><select [(ngModel)]="condition.operator"><option>برابر با</option><option>مخالف با</option><option>کمتر از</option><option>بیشتر از</option><option>یکی از</option><option>شامل</option></select><input [(ngModel)]="condition.value" placeholder="مقدار شرط"><button class="remove-btn" (click)="removeCondition($index)" aria-label="حذف شرط">×</button></div> }
+          <button class="add-link" (click)="addCondition()">＋ افزودن شرط</button>
+        </div>
+        <div class="builder-section"><div class="builder-title"><strong>۲. اقدامات</strong><span>THEN</span></div>
+          @for (action of ruleForm.actions; track $index) { <div class="action-row"><span class="action-dot">✓</span><span>{{ action }}</span><button class="remove-btn" (click)="removeAction($index)">×</button></div> }
+          <div class="action-add"><select #actionSelect><option value="تخصیص به تیم پشتیبانی">تخصیص به تیم پشتیبانی</option><option value="تخصیص به تیم مالی">تخصیص به تیم مالی</option><option value="تخصیص به کارشناس شیفت">تخصیص به کارشناس شیفت</option><option value="تغییر اولویت">تغییر اولویت</option><option value="تغییر وضعیت به بسته‌شده">تغییر وضعیت به بسته‌شده</option><option value="افزودن برچسب">افزودن برچسب</option><option value="ارسال اعلان به مسئول">ارسال اعلان به مسئول</option><option value="ارسال اعلان به سرپرست">ارسال اعلان به سرپرست</option></select><button class="add-link" (click)="addAction(actionSelect.value)">＋ افزودن اقدام</button></div>
+        </div>
+        <label class="check-label"><input type="checkbox" [checked]="ruleForm.status==='فعال'" (change)="ruleForm.status=$any($event.target).checked ? 'فعال' : 'متوقف'"> پس از ذخیره، قانون فعال باشد</label>
+      </div>
+      <footer><button class="secondary-btn" (click)="showEditor=false">انصراف</button><button class="primary-btn" (click)="saveRule()">ذخیره قانون</button></footer>
+    </section></div>
+  }
+
+  @if (showRunDetail && selectedRun) {
+    <div class="modal-backdrop" (click)="showRunDetail=false"><section class="run-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()"><header><h2>جزئیات اجرای قانون</h2><button class="close-btn" (click)="showRunDetail=false">×</button></header><dl><dt>نام قانون</dt><dd>{{ selectedRun.rule }}</dd><dt>شناسه هدف</dt><dd>{{ selectedRun.target }}</dd><dt>محرک</dt><dd>{{ selectedRun.trigger }}</dd><dt>وضعیت</dt><dd>{{ selectedRun.status }}</dd><dt>زمان اجرا</dt><dd>{{ selectedRun.time }}</dd><dt>مدت اجرا</dt><dd>{{ selectedRun.duration }} میلی‌ثانیه</dd></dl><div class="run-message">{{ selectedRun.message }}</div><button class="primary-btn" (click)="showRunDetail=false">بستن</button></section></div>
+  }
+  @if (notice) { <div class="toast" role="status">✓ {{ notice }}</div> }
+  <p class="demo-disclaimer">این نسخه برای ارزیابی رابط کاربری از داده‌های نمایشی و حافظه مرورگر استفاده می‌کند. اجرای آزمایشی هیچ تغییری در تیکت واقعی ایجاد نمی‌کند.</p>
+</div>

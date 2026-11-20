@@ -1,0 +1,130 @@
+<section class="page-shell" dir="rtl">
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><i-lucide [img]="Flag" [size]="16"></i-lucide> Feature & Entitlement Control Plane</div>
+      <h1>مرکز قابلیت‌ها، سهمیه‌ها و Feature Flag</h1>
+      <p>کنترل متمرکز فعال‌سازی ماژول‌ها، محدودیت‌های پلن، سهمیه مصرف و Overrideهای اختصاصی هر سازمان.</p>
+    </div>
+    <div class="hero-actions">
+      <button class="btn secondary" type="button" (click)="showFlag.set(true)"><i-lucide [img]="Plus" [size]="17"></i-lucide> Feature جدید</button>
+      <button class="btn primary" type="button" (click)="showOverride.set(true)"><i-lucide [img]="SlidersHorizontal" [size]="17"></i-lucide> Override Tenant</button>
+    </div>
+  </header>
+
+  @if (notice()) { <div class="notice">{{notice()}}</div> }
+
+  <div class="kpis">
+    <article class="kpi"><span class="icon green"><i-lucide [img]="Flag" [size]="20"></i-lucide></span><div><small>Feature فعال</small><strong>{{activeFlags()}}</strong><em>{{experimentalFlags()}} آزمایشی</em></div></article>
+    <article class="kpi"><span class="icon purple"><i-lucide [img]="ShieldCheck" [size]="20"></i-lucide></span><div><small>Entitlementهای قفل</small><strong>{{lockedFeatures()}}</strong><em>وابسته به پلن</em></div></article>
+    <article class="kpi"><span class="icon orange"><i-lucide [img]="Gauge" [size]="20"></i-lucide></span><div><small>ریسک سهمیه</small><strong>{{quotaRisks()}}</strong><em>بالاتر از ۸۰٪</em></div></article>
+    <article class="kpi"><span class="icon blue"><i-lucide [img]="Activity" [size]="20"></i-lucide></span><div><small>میانگین مصرف</small><strong>{{avgUsage()}}٪</strong><em>Usage Quota</em></div></article>
+  </div>
+
+  <nav class="tabs" aria-label="بخش‌های مرکز قابلیت">
+    <button [class.active]="tab()==='overview'" (click)="selectTab('overview')">نمای کلی</button>
+    <button [class.active]="tab()==='flags'" (click)="selectTab('flags')">Feature Flags</button>
+    <button [class.active]="tab()==='entitlements'" (click)="selectTab('entitlements')">Entitlements</button>
+    <button [class.active]="tab()==='quotas'" (click)="selectTab('quotas')">Quota & Limits</button>
+    <button [class.active]="tab()==='overrides'" (click)="selectTab('overrides')">Tenant Overrides</button>
+    <button [class.active]="tab()==='rollouts'" (click)="selectTab('rollouts')">Rollout & Experiment</button>
+  </nav>
+
+  @if (tab()==='overview') {
+    <div class="grid two">
+      <article class="card">
+        <div class="card-head"><div><span class="eyebrow">Control Plane</span><h2>وضعیت کلی Feature Governance</h2></div><i-lucide [img]="Layers3" [size]="22"></i-lucide></div>
+        <div class="flow">
+          <div><b>Plan</b><span>Business / Enterprise</span></div><div class="arrow">←</div>
+          <div><b>Entitlement</b><span>Module + Limit</span></div><div class="arrow">←</div>
+          <div><b>Tenant Override</b><span>Scoped Policy</span></div><div class="arrow">←</div>
+          <div><b>Runtime</b><span>Feature Access</span></div>
+        </div>
+        <div class="info-list">
+          <div><i-lucide [img]="CheckCircle2" [size]="17"></i-lucide><span>Featureهای فعال با Subscription و RBAC هم‌راستا هستند.</span></div>
+          <div><i-lucide [img]="TimerReset" [size]="17"></i-lucide><span>Grace Period برای Soft Limitها قابل اعمال است.</span></div>
+          <div><i-lucide [img]="Zap" [size]="17"></i-lucide><span>Rollout تدریجی برای انتشار امن قابلیت‌های جدید.</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="card-head"><div><span class="eyebrow">Guardrails</span><h2>قواعد دسترسی و محدودیت</h2></div><i-lucide [img]="ShieldCheck" [size]="22"></i-lucide></div>
+        <div class="guard"><span>Plan entitlement</span><strong>فعال</strong></div>
+        <div class="guard"><span>Tenant override</span><strong>محدود و زمان‌دار</strong></div>
+        <div class="guard"><span>Soft limit</span><strong>هشدار + Grace</strong></div>
+        <div class="guard"><span>Hard limit</span><strong>مسدودسازی</strong></div>
+        <div class="guard"><span>Experiment</span><strong>درصدی / گروهی</strong></div>
+      </article>
+    </div>
+    <article class="card">
+      <div class="card-head"><div><span class="eyebrow">Locked Feature UX</span><h2>الگوی نمایش قابلیت قفل‌شده</h2></div><i-lucide [img]="LockKeyhole" [size]="22"></i-lucide></div>
+      <div class="locked-demo"><div class="lock-icon"><i-lucide [img]="LockKeyhole" [size]="22"></i-lucide></div><div><strong>AI Self-Service</strong><p>این قابلیت در پلن فعلی شما فعال نیست. ارتقای پلن یا درخواست فعال‌سازی اختصاصی امکان‌پذیر است.</p></div><button class="btn primary" type="button" (click)="showOverride.set(true)">درخواست فعال‌سازی</button></div>
+    </article>
+  }
+
+  @if (tab()==='flags') {
+    <article class="card">
+      <div class="card-head"><div><span class="eyebrow">Feature Flag Center</span><h2>مدیریت قابلیت‌های قابل انتشار</h2></div><span class="pill">{{flags().length}} Feature</span></div>
+      <div class="table-wrap"><table><thead><tr><th>قابلیت</th><th>ماژول</th><th>وضعیت</th><th>Rollout</th><th>پلن‌ها</th><th></th></tr></thead><tbody>
+        @for (f of flags(); track f.key) { <tr><td><strong>{{f.name}}</strong><small>{{f.key}}</small></td><td>{{f.module}}</td><td><span class="status" [class.warn]="f.status==='آزمایشی'" [class.off]="f.status==='خاموش'">{{f.status}}</span></td><td><div class="meter"><span [style.width.%]="f.rollout"></span></div><b>{{f.rollout}}٪</b></td><td><span class="chips">@for (p of f.plans; track p){<i>{{p}}</i>}</span></td><td><button class="mini" type="button" (click)="toggleFlag(f.key)">{{f.status==='خاموش'?'فعال‌سازی':'خاموش‌کردن'}}</button></td></tr> }
+      </tbody></table></div>
+    </article>
+  }
+
+  @if (tab()==='entitlements' || tab()==='quotas') {
+    <article class="card">
+      <div class="card-head"><div><span class="eyebrow">Entitlement Engine</span><h2>{{tab()==='quotas'?'سهمیه و محدودیت مصرف':'ماتریس دسترسی قابلیت‌ها'}}</h2></div><span class="pill">Plan-aware</span></div>
+      <div class="quota-grid">
+        @for (e of entitlements(); track e.key) {
+          <div class="quota-card" [class.disabled]="!e.enabled">
+            <div class="quota-top"><span class="feature-icon"><i-lucide [img]="e.key==='users'?UsersRound:e.key==='tickets'?Ticket:e.key==='storage'?HardDrive:Gauge" [size]="18"></i-lucide></span><div><strong>{{e.label}}</strong><small>{{e.module}} · {{e.unit}}</small></div><button class="switch" [class.on]="e.enabled" type="button" (click)="toggleEntitlement(e.key)"><span></span></button></div>
+            <div class="quota-value"><strong>{{e.usage | number:'1.0-0'}}</strong><span>/ {{e.capacity | number:'1.0-0'}} {{e.unit}}</span></div>
+            <div class="meter"><span [style.width.%]="pct(e.usage,e.capacity)"></span></div>
+            <div class="quota-foot"><span>{{pct(e.usage,e.capacity)}}٪ مصرف</span><span>{{e.mode}} · Grace {{e.graceDays}}d</span></div>
+          </div>
+        }
+      </div>
+    </article>
+  }
+
+  @if (tab()==='overrides') {
+    <article class="card">
+      <div class="card-head"><div><span class="eyebrow">Tenant Scoped Policy</span><h2>Overrideهای اختصاصی سازمان‌ها</h2></div><button class="btn primary small" type="button" (click)="showOverride.set(true)"><i-lucide [img]="Plus" [size]="16"></i-lucide> Override جدید</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Tenant</th><th>Feature</th><th>Value</th><th>علت</th><th>انقضا</th><th>وضعیت</th></tr></thead><tbody>
+        @for (o of overrides(); track $index) { <tr><td><strong>{{o.tenant}}</strong></td><td>{{o.feature}}</td><td>{{o.value}}</td><td>{{o.reason}}</td><td>{{o.expires}}</td><td><span class="status" [class.off]="o.status==='قفل'">{{o.status}}</span></td></tr> }
+      </tbody></table></div>
+    </article>
+  }
+
+  @if (tab()==='rollouts') {
+    <div class="grid two">
+      @for (r of rollouts(); track r.name) { <article class="card rollout"><div class="rollout-head"><div><span class="eyebrow">{{r.stage}}</span><h2>{{r.name}}</h2></div><i-lucide [img]="FlaskConical" [size]="22"></i-lucide></div><p>{{r.feature}}</p><div class="audience">{{r.audience}}</div><div class="rollout-line"><span [style.width.%]="r.percentage"></span></div><div class="rollout-meta"><strong>{{r.percentage}}٪</strong><span>{{r.health}}</span></div><div class="rollout-actions"><button class="mini" type="button" (click)="applyRollout(r.feature,25)">۲۵٪</button><button class="mini" type="button" (click)="applyRollout(r.feature,50)">۵۰٪</button><button class="mini" type="button" (click)="applyRollout(r.feature,100)">۱۰۰٪</button></div></article> }
+    </div>
+  }
+</section>
+
+@if (showFlag()) {
+  <div class="modal-backdrop" (click)="showFlag.set(false)">
+    <form class="modal" (submit)="$event.preventDefault();createFlag()" (click)="$event.stopPropagation()">
+      <div class="modal-head"><div><span class="eyebrow">New Feature</span><h2>ساخت Feature Flag</h2></div><button type="button" class="icon-btn" (click)="showFlag.set(false)"><i-lucide [img]="X" [size]="18"></i-lucide></button></div>
+      <label>نام قابلیت<input [(ngModel)]="customFlag.name" name="flagName" placeholder="مثلاً Copilot سازمانی"></label>
+      <label>کلید فنی<input [(ngModel)]="customFlag.key" name="flagKey" placeholder="copilot-org"></label>
+      <label>ماژول<input [(ngModel)]="customFlag.module" name="flagModule"></label>
+      <label>توضیح<textarea [(ngModel)]="customFlag.description" name="flagDescription"></textarea></label>
+      <label>Rollout اولیه<input type="number" min="0" max="100" [(ngModel)]="customFlag.rollout" name="flagRollout"></label>
+      <button class="btn primary full" type="submit">ایجاد Feature Flag</button>
+    </form>
+  </div>
+}
+
+@if (showOverride()) {
+  <div class="modal-backdrop" (click)="showOverride.set(false)">
+    <form class="modal" (submit)="$event.preventDefault();createOverride()" (click)="$event.stopPropagation()">
+      <div class="modal-head"><div><span class="eyebrow">Tenant Override</span><h2>اختصاص قابلیت به یک سازمان</h2></div><button type="button" class="icon-btn" (click)="showOverride.set(false)"><i-lucide [img]="X" [size]="18"></i-lucide></button></div>
+      <label>Tenant<input [(ngModel)]="overrideForm.tenant" name="tenant" placeholder="نام سازمان"></label>
+      <label>Feature<input [(ngModel)]="overrideForm.feature" name="feature" placeholder="نام قابلیت"></label>
+      <label>مقدار<input [(ngModel)]="overrideForm.value" name="value" placeholder="فعال / ۲× / ..."></label>
+      <label>علت<input [(ngModel)]="overrideForm.reason" name="reason" placeholder="علت Override"></label>
+      <label>تاریخ انقضا<input [(ngModel)]="overrideForm.expires" name="expires" placeholder="۱۴۰۵/۱۲/۲۹"></label>
+      <button class="btn primary full" type="submit">ثبت Override</button>
+    </form>
+  </div>
+}

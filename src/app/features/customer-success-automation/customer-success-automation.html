@@ -1,0 +1,36 @@
+<section class="page" dir="rtl">
+  <header class="hero">
+    <div><div class="eyebrow"><i-lucide [img]="Bot" [size]="16"></i-lucide> AI Decision & Automation Engine</div><h1>موتور هوشمند Customer Success</h1><p>تبدیل Health Score و Usage به Risk، Next Best Action، Playbook و تصمیم‌های Renewal و Expansion.</p></div>
+    <div class="actions"><button class="btn ghost" (click)="showRule.set(true)"><i-lucide [img]="Plus" [size]="16"></i-lucide> Rule جدید</button><button class="btn primary" [disabled]="running()" (click)="runNow()"><i-lucide [img]="running()?RefreshCw:Play" [size]="16"></i-lucide>{{running()?'در حال تحلیل...':'اجرای موتور تصمیم‌گیری'}}</button></div>
+  </header>
+  @if(notice()){<div class="notice">{{notice()}}</div>}
+  <section class="kpis">
+    <article><span class="icon purple"><i-lucide [img]="Gauge" [size]="20"></i-lucide></span><div><small>Automation Coverage</small><strong>{{automationRate()}}%</strong><em>{{activeRules()}} Rule فعال</em></div></article>
+    <article><span class="icon red"><i-lucide [img]="ShieldAlert" [size]="20"></i-lucide></span><div><small>High Risk Signals</small><strong>{{highRisk()}}</strong><em>نیازمند اقدام فوری</em></div></article>
+    <article><span class="icon green"><i-lucide [img]="TrendingUp" [size]="20"></i-lucide></span><div><small>Forecast Renewal</small><strong>{{avgRenewal()}}%</strong><em>Portfolio probability</em></div></article>
+    <article><span class="icon blue"><i-lucide [img]="Sparkles" [size]="20"></i-lucide></span><div><small>Decision Engine</small><strong>AI-ready</strong><em>Rule + Signal + Action</em></div></article>
+  </section>
+
+  <div class="grid main">
+    <article class="card">
+      <div class="head"><div><span class="eyebrow">Next Best Actions</span><h2>سیگنال‌های تصمیم‌گیری</h2></div><span class="pill">Real-time foundation</span></div>
+      <div class="signals">@for(s of signals();track s.customer){<div class="signal"><div class="signal-icon" [class]="s.severity"><i-lucide [img]="s.type==='Expansion'?TrendingUp:AlertTriangle" [size]="18"></i-lucide></div><div class="signal-main"><div class="signal-title"><strong>{{s.customer}}</strong><span>{{s.type}}</span></div><p>{{s.reason}}</p><div class="mini-meter"><i [style.width.%]="s.score"></i></div></div><div class="signal-score"><b>{{s.score}}%</b><small>confidence</small></div><button class="mini" (click)="execute(s)">اجرا</button></div>}</div>
+    </article>
+    <article class="card">
+      <div class="head"><div><span class="eyebrow">AI Forecast</span><h2>Renewal / Churn / Expansion</h2></div><i-lucide [img]="Target" [size]="21"></i-lucide></div>
+      @for(f of forecasts();track f.customer){<div class="forecast"><div><strong>{{f.customer}}</strong><small>{{f.next}}</small></div><div class="bars"><span title="Renewal" [style.width.%]="f.renewal"></span><span title="Churn" [style.width.%]="f.churn"></span><span title="Expansion" [style.width.%]="f.expansion"></span></div><div class="numbers"><b>{{f.renewal}}%</b><small>R</small><b>{{f.churn}}%</b><small>C</small><b>{{f.expansion}}%</b><small>E</small></div></div>}
+      <div class="legend"><i></i> Renewal <i></i> Churn <i></i> Expansion</div>
+    </article>
+  </div>
+
+  <article class="card rules">
+    <div class="head"><div><span class="eyebrow">Automation Rules</span><h2>قوانین خودکارسازی Customer Success</h2></div><span class="pill">{{rules().length}} Rule</span></div>
+    <div class="table"><div class="tr th"><span>Rule</span><span>Trigger</span><span>Action</span><span>Priority</span><span>Runs</span><span>Status</span></div>
+      @for(r of rules();track r.id){<div class="tr"><div><b>{{r.name}}</b><small>{{r.id}}</small></div><span>{{r.condition}}</span><span>{{r.action}}</span><span class="priority">{{r.priority}}</span><span>{{r.runs}}</span><button class="switch" [class.on]="r.enabled" (click)="toggle(r)"><i></i>{{r.enabled?'فعال':'خاموش'}}</button></div>}
+    </div>
+  </article>
+
+  <div class="grid three"><article class="insight"><i-lucide [img]="HeartPulse" [size]="20"></i-lucide><div><strong>Health-driven Automation</strong><p>هر افت Health می‌تواند به صورت خودکار Playbook مناسب را فعال کند.</p></div></article><article class="insight"><i-lucide [img]="FlaskConical" [size]="20"></i-lucide><div><strong>Experimentation</strong><p>قواعد را برای گروه‌های مختلف Tenant آزمایش و نتیجه را مقایسه کنید.</p></div></article><article class="insight"><i-lucide [img]="Zap" [size]="20"></i-lucide><div><strong>Event-driven Ready</strong><p>آماده اتصال به رویدادهای Billing، Usage، Ticket، SLA و Entitlement.</p></div></article></div>
+</section>
+
+@if(showRule()){<div class="backdrop"><form class="modal" (submit)="$event.preventDefault();addRule()"><div class="modal-head"><div><span class="eyebrow">Automation</span><h2>Rule جدید</h2></div><button type="button" class="close" (click)="showRule.set(false)"><i-lucide [img]="X" [size]="18"></i-lucide></button></div><label>نام Rule<input [(ngModel)]="rule.name" name="name" placeholder="مثلاً Executive Risk Alert"></label><label>نوع Rule<select [(ngModel)]="rule.kind" name="kind"><option value="health">Health</option><option value="adoption">Adoption</option><option value="renewal">Renewal</option><option value="usage">Usage</option><option value="sla">SLA</option></select></label><label>شرط<input [(ngModel)]="rule.condition" name="condition" placeholder="مثلاً Health < 45"></label><label>Action<input [(ngModel)]="rule.action" name="action" placeholder="مثلاً ایجاد Task و ارسال Alert"></label><label>اولویت<select [(ngModel)]="rule.priority" name="priority"><option>بحرانی</option><option>زیاد</option><option>متوسط</option></select></label><button class="btn primary full">ثبت Rule</button></form></div>}

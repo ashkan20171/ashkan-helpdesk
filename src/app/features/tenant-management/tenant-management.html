@@ -1,0 +1,73 @@
+<main class="tenant-page" dir="rtl">
+  <header class="page-head">
+    <div><span class="eyebrow">TENANT & MULTI-ORGANIZATION CONTROL</span><h1>مرکز مدیریت سازمان‌ها</h1><p>سازمان‌ها، دامنه‌ها، برندینگ، پلن‌ها و سیاست‌های مستقل هر Tenant را مدیریت کنید.</p></div>
+    <div class="head-actions">
+      <button class="tenant-switch" (click)="showSwitcher.set(!showSwitcher())"><span class="tenant-avatar" [style.background]="selectedTenant().accent">{{selectedTenant().logoText}}</span><span>{{selectedTenant().name}}</span><i-lucide [img]="ChevronDown" [size]="15"></i-lucide></button>
+      <button class="primary" [disabled]="!canManage" (click)="openCreate()"><i-lucide [img]="Plus" [size]="16"></i-lucide>سازمان جدید</button>
+    </div>
+  </header>
+  @if(showSwitcher()){<div class="switcher"><strong>تغییر سازمان فعال</strong>@for(t of tenants();track t.id){<button (click)="selectTenant(t.id)" [class.selected]="t.id===selectedTenantId()"><span class="tenant-avatar small" [style.background]="t.accent">{{t.logoText}}</span><span><b>{{t.name}}</b><small>{{t.domain}}</small></span><i-lucide [img]="CheckCircle2" [size]="15"></i-lucide></button>}</div>}
+  @if(notice()){<div class="notice"><i-lucide [img]="CheckCircle2" [size]="17"></i-lucide>{{notice()}}</div>}
+  <section class="metrics">
+    <article><span class="metric-icon purple"><i-lucide [img]="Building2" [size]="19"></i-lucide></span><div><small>کل سازمان‌ها</small><strong>{{tenants().length}}</strong><em>Tenant ثبت‌شده</em></div></article>
+    <article><span class="metric-icon green"><i-lucide [img]="Activity" [size]="19"></i-lucide></span><div><small>سازمان‌های فعال</small><strong>{{activeTenants()}}</strong><em>در حال سرویس‌دهی</em></div></article>
+    <article><span class="metric-icon amber"><i-lucide [img]="Sparkles" [size]="19"></i-lucide></span><div><small>دوره آزمایشی</small><strong>{{trialTenants()}}</strong><em>نیازمند پیگیری پلن</em></div></article>
+    <article><span class="metric-icon blue"><i-lucide [img]="UsersRound" [size]="19"></i-lucide></span><div><small>کل کاربران</small><strong>{{totalMembers()}}</strong><em>در همه سازمان‌ها</em></div></article>
+  </section>
+
+  <section class="layout">
+    <aside class="nav">
+      <button [class.active]="activeTab()==='overview'" (click)="selectTab('overview')"><i-lucide [img]="LayoutDashboard" [size]="18"></i-lucide>نمای کلی</button>
+      <button [class.active]="activeTab()==='tenants'" (click)="selectTab('tenants')"><i-lucide [img]="Building2" [size]="18"></i-lucide>فهرست سازمان‌ها</button>
+      <button [class.active]="activeTab()==='branding'" (click)="selectTab('branding')"><i-lucide [img]="Palette" [size]="18"></i-lucide>برندینگ سازمان</button>
+      <button [class.active]="activeTab()==='policies'" (click)="selectTab('policies')"><i-lucide [img]="ShieldCheck" [size]="18"></i-lucide>سیاست‌ها و امنیت</button>
+      <button [class.active]="activeTab()==='onboarding'" (click)="selectTab('onboarding')"><i-lucide [img]="Sparkles" [size]="18"></i-lucide>راه‌اندازی سازمان</button>
+    </aside>
+
+    <div class="content">
+      @if(activeTab()==='overview'){
+        <section class="panel tenant-hero"><div class="hero-brand"><span class="hero-logo" [style.background]="selectedTenant().accent">{{selectedTenant().logoText}}</span><div><span class="section-kicker">ACTIVE TENANT</span><h2>{{selectedTenant().name}}</h2><p>{{selectedTenant().domain}} · {{selectedTenant().region}}</p></div></div><span class="status" [class.trial]="selectedTenant().status==='آزمایشی'" [class.suspended]="selectedTenant().status==='تعلیق‌شده'">{{selectedTenant().status}}</span></section>
+        <div class="overview-grid">
+          <section class="panel"><div class="panel-head"><div><span class="section-kicker">TENANT PROFILE</span><h3>مشخصات سازمان</h3></div><i-lucide [img]="Building2" [size]="19"></i-lucide></div><div class="detail-list"><div><small>شناسه یکتا</small><b>{{selectedTenant().slug}}</b></div><div><small>دامنه اصلی</small><b>{{selectedTenant().domain}}</b></div><div><small>پلن</small><b>{{selectedTenant().plan}}</b></div><div><small>منطقه میزبانی</small><b>{{selectedTenant().region}}</b></div><div><small>تاریخ ایجاد</small><b>{{selectedTenant().created}}</b></div></div></section>
+          <section class="panel"><div class="panel-head"><div><span class="section-kicker">SUBSCRIPTION SCOPE</span><h3>اشتراک و ظرفیت</h3></div><i-lucide [img]="CreditCard" [size]="19"></i-lucide></div><div class="plan-card"><span>{{selectedTenant().plan}}</span><strong>{{selectedTenant().members}} <small>کاربر</small></strong><div class="progress"><span [style.width]="selectedTenant().plan==='Enterprise'?'68%':selectedTenant().plan==='Business'?'52%':'28%'"></span></div><small>نمایش ظرفیت نمونه؛ محدودیت‌ها در Backend اعمال می‌شوند.</small></div><button class="secondary wide" (click)="selectTab('tenants')">مدیریت سازمان‌ها <i-lucide [img]="ArrowUpRight" [size]="14"></i-lucide></button></section>
+        </div>
+        <section class="panel"><div class="panel-head"><div><span class="section-kicker">ISOLATION ARCHITECTURE</span><h3>لایه‌های جداسازی Tenant</h3><p>ساختار هدف برای جلوگیری از دسترسی بین‌سازمانی و جداسازی تنظیمات.</p></div><span class="secure"><i-lucide [img]="LockKeyhole" [size]="14"></i-lucide> Tenant Scoped</span></div><div class="isolation"><span>Tenant Context</span><b>→</b><span>Organization ID</span><b>→</b><span>Workspace Scope</span><b>→</b><span>Data Access Policy</span></div></section>
+      }
+
+      @if(activeTab()==='tenants'){
+        <section class="panel"><div class="panel-head"><div><span class="section-kicker">TENANT DIRECTORY</span><h2>فهرست سازمان‌ها</h2><p>هر Tenant دارای دامنه، پلن، وضعیت و تنظیمات مستقل است.</p></div><button class="primary" [disabled]="!canManage" (click)="openCreate()">+ ایجاد سازمان</button></div>
+          <div class="search"><i-lucide [img]="Search" [size]="16"></i-lucide><input [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="جستجوی نام، شناسه یا دامنه سازمان..."></div>
+          <div class="tenant-table"><div class="table-head"><span>سازمان</span><span>دامنه</span><span>پلن</span><span>کاربران</span><span>وضعیت</span><span></span></div>
+            @for(t of filteredTenants();track t.id){<div class="table-row"><div class="tenant-name"><span class="tenant-avatar" [style.background]="t.accent">{{t.logoText}}</span><span><b>{{t.name}}</b><small>{{t.slug}}</small></span></div><span class="domain">{{t.domain}}</span><span class="plan-tag">{{t.plan}}</span><b class="member-count">{{t.members}}</b><span class="status" [class.trial]="t.status==='آزمایشی'" [class.suspended]="t.status==='تعلیق‌شده'">{{t.status}}</span><button class="select-btn" (click)="selectTenant(t.id)">انتخاب</button></div>}
+          </div>
+        </section>
+      }
+
+      @if(activeTab()==='branding'){
+        <section class="panel"><div class="panel-head"><div><span class="section-kicker">TENANT BRANDING</span><h2>هویت بصری سازمان</h2><p>نام نمایشی، نشان، رنگ اصلی و اطلاعات پورتال را برای Tenant فعال تنظیم کنید.</p></div><span class="secure">پیش‌نمایش زنده</span></div>
+          <div class="branding-layout"><div class="form-grid"><label>نام نمایشی سازمان<input [(ngModel)]="branding.name"></label><label>حروف نشان / لوگو<input [(ngModel)]="branding.logoText" maxlength="3"></label><label>ایمیل پشتیبانی<input [(ngModel)]="branding.supportEmail" type="email"></label><label>عنوان پورتال<input [(ngModel)]="branding.portalTitle"></label><label>رنگ اصلی برند<div class="color-field"><input type="color" [(ngModel)]="branding.accent"><b>{{branding.accent}}</b></div></label></div>
+            <div class="brand-preview"><span class="section-kicker">LIVE PREVIEW</span><div class="preview-card"><span class="preview-logo" [style.background]="branding.accent">{{branding.logoText}}</span><h3>{{branding.name}}</h3><p>{{branding.portalTitle}}</p><button [style.background]="branding.accent">ورود به پورتال</button><small>{{branding.supportEmail}}</small></div></div></div>
+          <div class="panel-footer"><span>دامنه سفارشی و بارگذاری فایل لوگو در مرحله Backend و Storage فعال می‌شود.</span><button class="primary" [disabled]="!canManage" (click)="saveBranding()">ذخیره برندینگ</button></div>
+        </section>
+      }
+
+      @if(activeTab()==='policies'){
+        <section class="panel"><div class="panel-head"><div><span class="section-kicker">TENANT SECURITY POLICIES</span><h2>سیاست‌های امنیت و سازمان</h2><p>سیاست‌های سطح Tenant بر تجربه ورود و مدیریت اعضا اثر می‌گذارند.</p></div></div>
+          <div class="policy-list"><label class="policy"><span><b>اجازه دعوت اعضا</b><small>مدیران سازمان بتوانند اعضای جدید دعوت کنند.</small></span><input type="checkbox" [(ngModel)]="policies.allowInvites"></label><label class="policy"><span><b>الزام MFA</b><small>احراز هویت دومرحله‌ای برای اعضای سازمان الزامی باشد.</small></span><input type="checkbox" [(ngModel)]="policies.requireMfa"></label><label class="policy"><span><b>دامنه سفارشی</b><small>اتصال دامنه اختصاصی به فضای سازمان مجاز باشد.</small></span><input type="checkbox" [(ngModel)]="policies.allowCustomDomain"></label><label class="policy"><span><b>مهلت نشست</b><small>حداکثر زمان اعتبار نشست کاربر.</small></span><select [(ngModel)]="policies.sessionTimeout"><option>۱ ساعت</option><option>۴ ساعت</option><option>۸ ساعت</option><option>۲۴ ساعت</option></select></label><label class="policy"><span><b>نقش پیش‌فرض دعوت</b><small>نقش اولیه اعضای تازه‌وارد.</small></span><select [(ngModel)]="policies.defaultRole"><option value="customer">کاربر / مشتری</option><option value="agent">کارشناس</option></select></label></div>
+          <div class="panel-footer"><span>در نسخه واقعی، سیاست‌ها سمت سرور enforce و در Audit Log ثبت می‌شوند.</span><button class="primary" [disabled]="!canManage" (click)="savePolicies()">ذخیره سیاست‌ها</button></div>
+        </section>
+      }
+
+      @if(activeTab()==='onboarding'){
+        <section class="panel onboarding"><div class="panel-head"><div><span class="section-kicker">TENANT ONBOARDING WIZARD</span><h2>راه‌اندازی سازمان جدید</h2><p>ایجاد Tenant، تعیین مدیر اولیه و انتخاب طرح پایه.</p></div><span class="step-pill">مرحله {{onboardingStep}} از ۳</span></div>
+          <div class="steps"><span [class.done]="onboardingStep>=1">۱ <small>اطلاعات سازمان</small></span><i></i><span [class.done]="onboardingStep>=2">۲ <small>مدیر و پلن</small></span><i></i><span [class.done]="onboardingStep>=3">۳ <small>تکمیل</small></span></div>
+          @if(onboardingStep===1){<div class="form-grid"><label>نام سازمان<input [(ngModel)]="onboarding.name" placeholder="مثلاً شرکت نمونه"></label><label>شناسه یکتا<input [(ngModel)]="onboarding.slug" placeholder="company-name"></label><label>منطقه میزبانی<select [(ngModel)]="onboarding.region"><option>ایران · خاورمیانه</option><option>اروپا · فرانکفورت</option><option>آمریکا · شرق</option></select></label></div><div class="panel-footer"><span>شناسه یکتا پس از ایجاد قابل تغییر نخواهد بود.</span><button class="primary" (click)="startOnboarding()">ادامه</button></div>}
+          @if(onboardingStep===2){<div class="form-grid"><label>ایمیل مدیر سازمان<input [(ngModel)]="onboarding.adminEmail" type="email" placeholder="admin@company.com"></label><label>طرح اشتراک<select [(ngModel)]="onboarding.plan"><option>Starter</option><option>Business</option><option>Enterprise</option></select></label></div><div class="panel-footer"><button class="secondary" (click)="onboardingStep=1">بازگشت</button><button class="primary" (click)="finishOnboarding()">ایجاد Tenant و تکمیل</button></div>}
+          @if(onboardingStep===3){<div class="complete"><i-lucide [img]="CheckCircle2" [size]="34"></i-lucide><h3>سازمان ایجاد شد</h3><p>Tenant جدید در فهرست سازمان‌ها قرار گرفت. ارسال دعوت‌نامه و provisioning واقعی پس از اتصال Backend انجام می‌شود.</p><button class="primary" (click)="selectTab('tenants');resetOnboarding()">مشاهده سازمان‌ها</button></div>}
+        </section>
+      }
+    </div>
+  </section>
+
+  @if(showCreate()){<div class="modal-backdrop" (click)="showCreate.set(false)"><section class="modal" (click)="$event.stopPropagation()"><div class="modal-head"><div><span class="section-kicker">NEW TENANT</span><h2>ایجاد سازمان جدید</h2><p>یک Tenant آزمایشی با فضای تنظیمات مستقل بسازید.</p></div><button class="close" (click)="showCreate.set(false)"><i-lucide [img]="X" [size]="17"></i-lucide></button></div><div class="form-grid"><label>نام سازمان<input [(ngModel)]="createForm.name"></label><label>شناسه یکتا<input [(ngModel)]="createForm.slug"></label><label>دامنه اختصاصی<input [(ngModel)]="createForm.domain" placeholder="company.example.com"></label><label>پلن<select [(ngModel)]="createForm.plan"><option>Starter</option><option>Business</option><option>Enterprise</option></select></label><label>منطقه میزبانی<select [(ngModel)]="createForm.region"><option>ایران · خاورمیانه</option><option>اروپا · فرانکفورت</option><option>آمریکا · شرق</option></select></label></div><div class="modal-footer"><button class="secondary" (click)="showCreate.set(false)">انصراف</button><button class="primary" (click)="createTenant()">ایجاد Tenant</button></div></section></div>}
+</main>

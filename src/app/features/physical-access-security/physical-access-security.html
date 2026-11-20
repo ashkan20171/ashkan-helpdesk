@@ -1,0 +1,119 @@
+<section class="access-page" dir="rtl">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow">PHYSICAL SECURITY</div>
+      <h1>مدیریت دسترسی فیزیکی و امنیت</h1>
+      <p>مدیریت Access Zone، کارت‌ها، مجوزها، بازدیدکنندگان، رویدادهای ورود و حوادث امنیتی</p>
+    </div>
+    <button class="primary-btn" type="button" (click)="addAccessRequest()">
+      <lucide-icon [img]="icons.Plus" [size]="18"></lucide-icon>
+      درخواست دسترسی جدید
+    </button>
+  </header>
+
+  <div class="security-banner">
+    <div class="banner-icon"><lucide-icon [img]="icons.ShieldCheck" [size]="24"></lucide-icon></div>
+    <div><strong>Security Posture: Good</strong><span>کنترل دسترسی فعال است و رویدادهای حساس به‌صورت متمرکز قابل پایش هستند.</span></div>
+    <div class="banner-metrics"><span><b>{{ protectedZones }}</b> Zone محافظت‌شده</span><span><b>{{ deniedEvents }}</b> Denied Event</span></div>
+  </div>
+
+  <div class="kpi-grid">
+    <article class="kpi-card"><div class="kpi-icon amber"><lucide-icon [img]="icons.FileCheck2" [size]="21"></lucide-icon></div><div><span>در انتظار تأیید</span><strong>{{ pendingApprovals }}</strong><small>Access Request</small></div></article>
+    <article class="kpi-card"><div class="kpi-icon blue"><lucide-icon [img]="icons.BadgeCheck" [size]="21"></lucide-icon></div><div><span>Credential فعال</span><strong>{{ activeCredentials }}</strong><small>کارت و دسترسی دیجیتال</small></div></article>
+    <article class="kpi-card"><div class="kpi-icon red"><lucide-icon [img]="icons.AlertTriangle" [size]="21"></lucide-icon></div><div><span>رویداد ردشده</span><strong>{{ deniedEvents }}</strong><small>در بازه اخیر</small></div></article>
+    <article class="kpi-card"><div class="kpi-icon green"><lucide-icon [img]="icons.LockKeyhole" [size]="21"></lucide-icon></div><div><span>Zone امن</span><strong>{{ protectedZones }}</strong><small>از {{ zones.length }} Zone</small></div></article>
+  </div>
+
+  <nav class="tabs">
+    <button [class.active]="activeTab === 'requests'" (click)="activeTab='requests'"><lucide-icon [img]="icons.FileCheck2" [size]="17"></lucide-icon> درخواست‌های دسترسی</button>
+    <button [class.active]="activeTab === 'credentials'" (click)="activeTab='credentials'"><lucide-icon [img]="icons.KeyRound" [size]="17"></lucide-icon> Credentialها</button>
+    <button [class.active]="activeTab === 'zones'" (click)="activeTab='zones'"><lucide-icon [img]="icons.DoorOpen" [size]="17"></lucide-icon> Access Zones</button>
+    <button [class.active]="activeTab === 'events'" (click)="activeTab='events'"><lucide-icon [img]="icons.Activity" [size]="17"></lucide-icon> Access Logs</button>
+  </nav>
+
+  <div *ngIf="activeTab === 'requests'" class="content">
+    <div class="toolbar">
+      <div class="search-box"><lucide-icon [img]="icons.Search" [size]="18"></lucide-icon><input [(ngModel)]="query" placeholder="جستجو در شخص، Zone، درخواست یا دلیل..." /></div>
+      <div class="selects">
+        <select [(ngModel)]="statusFilter"><option>All</option><option>New</option><option>Pending Approval</option><option>Approved</option><option>Rejected</option><option>Expired</option></select>
+        <select [(ngModel)]="levelFilter"><option>All</option><option>Standard</option><option>Restricted</option><option>Critical</option></select>
+        <button class="ghost-btn"><lucide-icon [img]="icons.Filter" [size]="17"></lucide-icon> فیلتر امنیتی</button>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-head"><div><h2>Access Requests</h2><span>گردش درخواست، تأیید دسترسی و کنترل مجوزها</span></div><span class="count">{{ filteredRequests.length }} درخواست</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>درخواست</th><th>شخص</th><th>Zone</th><th>سطح</th><th>وضعیت</th><th>دلیل</th><th>تأییدکننده</th><th>زمان</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let item of filteredRequests">
+              <td><b>{{ item.id }}</b><small>{{ item.ticket || 'بدون Ticket' }}</small></td>
+              <td><strong>{{ item.person }}</strong><small>{{ item.type }}</small></td>
+              <td><span class="zone-name"><lucide-icon [img]="icons.MapPin" [size]="14"></lucide-icon>{{ item.zone }}</span></td>
+              <td><span class="level" [ngClass]="levelClass(item.accessLevel)">{{ item.accessLevel }}</span></td>
+              <td><span class="status" [ngClass]="statusClass(item.status)">{{ item.status }}</span></td>
+              <td>{{ item.reason }}</td><td>{{ item.approver }}</td><td>{{ item.requestedAt }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="workflow-card">
+      <div><span class="step active"><b>1</b> Request</span><i></i><span class="step active"><b>2</b> Risk Check</span><i></i><span class="step"><b>3</b> Approval</span><i></i><span class="step"><b>4</b> Provision</span><i></i><span class="step"><b>5</b> Audit</span></div>
+      <p>هر دسترسی حساس می‌تواند به Employee، Facility، Ticket و Audit Trail متصل شود.</p>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'credentials'" class="content">
+    <div class="section-heading"><div><h2>Credential Management</h2><p>کارت، موبایل، بیومتریک و Badge موقت</p></div><button class="ghost-btn"><lucide-icon [img]="icons.KeyRound" [size]="17"></lucide-icon> صدور Credential</button></div>
+    <div class="credential-grid">
+      <article *ngFor="let item of credentials" class="credential-card">
+        <div class="credential-top"><div class="credential-icon"><lucide-icon [img]="item.credential === 'Biometric' ? icons.UserRoundCheck : icons.KeyRound" [size]="19"></lucide-icon></div><span class="status" [ngClass]="statusClass(item.status)">{{ item.status }}</span></div>
+        <h3>{{ item.holder }}</h3><small>{{ item.id }} · {{ item.credential }}</small>
+        <div class="credential-stats"><div><b>{{ item.zones }}</b><span>Zone</span></div><div><b>{{ item.issued }}</b><span>صدور</span></div><div><b>{{ item.expires }}</b><span>انقضا</span></div></div>
+        <button class="mini-btn"><lucide-icon [img]="icons.Settings2" [size]="14"></lucide-icon> مدیریت دسترسی</button>
+      </article>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'zones'" class="content">
+    <div class="section-heading"><div><h2>Access Zones</h2><p>سطح حساسیت، درها و افراد مجاز در هر ناحیه</p></div><button class="ghost-btn"><lucide-icon [img]="icons.Plus" [size]="17"></lucide-icon> Zone جدید</button></div>
+    <div class="zone-grid">
+      <article *ngFor="let item of zones" class="zone-card" [class.critical-zone]="item.color === 'red'">
+        <div class="zone-top"><div class="zone-icon" [class.red]="item.color === 'red'" [class.amber]="item.color === 'amber'"><lucide-icon [img]="icons.DoorOpen" [size]="20"></lucide-icon></div><span class="status protected">{{ item.status }}</span></div>
+        <h3>{{ item.name }}</h3><small>{{ item.code }} · {{ item.level }}</small>
+        <div class="zone-stats"><div><lucide-icon [img]="icons.Users" [size]="15"></lucide-icon><b>{{ item.people }}</b><span>افراد</span></div><div><lucide-icon [img]="icons.DoorOpen" [size]="15"></lucide-icon><b>{{ item.doors }}</b><span>در</span></div></div>
+        <div class="zone-footer"><span><lucide-icon [img]="icons.ShieldCheck" [size]="14"></lucide-icon> Policy فعال</span><button>مشاهده</button></div>
+      </article>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'events'" class="content">
+    <div class="table-card">
+      <div class="table-head"><div><h2>Access Event Log</h2><span>ثبت ورود، خروج و تلاش‌های ناموفق</span></div><button class="ghost-btn"><lucide-icon [img]="icons.Activity" [size]="17"></lucide-icon> Live Monitor</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>زمان</th><th>شخص</th><th>Zone</th><th>رویداد</th><th>روش</th><th>دستگاه</th><th>وضعیت امنیتی</th></tr></thead>
+        <tbody><tr *ngFor="let item of events">
+          <td><b>{{ item.time }}</b></td><td>{{ item.person }}</td><td>{{ item.zone }}</td>
+          <td><span class="event" [ngClass]="eventClass(item.action)"><lucide-icon [img]="item.action === 'Denied' ? icons.XCircle : item.action === 'Granted' ? icons.CheckCircle2 : icons.DoorOpen" [size]="14"></lucide-icon>{{ item.action }}</span></td>
+          <td>{{ item.method }}</td><td>{{ item.device }}</td><td><span class="security-state" [class.danger]="item.action === 'Denied'">{{ item.action === 'Denied' ? 'نیازمند بررسی' : 'Normal' }}</span></td>
+        </tr></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <aside *ngIf="showCreatePanel" class="drawer-backdrop" (click)="closeCreatePanel()">
+    <div class="drawer" (click)="$event.stopPropagation()">
+      <div class="drawer-head"><div><span>ACCESS REQUEST</span><h2>درخواست دسترسی جدید</h2></div><button (click)="closeCreatePanel()">×</button></div>
+      <label>شخص<input placeholder="نام کارمند، پیمانکار یا Visitor" /></label>
+      <label>Access Zone<select><option>ساختمان مرکزی</option><option>اتاق مدیریت</option><option>آزمایشگاه شبکه</option><option>دیتاسنتر</option><option>موتورخانه</option></select></label>
+      <label>سطح دسترسی<select><option>Standard</option><option>Restricted</option><option>Critical</option></select></label>
+      <label>نوع درخواست<select><option>Employee</option><option>Contractor</option><option>Visitor</option></select></label>
+      <label>دلیل<textarea rows="4" placeholder="هدف و ضرورت دسترسی..."></textarea></label>
+      <button class="primary-btn full">ارسال برای تأیید</button>
+      <p class="drawer-note">در این فاز فرم و گردش‌کار به‌صورت Mock پیاده‌سازی شده است؛ Identity، Policy Engine، Access Control Hardware، Notification و Audit واقعی در Backend متصل می‌شوند.</p>
+    </div>
+  </aside>
+</section>

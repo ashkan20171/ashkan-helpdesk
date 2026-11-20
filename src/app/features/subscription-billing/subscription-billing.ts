@@ -1,0 +1,25 @@
+import { Component, computed, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, CreditCard, CheckCircle2, AlertTriangle, UsersRound, HardDrive, Zap, ReceiptText, ArrowUpRight, Plus, X, Gauge, CalendarClock, WalletCards, Sparkles, Activity } from 'lucide-angular';
+import { hasPermission } from '../auth/auth.guard';
+type PlanName='Starter'|'Business'|'Enterprise'|'Custom';
+interface Plan{id:string;name:PlanName;price:number;users:number;storage:number;tickets:number;modules:string[];popular?:boolean;color:string}
+interface Sub{tenant:string;plan:PlanName;status:string;renewal:string;seats:number;usedSeats:number;storage:number;usedStorage:number;tickets:number;usedTickets:number;mrr:number}
+@Component({selector:'ah-subscription-billing',standalone:true,imports:[FormsModule,LucideAngularModule],templateUrl:'./subscription-billing.html',styleUrl:'./subscription-billing.scss'})
+export class SubscriptionBillingComponent{
+readonly CreditCard=CreditCard;readonly CheckCircle2=CheckCircle2;readonly AlertTriangle=AlertTriangle;readonly UsersRound=UsersRound;readonly HardDrive=HardDrive;readonly Zap=Zap;readonly ReceiptText=ReceiptText;readonly ArrowUpRight=ArrowUpRight;readonly Plus=Plus;readonly X=X;readonly Gauge=Gauge;readonly CalendarClock=CalendarClock;readonly WalletCards=WalletCards;readonly Sparkles=Sparkles;readonly Activity=Activity;
+readonly canManage=hasPermission('settings.manage');readonly tab=signal('overview');readonly notice=signal('');readonly showPlan=signal(false);readonly showUpgrade=signal(false);readonly selectedPlan=signal<PlanName>('Business');
+readonly plans=signal<Plan[]>([
+{id:'1',name:'Starter',price:29,users:10,storage:10,tickets:1000,modules:['Ticketing','Knowledge Base','Self Service'],color:'#159b79'},
+{id:'2',name:'Business',price:89,users:50,storage:100,tickets:10000,modules:['Ticketing','SLA','Automation','Assets','Reports'],popular:true,color:'#6957e8'},
+{id:'3',name:'Enterprise',price:249,users:250,storage:1000,tickets:100000,modules:['SSO / MFA','Advanced Analytics','Audit','API'],color:'#2588d8'},
+{id:'4',name:'Custom',price:0,users:1000,storage:5000,tickets:999999,modules:['Custom Modules','Dedicated Policy','Premium Support'],color:'#d28a2d'}]);
+readonly subscriptions=signal<Sub[]>([
+{tenant:'شرکت آشیان',plan:'Enterprise',status:'فعال',renewal:'۱۴۰۵/۰۹/۲۸',seats:250,usedSeats:128,storage:1000,usedStorage:612,tickets:100000,usedTickets:63420,mrr:249},
+{tenant:'راهکاران نوین',plan:'Business',status:'فعال',renewal:'۱۴۰۵/۱۰/۰۶',seats:50,usedSeats:43,storage:100,usedStorage:81,tickets:10000,usedTickets:9240,mrr:89},
+{tenant:'گروه توسعه فردا',plan:'Starter',status:'آزمایشی',renewal:'۱۴۰۵/۰۹/۳۰',seats:10,usedSeats:8,storage:10,usedStorage:7.4,tickets:1000,usedTickets:720,mrr:29},
+{tenant:'پارس داده',plan:'Business',status:'تعلیق‌شده',renewal:'۱۴۰۵/۰۸/۱۲',seats:50,usedSeats:0,storage:100,usedStorage:0,tickets:10000,usedTickets:0,mrr:89}]);
+readonly totalMrr=computed(()=>this.subscriptions().filter(x=>x.status!=='تعلیق‌شده').reduce((a,x)=>a+x.mrr,0));readonly active=computed(()=>this.subscriptions().filter(x=>x.status==='فعال').length);readonly trials=computed(()=>this.subscriptions().filter(x=>x.status==='آزمایشی').length);readonly risk=computed(()=>this.subscriptions().filter(x=>this.pct(x.usedSeats,x.seats)>=80||this.pct(x.usedStorage,x.storage)>=80||this.pct(x.usedTickets,x.tickets)>=80).length);readonly current=computed(()=>this.subscriptions()[0]);
+custom={name:'',price:199,users:100,storage:250,tickets:25000,modules:'Ticketing, SLA, Automation'};invoiceFilter='همه';invoices=[{id:'INV-1048',tenant:'شرکت آشیان',date:'۱۴۰۵/۰۸/۲۸',amount:249,status:'پرداخت‌شده'},{id:'INV-1047',tenant:'راهکاران نوین',date:'۱۴۰۵/۰۸/۰۶',amount:89,status:'پرداخت‌شده'},{id:'INV-1046',tenant:'گروه توسعه فردا',date:'۱۴۰۵/۰۸/۰۱',amount:29,status:'آزمایشی'},{id:'INV-1045',tenant:'پارس داده',date:'۱۴۰۵/۰۷/۱۲',amount:89,status:'سررسید گذشته'}];
+selectTab(t:string){this.tab.set(t)}pct(a:number,b:number){return Math.min(100,Math.round(a/b*100))}plan(n:PlanName){return this.plans().find(x=>x.name===n)!}openUpgrade(n:PlanName){if(this.canManage){this.selectedPlan.set(n);this.showUpgrade.set(true)}}confirmUpgrade(){this.showUpgrade.set(false);this.flash('تغییر پلن در نسخه نمایشی ثبت شد.')}createCustom(){if(!this.custom.name.trim()){this.flash('نام پلن الزامی است.',true);return}this.plans.update(x=>[...x,{id:Date.now().toString(),name:'Custom',price:+this.custom.price,users:+this.custom.users,storage:+this.custom.storage,tickets:+this.custom.tickets,modules:this.custom.modules.split(',').map(x=>x.trim()).filter(Boolean),color:'#d28a2d'}]);this.showPlan.set(false);this.flash('پلن اختصاصی اضافه شد.')}private flash(m:string,e=false){this.notice.set(`${e?'!':'✓'} ${m}`);setTimeout(()=>this.notice.set(''),3000)}
+}

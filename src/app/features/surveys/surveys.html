@@ -1,0 +1,87 @@
+<section class="surveys-page" dir="rtl">
+  <header class="page-header">
+    <div><div class="eyebrow">Voice of Customer · Experience Analytics</div><h1>نظرسنجی و رضایت کاربران</h1><p>اندازه‌گیری تجربه کاربران، تحلیل رضایت و شناسایی فرصت‌های بهبود خدمات.</p></div>
+    <div class="header-actions"><button class="btn btn-secondary" (click)="exportResponses()"><lucide-icon [img]="icons.download"></lucide-icon>خروجی پاسخ‌ها</button><button class="btn btn-primary" (click)="openCreate()"><lucide-icon [img]="icons.plus"></lucide-icon>نظرسنجی جدید</button></div>
+  </header>
+
+  <nav class="tabs">
+    <button [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'"><lucide-icon [img]="icons.chart"></lucide-icon>نمای کلی</button>
+    <button [class.active]="activeTab === 'surveys'" (click)="activeTab = 'surveys'"><lucide-icon [img]="icons.clipboard"></lucide-icon>مدیریت نظرسنجی‌ها</button>
+    <button [class.active]="activeTab === 'responses'" (click)="activeTab = 'responses'"><lucide-icon [img]="icons.message"></lucide-icon>پاسخ‌ها و بازخوردها</button>
+  </nav>
+
+  <div class="stats-grid">
+    <article class="stat-card"><div class="stat-icon teal"><lucide-icon [img]="icons.smile"></lucide-icon></div><div><span>میانگین CSAT</span><strong>{{ averageCsat }}%</strong><small>رضایت از خدمات</small></div><b class="trend positive">+۴.۲٪</b></article>
+    <article class="stat-card"><div class="stat-icon indigo"><lucide-icon [img]="icons.trend"></lucide-icon></div><div><span>شاخص NPS</span><strong>{{ averageNps }}</strong><small>تمایل به توصیه خدمات</small></div><b class="trend positive">+۶</b></article>
+    <article class="stat-card"><div class="stat-icon amber"><lucide-icon [img]="icons.message"></lucide-icon></div><div><span>کل پاسخ‌ها</span><strong>{{ totalResponses | number }}</strong><small>در همه نظرسنجی‌ها</small></div></article>
+    <article class="stat-card"><div class="stat-icon green"><lucide-icon [img]="icons.clipboard"></lucide-icon></div><div><span>نظرسنجی فعال</span><strong>{{ activeCount }}</strong><small>در حال جمع‌آوری پاسخ</small></div></article>
+  </div>
+
+  <ng-container *ngIf="activeTab === 'overview'">
+    <div class="analytics-grid">
+      <section class="panel score-panel">
+        <div class="panel-title"><div><span>Customer Satisfaction Score</span><h2>شاخص رضایت کاربران</h2></div><span class="period">داده نمونه · دوره جاری</span></div>
+        <div class="score-layout">
+          <div class="score-ring" [style.--score]="averageCsat"><div><strong>{{ averageCsat }}%</strong><span>CSAT</span></div></div>
+          <div class="score-copy"><strong>وضعیت رضایت مطلوب است</strong><p>میانگین امتیاز نظرسنجی‌های دارای پاسخ، با وزن‌دهی بر اساس تعداد پاسخ‌ها محاسبه شده است.</p><div class="score-legend"><span><i class="dot good"></i>رضایت بالا</span><span><i class="dot mid"></i>نیازمند بهبود</span></div></div>
+        </div>
+      </section>
+      <section class="panel nps-panel">
+        <div class="panel-title"><div><span>Net Promoter Score</span><h2>ترکیب پاسخ‌دهندگان NPS</h2></div><lucide-icon [img]="icons.users"></lucide-icon></div>
+        <div class="nps-number">{{ averageNps }}<small>NPS</small></div>
+        <div class="nps-bars"><div *ngFor="let item of npsDistribution"><div class="bar-label"><span>{{ item.label }}</span><b>{{ item.count }}</b></div><div class="bar-track"><i [ngClass]="item.className" [style.width.%]="responses.length ? item.count / responses.length * 100 : 0"></i></div></div></div>
+      </section>
+    </div>
+
+    <section class="panel team-panel">
+      <div class="panel-title"><div><span>Team Experience</span><h2>مقایسه رضایت تیم‌ها</h2></div><span class="period">بر اساس پاسخ‌های نمونه</span></div>
+      <div class="team-table"><div class="team-head"><span>تیم پشتیبانی</span><span>تعداد پاسخ</span><span>امتیاز رضایت</span><span>عملکرد</span></div>
+        <div class="team-row" *ngFor="let team of teamMetrics"><strong>{{ team.team }}</strong><span>{{ team.count }}</span><b>{{ team.score }}%</b><div class="mini-track"><i [style.width.%]="team.score"></i></div></div>
+      </div>
+    </section>
+    <section class="panel insight-panel"><lucide-icon [img]="icons.help"></lucide-icon><div><strong>نکته تحلیلی</strong><p>برای تحلیل معتبرتر، نتایج را در طول زمان، بر اساس نوع درخواست، اولویت تیکت، تیم رسیدگی‌کننده و رعایت SLA مقایسه کنید. داده‌های فعلی نمونه و نمایشی هستند.</p></div></section>
+  </ng-container>
+
+  <ng-container *ngIf="activeTab === 'surveys'">
+    <section class="panel survey-list-panel">
+      <div class="list-toolbar"><div><h2>مدیریت نظرسنجی‌ها</h2><span>{{ filteredSurveys.length }} نظرسنجی</span></div><div class="filters"><label class="search"><lucide-icon [img]="icons.search"></lucide-icon><input [(ngModel)]="query" placeholder="جست‌وجوی نظرسنجی..." /></label><select [(ngModel)]="statusFilter"><option value="all">همه وضعیت‌ها</option><option value="active">فعال</option><option value="draft">پیش‌نویس</option><option value="closed">متوقف</option></select></div></div>
+      <article class="survey-row" *ngFor="let survey of filteredSurveys">
+        <div class="survey-icon"><lucide-icon [img]="icons.clipboard"></lucide-icon></div>
+        <div class="survey-main"><div class="survey-heading"><h3>{{ survey.title }}</h3><span class="status-pill" [ngClass]="statusClass(survey.status)">{{ statusLabel(survey.status) }}</span></div><p>{{ survey.description }}</p><div class="survey-meta"><span>{{ survey.category }}</span><span>•</span><span>{{ survey.trigger }}</span><span>•</span><span>{{ survey.createdAt }}</span></div></div>
+        <div class="survey-kpis"><div><strong>{{ survey.responses }}</strong><span>پاسخ</span></div><div><strong>{{ survey.csat }}%</strong><span>CSAT</span></div><div><strong>{{ survey.nps }}</strong><span>NPS</span></div></div>
+        <div class="survey-actions"><button title="ویرایش" (click)="openEdit(survey)"><lucide-icon [img]="icons.edit"></lucide-icon></button><button title="فعال/توقف" (click)="toggleStatus(survey)"><lucide-icon [img]="survey.status === 'active' ? icons.check : icons.send"></lucide-icon></button></div>
+      </article>
+      <div class="empty" *ngIf="filteredSurveys.length === 0">نظرسنجی‌ای مطابق فیلترها پیدا نشد.</div>
+    </section>
+  </ng-container>
+
+  <ng-container *ngIf="activeTab === 'responses'">
+    <section class="panel responses-panel">
+      <div class="list-toolbar"><div><h2>پاسخ‌های اخیر</h2><span>بازخوردهای ثبت‌شده کاربران</span></div><button class="btn btn-secondary" (click)="exportResponses()"><lucide-icon [img]="icons.download"></lucide-icon>دریافت CSV</button></div>
+      <div class="response-table"><div class="response-head"><span>پاسخ‌دهنده / تیکت</span><span>تیم</span><span>CSAT</span><span>NPS</span><span>تاریخ</span></div>
+        <div class="response-row" *ngFor="let response of responses"><div><strong>{{ response.respondent }}</strong><small>{{ response.ticket }}</small><p>{{ response.comment }}</p></div><span>{{ response.team }}</span><b class="rating">{{ response.csat }} از ۵</b><b>{{ response.nps }}/۱۰</b><small>{{ response.date }}</small></div>
+      </div>
+    </section>
+  </ng-container>
+
+  <div class="modal-backdrop" *ngIf="showModal" (click)="showModal = false">
+    <section class="form-modal" (click)="$event.stopPropagation()">
+      <div class="modal-title"><div><span>طراحی تجربه بازخورد</span><h2>{{ isEditing ? 'ویرایش نظرسنجی' : 'ساخت نظرسنجی جدید' }}</h2></div><button class="close" (click)="showModal = false"><lucide-icon [img]="icons.x"></lucide-icon></button></div>
+      <div class="form-grid">
+        <label>عنوان نظرسنجی<input [(ngModel)]="form.title" placeholder="مثلاً رضایت پس از حل تیکت" /></label>
+        <label>نوع شاخص<select [(ngModel)]="form.category"><option>CSAT</option><option>NPS</option><option>CES</option><option>CX</option></select></label>
+        <label class="full">توضیحات<textarea [(ngModel)]="form.description" rows="2"></textarea></label>
+        <label>زمان ارسال / Trigger<input [(ngModel)]="form.trigger" placeholder="پس از بسته‌شدن تیکت" /></label>
+        <label>وضعیت<select [(ngModel)]="form.status"><option value="draft">پیش‌نویس</option><option value="active">فعال</option><option value="closed">متوقف</option></select></label>
+      </div>
+      <div class="questions-head"><strong>سؤالات فرم</strong><button class="btn btn-secondary small" (click)="addQuestion()"><lucide-icon [img]="icons.plus"></lucide-icon>افزودن سؤال</button></div>
+      <div class="question-editor" *ngFor="let question of form.questions">
+        <input [(ngModel)]="question.title" placeholder="متن سؤال" />
+        <select [(ngModel)]="question.type"><option value="rating">امتیاز ۱ تا ۵</option><option value="nps">NPS (۰ تا ۱۰)</option><option value="text">پاسخ متنی</option><option value="choice">چندگزینه‌ای</option></select>
+        <label><input type="checkbox" [(ngModel)]="question.required" /> اجباری</label>
+        <button class="remove-question" (click)="removeQuestion(question.id)"><lucide-icon [img]="icons.x"></lucide-icon></button>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" (click)="showModal = false">انصراف</button><button class="btn btn-primary" (click)="saveSurvey()"><lucide-icon [img]="icons.check"></lucide-icon>ذخیره نظرسنجی</button></div>
+    </section>
+  </div>
+</section>

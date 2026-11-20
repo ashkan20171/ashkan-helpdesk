@@ -1,0 +1,160 @@
+<section class="maintenance-page" dir="rtl">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow">ASSET OPERATIONS</div>
+      <h1>نگهداری و گارانتی دارایی‌ها</h1>
+      <p>مدیریت چرخه تعمیرات، نگهداری پیشگیرانه، گارانتی، قراردادهای سرویس و قطعات یدکی</p>
+    </div>
+    <button class="primary-btn" type="button" (click)="addWorkOrder()">
+      <lucide-icon [img]="icons.Plus" [size]="18"></lucide-icon>
+      ایجاد دستورکار
+    </button>
+  </header>
+
+  <div class="kpi-grid">
+    <article class="kpi-card">
+      <div class="kpi-icon blue"><lucide-icon [img]="icons.ClipboardList" [size]="21"></lucide-icon></div>
+      <div><span>دستورکارهای باز</span><strong>{{ openOrders }}</strong><small>در حال برنامه‌ریزی و اجرا</small></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon amber"><lucide-icon [img]="icons.TimerReset" [size]="21"></lucide-icon></div>
+      <div><span>Downtime</span><strong>{{ totalDowntime }}h</strong><small>جمع توقف ثبت‌شده</small></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon green"><lucide-icon [img]="icons.CircleDollarSign" [size]="21"></lucide-icon></div>
+      <div><span>هزینه تعمیرات</span><strong>${{ totalCost | number }}</strong><small>دستورکارهای جاری</small></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon red"><lucide-icon [img]="icons.ShieldCheck" [size]="21"></lucide-icon></div>
+      <div><span>ریسک گارانتی</span><strong>{{ warrantyRisk }}</strong><small>منقضی یا نزدیک انقضا</small></div>
+    </article>
+  </div>
+
+  <nav class="tabs">
+    <button [class.active]="activeTab === 'work-orders'" (click)="activeTab='work-orders'"><lucide-icon [img]="icons.ClipboardList" [size]="17"></lucide-icon> دستورکارها</button>
+    <button [class.active]="activeTab === 'preventive'" (click)="activeTab='preventive'"><lucide-icon [img]="icons.CalendarDays" [size]="17"></lucide-icon> نگهداری پیشگیرانه</button>
+    <button [class.active]="activeTab === 'warranty'" (click)="activeTab='warranty'"><lucide-icon [img]="icons.ShieldCheck" [size]="17"></lucide-icon> گارانتی و Claims</button>
+    <button [class.active]="activeTab === 'contracts'" (click)="activeTab='contracts'"><lucide-icon [img]="icons.FileText" [size]="17"></lucide-icon> قرارداد سرویس</button>
+    <button [class.active]="activeTab === 'parts'" (click)="activeTab='parts'"><lucide-icon [img]="icons.Package" [size]="17"></lucide-icon> قطعات یدکی</button>
+  </nav>
+
+  <div *ngIf="activeTab === 'work-orders'" class="content">
+    <div class="toolbar">
+      <div class="search-box">
+        <lucide-icon [img]="icons.Search" [size]="18"></lucide-icon>
+        <input [(ngModel)]="query" placeholder="جستجو در دارایی، دستورکار، تکنسین یا پیمانکار..." />
+      </div>
+      <div class="selects">
+        <select [(ngModel)]="statusFilter">
+          <option>All</option><option>Scheduled</option><option>In Progress</option><option>Waiting Parts</option><option>Completed</option><option>Cancelled</option>
+        </select>
+        <select [(ngModel)]="priorityFilter">
+          <option>All</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+        </select>
+        <button class="ghost-btn"><lucide-icon [img]="icons.Filter" [size]="17"></lucide-icon> فیلتر پیشرفته</button>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-head"><div><h2>Maintenance Work Orders</h2><span>تعمیر، سرویس، بازرسی و نگهداری دارایی‌ها</span></div><span class="count">{{ filteredWorkOrders.length }} مورد</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>دستورکار</th><th>دارایی</th><th>نوع</th><th>اولویت</th><th>وضعیت</th><th>تکنسین</th><th>موعد</th><th>هزینه</th><th>Downtime</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let item of filteredWorkOrders">
+              <td><b>{{ item.id }}</b><small *ngIf="item.ticket">{{ item.ticket }}</small></td>
+              <td><strong>{{ item.asset }}</strong><small>{{ item.assetCode }}</small></td>
+              <td><span class="type-chip">{{ item.type }}</span></td>
+              <td><span class="priority" [ngClass]="priorityClass(item.priority)">{{ item.priority }}</span></td>
+              <td><span class="status" [ngClass]="statusClass(item.status)">{{ item.status }}</span></td>
+              <td>{{ item.technician }}</td>
+              <td>{{ item.dueDate }}</td>
+              <td>${{ item.cost | number }}</td>
+              <td>{{ item.downtime }}h</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="insight-grid">
+      <article class="insight-card">
+        <div class="section-title"><lucide-icon [img]="icons.Gauge" [size]="18"></lucide-icon><h3>Maintenance Health</h3></div>
+        <div class="health-row"><span>Preventive Compliance</span><strong>92%</strong></div><div class="progress"><i style="width:92%"></i></div>
+        <div class="health-row"><span>Mean Time To Repair</span><strong>3.4h</strong></div><div class="progress"><i style="width:68%"></i></div>
+        <div class="health-row"><span>Warranty Coverage</span><strong>84%</strong></div><div class="progress"><i style="width:84%"></i></div>
+      </article>
+      <article class="insight-card">
+        <div class="section-title"><lucide-icon [img]="icons.History" [size]="18"></lucide-icon><h3>ارتباطات چرخه تعمیر</h3></div>
+        <div class="relation"><span><lucide-icon [img]="icons.Ticket" [size]="16"></lucide-icon> Ticket / Service Request</span><b>12</b></div>
+        <div class="relation"><span><lucide-icon [img]="icons.Building2" [size]="16"></lucide-icon> Vendor</span><b>7</b></div>
+        <div class="relation"><span><lucide-icon [img]="icons.Settings2" [size]="16"></lucide-icon> Asset / CI</span><b>38</b></div>
+      </article>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'preventive'" class="content">
+    <div class="calendar-header">
+      <div><h2>برنامه نگهداری پیشگیرانه</h2><p>تاریخ بعدی سرویس و وضعیت سلامت هر دارایی</p></div>
+      <div class="month-switch"><button (click)="previousMonth()"><lucide-icon [img]="icons.ChevronRight" [size]="18"></lucide-icon></button><b>{{ monthLabel() }}</b><button (click)="nextMonth()"><lucide-icon [img]="icons.ChevronLeft" [size]="18"></lucide-icon></button></div>
+    </div>
+    <div class="schedule-grid">
+      <article *ngFor="let item of preventiveSchedules" class="schedule-card">
+        <div class="schedule-top"><div class="asset-mark"><lucide-icon [img]="icons.Wrench" [size]="19"></lucide-icon></div><span class="health">{{ item.health }}% سلامت</span></div>
+        <h3>{{ item.asset }}</h3><small>{{ item.code }}</small>
+        <div class="schedule-meta"><span>چرخه: {{ item.cadence }}</span><span>تکنسین: {{ item.owner }}</span></div>
+        <div class="next-due"><lucide-icon [img]="icons.CalendarDays" [size]="16"></lucide-icon><span>سرویس بعدی</span><b>{{ item.next }}</b></div>
+      </article>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'warranty'" class="content">
+    <div class="table-card">
+      <div class="table-head"><div><h2>Warranty & Claims</h2><span>کنترل انقضا و پیگیری درخواست‌های گارانتی</span></div><button class="ghost-btn"><lucide-icon [img]="icons.ShieldCheck" [size]="17"></lucide-icon> ثبت Claim</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Claim</th><th>دارایی</th><th>ارائه‌دهنده</th><th>انقضا</th><th>وضعیت</th><th>ارزش Claim</th><th>Ticket</th></tr></thead>
+        <tbody><tr *ngFor="let item of warrantyClaims">
+          <td><b>{{ item.id }}</b></td><td><strong>{{ item.asset }}</strong><small>{{ item.assetCode }}</small></td><td>{{ item.provider }}</td><td>{{ item.expiry }}</td>
+          <td><span class="status" [ngClass]="statusClass(item.status)">{{ item.status }}</span></td><td>${{ item.claimValue | number }}</td><td>{{ item.ticket || '—' }}</td>
+        </tr></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'contracts'" class="content">
+    <div class="contract-grid">
+      <article *ngFor="let item of contracts" class="contract-card">
+        <div class="contract-head"><span class="contract-icon"><lucide-icon [img]="icons.Building2" [size]="19"></lucide-icon></span><span class="status" [ngClass]="statusClass(item.status)">{{ item.status }}</span></div>
+        <h3>{{ item.vendor }}</h3><p>{{ item.scope }}</p>
+        <div class="contract-stats"><span><b>{{ item.assets }}</b> دارایی</span><span><b>${{ item.annualCost | number }}</b> سالانه</span></div>
+        <div class="dates"><span>{{ item.start }}</span><i>←</i><span>{{ item.end }}</span></div>
+      </article>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'parts'" class="content">
+    <div class="table-card">
+      <div class="table-head"><div><h2>Spare Parts Inventory</h2><span>کنترل موجودی، رزرو و نقطه سفارش قطعات</span></div><button class="ghost-btn"><lucide-icon [img]="icons.Package" [size]="17"></lucide-icon> درخواست تأمین</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>کد</th><th>قطعه</th><th>موجودی</th><th>رزرو</th><th>نقطه سفارش</th><th>هزینه واحد</th><th>سلامت موجودی</th></tr></thead>
+        <tbody><tr *ngFor="let item of parts">
+          <td><b>{{ item.code }}</b></td><td>{{ item.name }}</td><td>{{ item.stock }}</td><td>{{ item.reserved }}</td><td>{{ item.reorder }}</td><td>${{ item.unitCost | number }}</td>
+          <td><span class="stock" [class.low]="lowStock(item)"><lucide-icon [img]="lowStock(item) ? icons.AlertTriangle : icons.CheckCircle2" [size]="15"></lucide-icon>{{ lowStock(item) ? 'نیازمند تأمین' : 'مناسب' }}</span></td>
+        </tr></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <aside *ngIf="showCreatePanel" class="drawer-backdrop" (click)="closeCreatePanel()">
+    <div class="drawer" (click)="$event.stopPropagation()">
+      <div class="drawer-head"><div><span>MAINTENANCE</span><h2>ایجاد دستورکار جدید</h2></div><button (click)="closeCreatePanel()">×</button></div>
+      <label>دارایی<input placeholder="انتخاب دارایی یا CI" /></label>
+      <label>نوع نگهداری<select><option>Preventive</option><option>Corrective</option><option>Repair</option><option>Inspection</option></select></label>
+      <label>تکنسین<select><option>علی رضایی</option><option>سارا احمدی</option><option>محمد کریمی</option></select></label>
+      <label>موعد<input type="date" /></label>
+      <label>توضیحات<textarea rows="4" placeholder="شرح مشکل، اقدامات یا چک‌لیست سرویس..."></textarea></label>
+      <button class="primary-btn full">ثبت دستورکار</button>
+      <p class="drawer-note">این فرم در این فاز رابط کاربری و Mock Data است؛ ذخیره‌سازی و گردش‌کار واقعی در فاز Backend متصل می‌شود.</p>
+    </div>
+  </aside>
+</section>

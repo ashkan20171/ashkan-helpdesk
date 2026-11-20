@@ -1,0 +1,220 @@
+<section class="documents-page" dir="rtl">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow">مدیریت محتوای سازمانی</div>
+      <h1>اسناد و آرشیو</h1>
+      <p>مرکز یکپارچه نگهداری، نسخه‌بندی، تأیید و کنترل دسترسی اسناد سازمان.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="exportCsv()">
+        <lucide-icon [img]="icons.download"></lucide-icon>
+        خروجی CSV
+      </button>
+      <button class="btn btn-primary" (click)="openCreate()">
+        <lucide-icon [img]="icons.plus"></lucide-icon>
+        سند جدید
+      </button>
+    </div>
+  </header>
+
+  <div class="stats-grid">
+    <article class="stat-card">
+      <div class="stat-icon teal"><lucide-icon [img]="icons.fileText"></lucide-icon></div>
+      <div><span>کل اسناد</span><strong>{{ documents.length }}</strong><small>اسناد ثبت‌شده</small></div>
+    </article>
+    <article class="stat-card">
+      <div class="stat-icon amber"><lucide-icon [img]="icons.clock"></lucide-icon></div>
+      <div><span>در انتظار تأیید</span><strong>{{ pendingCount }}</strong><small>نیازمند اقدام</small></div>
+    </article>
+    <article class="stat-card">
+      <div class="stat-icon indigo"><lucide-icon [img]="icons.archive"></lucide-icon></div>
+      <div><span>نزدیک انقضا</span><strong>{{ expiringCount }}</strong><small>نیازمند بررسی</small></div>
+    </article>
+    <article class="stat-card">
+      <div class="stat-icon green"><lucide-icon [img]="icons.folderArchive"></lucide-icon></div>
+      <div><span>حجم آرشیو</span><strong>{{ storageMb }} MB</strong><small>برآورد داده نمونه</small></div>
+    </article>
+  </div>
+
+  <section class="category-strip">
+    <button *ngFor="let category of categories"
+            [class.active]="activeCategory === category"
+            (click)="selectCategory(category)">
+      <lucide-icon [img]="category === 'همه' ? icons.folderArchive : icons.folderOpen"></lucide-icon>
+      {{ category }}
+    </button>
+  </section>
+
+  <section class="workspace">
+    <div class="list-panel">
+      <div class="toolbar">
+        <label class="search-box">
+          <lucide-icon [img]="icons.search"></lucide-icon>
+          <input [(ngModel)]="query" placeholder="جست‌وجوی عنوان، فایل، مالک یا برچسب..." />
+        </label>
+        <select [(ngModel)]="statusFilter">
+          <option *ngFor="let status of statuses" [value]="status.value">{{ status.label }}</option>
+        </select>
+        <select [(ngModel)]="ownerFilter">
+          <option *ngFor="let owner of owners" [value]="owner">{{ owner === 'همه' ? 'همه مالکان' : owner }}</option>
+        </select>
+      </div>
+
+      <div class="list-meta">
+        <strong>{{ filteredDocuments.length }} سند</strong>
+        <span>آخرین تغییرات آرشیو</span>
+      </div>
+
+      <div class="document-list">
+        <article class="document-row" *ngFor="let doc of filteredDocuments" (click)="openDetails(doc)">
+          <div class="file-badge" [ngClass]="typeClass(doc.type)">{{ doc.type }}</div>
+          <div class="doc-main">
+            <div class="doc-title-line">
+              <h3>{{ doc.title }}</h3>
+              <span class="status-pill" [ngClass]="statusClass(doc.status)">{{ statusLabel(doc.status) }}</span>
+            </div>
+            <div class="doc-subline">
+              <span>{{ doc.fileName }}</span>
+              <span>•</span><span>{{ doc.category }}</span>
+              <span>•</span><span>{{ doc.owner }}</span>
+              <span>•</span><span>{{ doc.size }}</span>
+            </div>
+            <div class="tags">
+              <span *ngFor="let tag of doc.tags"><lucide-icon [img]="icons.tag"></lucide-icon>{{ tag }}</span>
+            </div>
+          </div>
+          <div class="row-actions" (click)="$event.stopPropagation()">
+            <button title="ویرایش" (click)="openEdit(doc)"><lucide-icon [img]="icons.edit"></lucide-icon></button>
+            <button title="بایگانی" *ngIf="doc.status !== 'archived'" (click)="archive(doc)"><lucide-icon [img]="icons.archive"></lucide-icon></button>
+            <button title="بازگردانی" *ngIf="doc.status === 'archived'" (click)="restore(doc)"><lucide-icon [img]="icons.archiveRestore"></lucide-icon></button>
+          </div>
+        </article>
+
+        <div class="empty-state" *ngIf="filteredDocuments.length === 0">
+          <lucide-icon [img]="icons.fileText"></lucide-icon>
+          <strong>سندی پیدا نشد</strong>
+          <span>فیلترها یا عبارت جست‌وجو را تغییر دهید.</span>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side-panel">
+      <div class="panel-heading">
+        <div>
+          <span>ساختار آرشیو</span>
+          <strong>دسته‌بندی اسناد</strong>
+        </div>
+        <lucide-icon [img]="icons.folderArchive"></lucide-icon>
+      </div>
+      <div class="folder-tree">
+        <button *ngFor="let category of categories.slice(1)"
+                [class.active]="categoryFilter === category"
+                (click)="selectCategory(category)">
+          <lucide-icon [img]="icons.folderOpen"></lucide-icon>
+          <span>{{ category }}</span>
+          <b>{{ documents.filter(d => d.category === category).length }}</b>
+        </button>
+      </div>
+
+      <div class="approval-box">
+        <div class="approval-icon"><lucide-icon [img]="icons.fileCheck"></lucide-icon></div>
+        <div>
+          <strong>کنترل تأیید اسناد</strong>
+          <p>{{ pendingCount }} سند در صف بررسی قرار دارد.</p>
+        </div>
+      </div>
+
+      <div class="security-note">
+        <lucide-icon [img]="icons.user"></lucide-icon>
+        <div><strong>دسترسی‌ها</strong><p>در این نسخه، کنترل دسترسی به‌صورت نمایشی است و به مجوزهای واقعی متصل نیست.</p></div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- Details -->
+  <div class="modal-backdrop" *ngIf="selectedDocument" (click)="closeDetails()">
+    <section class="detail-modal" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeDetails()"><lucide-icon [img]="icons.x"></lucide-icon></button>
+      <div class="detail-header">
+        <div class="file-badge large" [ngClass]="typeClass(selectedDocument.type)">{{ selectedDocument.type }}</div>
+        <div>
+          <span class="status-pill" [ngClass]="statusClass(selectedDocument.status)">{{ statusLabel(selectedDocument.status) }}</span>
+          <h2>{{ selectedDocument.title }}</h2>
+          <p>{{ selectedDocument.fileName }} · {{ selectedDocument.size }}</p>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div><span>دسته‌بندی</span><strong>{{ selectedDocument.category }}</strong></div>
+        <div><span>مالک</span><strong>{{ selectedDocument.owner }}</strong></div>
+        <div><span>ایجاد</span><strong>{{ selectedDocument.createdAt }}</strong></div>
+        <div><span>آخرین بروزرسانی</span><strong>{{ selectedDocument.updatedAt }}</strong></div>
+        <div><span>تاریخ انقضا</span><strong>{{ selectedDocument.expiresAt || 'بدون انقضا' }}</strong></div>
+        <div><span>ارتباط</span><strong>{{ selectedDocument.linkedType }}: {{ selectedDocument.linkedTo }}</strong></div>
+      </div>
+
+      <div class="description-box">{{ selectedDocument.description || 'توضیحی برای این سند ثبت نشده است.' }}</div>
+
+      <div class="tag-list">
+        <span *ngFor="let tag of selectedDocument.tags"><lucide-icon [img]="icons.tag"></lucide-icon>{{ tag }}</span>
+      </div>
+
+      <div class="detail-actions">
+        <button class="btn btn-secondary" (click)="openEdit(selectedDocument)"><lucide-icon [img]="icons.edit"></lucide-icon>ویرایش</button>
+        <button class="btn btn-secondary" (click)="addVersion(selectedDocument)"><lucide-icon [img]="icons.upload"></lucide-icon>ثبت نسخه جدید</button>
+        <button class="btn btn-primary" *ngIf="selectedDocument.status === 'pending'" (click)="approve(selectedDocument)"><lucide-icon [img]="icons.check"></lucide-icon>تأیید سند</button>
+        <button class="btn btn-danger" (click)="deleteDocument(selectedDocument)"><lucide-icon [img]="icons.trash"></lucide-icon>حذف</button>
+      </div>
+
+      <div class="versions">
+        <button class="version-toggle" (click)="showVersions = !showVersions">
+          <span><lucide-icon [img]="icons.history"></lucide-icon>تاریخچه نسخه‌ها</span>
+          <lucide-icon [img]="icons.chevronDown"></lucide-icon>
+        </button>
+        <div class="version-list" *ngIf="showVersions">
+          <div *ngFor="let version of selectedDocument.versions">
+            <strong>v{{ version.version }}</strong>
+            <span>{{ version.note }}</span>
+            <small>{{ version.author }} · {{ version.date }} · {{ version.size }}</small>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Create/Edit -->
+  <div class="modal-backdrop" *ngIf="showModal" (click)="showModal = false">
+    <section class="form-modal" (click)="$event.stopPropagation()">
+      <div class="modal-title">
+        <div><span>آرشیو سازمانی</span><h2>{{ isEditing ? 'ویرایش سند' : 'ثبت سند جدید' }}</h2></div>
+        <button class="modal-close static" (click)="showModal = false"><lucide-icon [img]="icons.x"></lucide-icon></button>
+      </div>
+
+      <div class="upload-zone">
+        <lucide-icon [img]="icons.upload"></lucide-icon>
+        <strong>فایل سند</strong>
+        <span>رابط آپلود در این نسخه نمایشی است؛ ذخیره فایل واقعی در فاز Backend انجام می‌شود.</span>
+        <input [(ngModel)]="form.fileName" placeholder="نام فایل، مثال: contract-1405.pdf" />
+      </div>
+
+      <div class="form-grid">
+        <label>عنوان سند<input [(ngModel)]="form.title" placeholder="عنوان قابل نمایش" /></label>
+        <label>نوع فایل<select [(ngModel)]="form.type"><option>PDF</option><option>DOCX</option><option>XLSX</option><option>PPTX</option><option>ZIP</option></select></label>
+        <label>دسته‌بندی<select [(ngModel)]="form.category"><option *ngFor="let category of categories.slice(1)">{{ category }}</option></select></label>
+        <label>مالک سند<input [(ngModel)]="form.owner" placeholder="نام مالک یا واحد" /></label>
+        <label>وضعیت<select [(ngModel)]="form.status"><option *ngFor="let status of statuses.slice(1)" [value]="status.value">{{ status.label }}</option></select></label>
+        <label>حجم فایل<input [(ngModel)]="form.size" placeholder="مثلاً 2.4 MB" /></label>
+        <label>ارتباط با ماژول<input [(ngModel)]="form.linkedTo" placeholder="مثلاً CT-1405-018" /></label>
+        <label>نوع ارتباط<input [(ngModel)]="form.linkedType" placeholder="قرارداد، پرسنل، تیکت..." /></label>
+        <label>تاریخ انقضا<input [(ngModel)]="form.expiresAt" placeholder="مثلاً 1406/12/29" /></label>
+        <label class="full">برچسب‌ها<input [ngModel]="(form.tags || []).join(', ')" (ngModelChange)="updateFormTags($event)" placeholder="قرارداد، محرمانه، فنی" /></label>
+        <label class="full">توضیحات<textarea [(ngModel)]="form.description" rows="3" placeholder="توضیح کوتاه درباره سند"></textarea></label>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="showModal = false">انصراف</button>
+        <button class="btn btn-primary" (click)="saveDocument()"><lucide-icon [img]="icons.check"></lucide-icon>ذخیره سند</button>
+      </div>
+    </section>
+  </div>
+</section>
