@@ -27,5 +27,8 @@
         "serve": { "builder": "@angular/build:dev-server", "configurations": { "production": { "buildTarget": "ashkan-helpdesk:build:production" }, "development": { "buildTarget": "ashkan-helpdesk:build:development" } }, "defaultConfiguration": "development" }
       }
     }
+  },
+  "cli": {
+    "analytics": "1b1e7a52-62f1-4dc2-a849-221b23a0ea57"
   }
 }
