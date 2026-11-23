@@ -1,0 +1,172 @@
+<section class="simulation-page">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="Calculator"></lucide-icon> AI Financial Scenario & What-If Simulation</div>
+      <h1>Financial Scenario & What-If Simulation</h1>
+      <p>Model pricing, ticket volume, automation, agent capacity and AI cost changes before they impact the real business.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn secondary" type="button" (click)="resetModel()"><lucide-icon [img]="RotateCcw"></lucide-icon> Reset Model</button>
+      <button class="btn primary" type="button"><lucide-icon [img]="Download"></lucide-icon> Export Scenario Pack</button>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="CircleDollarSign"></lucide-icon></div>
+      <div><span>Simulated Revenue</span><strong>${{ money(simulatedRevenue()) }}</strong><small><lucide-icon [img]="ArrowUpRight"></lucide-icon> Dynamic scenario output</small></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="WalletCards"></lucide-icon></div>
+      <div><span>Simulated AI Cost</span><strong>${{ money(simulatedCost()) }}</strong><small>Driven by volume, model cost and automation</small></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="TrendingUp"></lucide-icon></div>
+      <div><span>Profit Impact</span><strong>${{ money(profitDelta()) }}</strong><small [class.negative]="profitDelta() < 0">{{ profitDelta() >= 0 ? '+' : '' }}{{ pct(profitDeltaPct()) }} vs baseline</small></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="Gauge"></lucide-icon></div>
+      <div><span>Simulated Margin</span><strong>{{ pct(simulatedMargin()) }}</strong><small>What-if profitability</small></div>
+    </article>
+  </div>
+
+  <div class="main-grid">
+    <article class="panel controls-panel">
+      <div class="panel-head">
+        <div><span class="panel-kicker">Scenario Controls</span><h2>Change the business assumptions</h2></div>
+        <lucide-icon [img]="SlidersHorizontal" class="head-icon"></lucide-icon>
+      </div>
+
+      <div class="control">
+        <div class="control-label"><span>Monthly Ticket Volume</span><strong>{{ money(ticketVolume()) }}</strong></div>
+        <input type="range" min="10000" max="120000" step="1000" [ngModel]="ticketVolume()" (ngModelChange)="ticketVolume.set(+$event)">
+        <div class="range-labels"><span>10K</span><span>120K</span></div>
+      </div>
+
+      <div class="control">
+        <div class="control-label"><span>Automation Rate</span><strong>{{ automationRate() }}%</strong></div>
+        <input type="range" min="30" max="95" step="1" [ngModel]="automationRate()" (ngModelChange)="automationRate.set(+$event)">
+        <div class="range-labels"><span>30%</span><span>95%</span></div>
+      </div>
+
+      <div class="control">
+        <div class="control-label"><span>Service Price Index</span><strong>{{ priceIndex() }}</strong></div>
+        <input type="range" min="80" max="130" step="1" [ngModel]="priceIndex()" (ngModelChange)="priceIndex.set(+$event)">
+        <div class="range-labels"><span>80</span><span>130</span></div>
+      </div>
+
+      <div class="control">
+        <div class="control-label"><span>AI Model Cost Index</span><strong>{{ modelCostIndex() }}</strong></div>
+        <input type="range" min="60" max="140" step="1" [ngModel]="modelCostIndex()" (ngModelChange)="modelCostIndex.set(+$event)">
+        <div class="range-labels"><span>60</span><span>140</span></div>
+      </div>
+
+      <div class="agent-box">
+        <div><span>Support Agent Capacity</span><strong>{{ agentCount() }}</strong></div>
+        <small>Capacity is shown as an operating input for future workforce simulations.</small>
+      </div>
+    </article>
+
+    <article class="panel result-panel">
+      <div class="panel-head">
+        <div><span class="panel-kicker">Live What-If Result</span><h2>Financial impact preview</h2></div>
+        <span class="status-pill" [class.positive]="profitDelta() >= 0" [class.negative]="profitDelta() < 0">{{ profitDelta() >= 0 ? 'Value positive' : 'Value negative' }}</span>
+      </div>
+
+      <div class="result-flow">
+        <div class="result-box">
+          <span>Revenue</span><strong>${{ money(simulatedRevenue()) }}</strong><small>{{ simulatedRevenue() >= monthlyRevenue() ? '+' : '' }}{{ pct(((simulatedRevenue() - monthlyRevenue()) / monthlyRevenue()) * 100) }}</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="result-box cost">
+          <span>AI Cost</span><strong>${{ money(simulatedCost()) }}</strong><small>{{ simulatedCost() <= monthlyAiCost() ? '-' : '+' }}{{ pct(Math.abs((simulatedCost() - monthlyAiCost()) / monthlyAiCost()) * 100) }}</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="result-box profit">
+          <span>Profit</span><strong>${{ money(simulatedProfit()) }}</strong><small>{{ profitDelta() >= 0 ? '+' : '' }}${{ money(profitDelta()) }}</small>
+        </div>
+      </div>
+
+      <div class="impact-chart">
+        <div class="chart-grid"></div>
+        <div class="baseline"><span>Baseline</span></div>
+        <div class="impact-bar positive" [class.loss]="profitDelta() < 0" [style.width.%]="Math.min(92, Math.max(8, 50 + profitDeltaPct() * 1.6))"></div>
+        <div class="chart-caption"><span>Lower profitability</span><b>Scenario impact</b><span>Higher profitability</span></div>
+      </div>
+
+      <div class="recommendation">
+        <lucide-icon [img]="Sparkles"></lucide-icon>
+        <div><strong>Simulation insight</strong><p>{{ profitDelta() >= 0 ? 'Current assumptions indicate a financially attractive scenario. Validate operational capacity and governance constraints before promotion.' : 'Current assumptions reduce profitability. Consider increasing automation or lowering AI unit cost before adopting this scenario.' }}</p></div>
+      </div>
+    </article>
+  </div>
+
+  <article class="panel">
+    <div class="panel-head">
+      <div><span class="panel-kicker">Scenario Presets</span><h2>Start from a strategic planning posture</h2></div>
+      <lucide-icon [img]="Layers3" class="head-icon"></lucide-icon>
+    </div>
+    <div class="preset-grid">
+      @for (preset of presets(); track preset.name) {
+        <button class="preset" type="button" (click)="runPreset(preset)">
+          <div class="preset-top"><strong>{{ preset.name }}</strong><span>{{ preset.automation }}% automation</span></div>
+          <p>{{ preset.description }}</p>
+          <div class="preset-meta"><span>Revenue {{ preset.revenueMultiplier | number:'1.2-2' }}×</span><span>Cost {{ preset.costMultiplier | number:'1.2-2' }}×</span></div>
+        </button>
+      }
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head table-head">
+      <div><span class="panel-kicker">Simulation Register</span><h2>Previously modeled scenarios</h2></div>
+      <div class="filters">
+        <label class="search-box"><lucide-icon [img]="Search"></lucide-icon><input [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" placeholder="Search simulation..."></label>
+        <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
+          <option>All</option><option>Recommended</option><option>Watch</option><option>Risk</option>
+        </select>
+        <button class="icon-btn" type="button" title="Refresh"><lucide-icon [img]="RefreshCw"></lucide-icon></button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Simulation</th><th>Scope</th><th>Revenue Δ</th><th>Cost Δ</th><th>Profit Δ</th><th>Margin Δ</th><th>Confidence</th><th>Status</th></tr></thead>
+        <tbody>
+          @for (simulation of filteredSimulations(); track simulation.id) {
+            <tr (click)="selectSimulation(simulation)">
+              <td><span class="record-id">{{ simulation.id }}</span></td>
+              <td><strong>{{ simulation.name }}</strong></td>
+              <td>{{ simulation.scope }}</td>
+              <td [class.good]="simulation.revenueDelta >= 0">${{ simulation.revenueDelta >= 0 ? '+' : '' }}{{ money(simulation.revenueDelta) }}</td>
+              <td [class.good]="simulation.costDelta < 0" [class.bad]="simulation.costDelta > 0">${{ simulation.costDelta >= 0 ? '+' : '' }}{{ money(simulation.costDelta) }}</td>
+              <td [class.good]="simulation.profitDelta >= 0" [class.bad]="simulation.profitDelta < 0">${{ simulation.profitDelta >= 0 ? '+' : '' }}{{ money(simulation.profitDelta) }}</td>
+              <td [class.good]="simulation.marginDelta >= 0" [class.bad]="simulation.marginDelta < 0">{{ simulation.marginDelta >= 0 ? '+' : '' }}{{ pct(simulation.marginDelta) }}</td>
+              <td><div class="confidence"><i [style.width.%]="simulation.confidence"></i><span>{{ simulation.confidence }}%</span></div></td>
+              <td><span class="status-pill" [class.positive]="simulation.status === 'Recommended'" [class.watch]="simulation.status === 'Watch'" [class.negative]="simulation.status === 'Risk'">{{ simulation.status }}</span></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="9" class="empty">No simulations match the current filters.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  @if (selectedSimulation(); as simulation) {
+    <div class="modal-backdrop" (click)="closeDetail()">
+      <section class="detail-modal" (click)="$event.stopPropagation()">
+        <button class="close-btn" type="button" (click)="closeDetail()"><lucide-icon [img]="X"></lucide-icon></button>
+        <span class="panel-kicker">Scenario Detail</span>
+        <h2>{{ simulation.name }}</h2>
+        <p class="detail-id">{{ simulation.id }} · {{ simulation.scope }}</p>
+        <div class="detail-grid">
+          <div><span>Revenue Impact</span><strong [class.good]="simulation.revenueDelta >= 0">${{ simulation.revenueDelta >= 0 ? '+' : '' }}{{ money(simulation.revenueDelta) }}</strong></div>
+          <div><span>AI Cost Impact</span><strong [class.good]="simulation.costDelta < 0">${{ simulation.costDelta >= 0 ? '+' : '' }}{{ money(simulation.costDelta) }}</strong></div>
+          <div><span>Profit Impact</span><strong [class.good]="simulation.profitDelta >= 0" [class.bad]="simulation.profitDelta < 0">${{ simulation.profitDelta >= 0 ? '+' : '' }}{{ money(simulation.profitDelta) }}</strong></div>
+          <div><span>Confidence</span><strong>{{ simulation.confidence }}%</strong></div>
+        </div>
+        <div class="detail-note"><lucide-icon [img]="ShieldCheck"></lucide-icon><span>Governance note: simulations are decision-support artifacts only. Promotion to production should require financial approval, scenario versioning and an auditable change record.</span></div>
+      </section>
+    </div>
+  }
+</section>

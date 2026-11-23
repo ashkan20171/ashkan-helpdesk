@@ -1,115 +1,149 @@
-import { CustomerSuccessAutomationComponent } from './features/customer-success-automation/customer-success-automation';
-import { CustomerSuccessComponent } from './features/customer-success/customer-success';
-import { EntitlementManagementComponent } from './features/entitlement-management/entitlement-management';
-import { SubscriptionBillingComponent } from './features/subscription-billing/subscription-billing';
-import { AutomationComponent } from './features/automation/automation';
-import { BillingComponent } from './features/billing/billing';
-import { TenantsComponent } from './features/tenants/tenants';
-import { PortalComponent } from './features/portal/portal';
-import { ApiManagementComponent } from './features/api-management/api-management';
-import { AuditLogComponent } from './features/audit-log/audit-log';
-import { SettingsComponent } from './features/settings/settings';
-import { ReportsComponent } from './features/reports/reports';
-import { NotificationsComponent } from './features/notifications/notifications';
-import { SurveysComponent } from './features/surveys/surveys';
-import { DocumentsComponent } from './features/documents/documents';
 import { Routes } from '@angular/router';
-import { DashboardComponent } from './features/dashboard/dashboard';
-import { TicketsComponent } from './features/tickets/tickets';
-import { DesignSystemComponent } from './features/design-system/design-system';
 import { AuthComponent } from './features/auth/auth';
-import { UsersComponent } from './features/users/users';
-import { OrganizationComponent } from './features/organization/organization';
-import { ServiceRequestsComponent } from './features/service-requests/service-requests';
-import { SlaComponent } from './features/sla/sla';
-import { WorkflowsComponent } from './features/workflows/workflows';
-import { KnowledgeBaseComponent } from './features/knowledge-base/knowledge-base';
-import { AssetsComponent } from './features/assets/assets';
-import { ContractsComponent } from './features/contracts/contracts';
-import { ProcurementComponent } from './features/procurement/procurement';
-import { InventoryComponent } from './features/inventory/inventory';
-import { MaintenanceComponent } from './features/maintenance/maintenance';
-import { HrComponent } from './features/hr/hr';
-import { PayrollComponent } from './features/payroll/payroll';
-import { FinanceComponent } from './features/finance/finance';
-import { OmnichannelComponent } from './features/omnichannel/omnichannel';
-import { UserManagementComponent } from './features/user-management/user-management';
 import { authGuard } from './features/auth/auth.guard';
-import { GlobalSearchComponent } from './features/global-search/global-search';
-import { ApprovalCenterComponent } from './features/approval-center/approval-center';
-import { WorkforcePlanningComponent } from './features/workforce-planning/workforce-planning';
-import { ProfileAccessComponent } from './features/profile-access/profile-access';
-import { OrganizationAccessComponent } from './features/organization-access/organization-access';
-
-import { TenantManagementComponent } from './features/tenant-management/tenant-management';
-import { CopilotComponent } from './features/copilot/copilot';
+import { AiAuditComponent } from './features/ai-audit/ai-audit';
+import { AiBillingComponent } from './features/ai-billing/ai-billing';
+import { AiExecutiveComponent } from './features/ai-executive/ai-executive';
+import { AiFinanceComponent } from './features/ai-finance/ai-finance';
+import { AiFinopsComponent } from './features/ai-finops/ai-finops';
+import { AiForecastingComponent } from './features/ai-forecasting/ai-forecasting';
+import { AiGovernanceComponent } from './features/ai-governance/ai-governance';
+import { AiIncidentsComponent } from './features/ai-incidents/ai-incidents';
 import { AiKnowledgeComponent } from './features/ai-knowledge/ai-knowledge';
 import { AiObservabilityComponent } from './features/ai-observability/ai-observability';
+import { AiSecurityComponent } from './features/ai-security/ai-security';
+import { AiSimulationComponent } from './features/ai-simulation/ai-simulation';
+import { AiTrustComponent } from './features/ai-trust/ai-trust';
+import { ApiManagementComponent } from './features/api-management/api-management';
+import { ApprovalCenterComponent } from './features/approval-center/approval-center';
+import { AssetLifecycleComponent } from './features/asset-lifecycle/asset-lifecycle';
+import { AssetMaintenanceComponent } from './features/asset-maintenance/asset-maintenance';
+import { AssetsComponent } from './features/assets/assets';
+import { AuditLogComponent } from './features/audit-log/audit-log';
+import { AutomationComponent } from './features/automation/automation';
+import { BillingComponent } from './features/billing/billing';
+import { ContractsComponent } from './features/contracts/contracts';
+import { CopilotComponent } from './features/copilot/copilot';
+import { CustomerSuccessComponent } from './features/customer-success/customer-success';
+import { CustomerSuccessAutomationComponent } from './features/customer-success-automation/customer-success-automation';
+import { DashboardComponent } from './features/dashboard/dashboard';
+import { DesignSystemComponent } from './features/design-system/design-system';
+import { DocumentsComponent } from './features/documents/documents';
+import { EntitlementManagementComponent } from './features/entitlement-management/entitlement-management';
+import { FacilitiesWorkplaceComponent } from './features/facilities-workplace/facilities-workplace';
+import { FinanceComponent } from './features/finance/finance';
+import { GlobalSearchComponent } from './features/global-search/global-search';
+import { HrComponent } from './features/hr/hr';
+import { InventoryComponent } from './features/inventory/inventory';
+import { KnowledgeBaseComponent } from './features/knowledge-base/knowledge-base';
+import { MaintenanceComponent } from './features/maintenance/maintenance';
+import { MeetingRoomBookingComponent } from './features/meeting-room-booking/meeting-room-booking';
+import { NotificationsComponent } from './features/notifications/notifications';
+import { OmnichannelComponent } from './features/omnichannel/omnichannel';
+import { OrganizationComponent } from './features/organization/organization';
+import { OrganizationAccessComponent } from './features/organization-access/organization-access';
+import { PayrollComponent } from './features/payroll/payroll';
+import { PhysicalAccessSecurityComponent } from './features/physical-access-security/physical-access-security';
+import { PortalComponent } from './features/portal/portal';
+import { ProcurementComponent } from './features/procurement/procurement';
+import { ProfileAccessComponent } from './features/profile-access/profile-access';
+import { ReportsComponent } from './features/reports/reports';
+import { ResourceEquipmentBookingComponent } from './features/resource-equipment-booking/resource-equipment-booking';
+import { ServiceCatalogComponent } from './features/service-catalog/service-catalog';
+import { ServiceRequestsComponent } from './features/service-requests/service-requests';
+import { SettingsComponent } from './features/settings/settings';
+import { SlaComponent } from './features/sla/sla';
+import { SubscriptionBillingComponent } from './features/subscription-billing/subscription-billing';
+import { SurveysComponent } from './features/surveys/surveys';
+import { TeamSeatingNeighborhoodComponent } from './features/team-seating-neighborhood/team-seating-neighborhood';
+import { TenantManagementComponent } from './features/tenant-management/tenant-management';
+import { TenantsComponent } from './features/tenants/tenants';
+import { TicketsComponent } from './features/tickets/tickets';
+import { UserManagementComponent } from './features/user-management/user-management';
+import { UsersComponent } from './features/users/users';
+import { VisitorReceptionComponent } from './features/visitor-reception/visitor-reception';
+import { WorkflowsComponent } from './features/workflows/workflows';
+import { WorkforceInsightsComponent } from './features/workforce-insights/workforce-insights';
+import { WorkforcePlanningComponent } from './features/workforce-planning/workforce-planning';
+import { WorkplaceAttendanceComponent } from './features/workplace-attendance/workplace-attendance';
+import { WorkplaceDeskManagementComponent } from './features/workplace-desk-management/workplace-desk-management';
+import { WorkplacePolicyReservationComponent } from './features/workplace-policy-reservation/workplace-policy-reservation';
+import { WorkspaceCapacityOccupancyComponent } from './features/workspace-capacity-occupancy/workspace-capacity-occupancy';
 
-const rawRoutes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'auth/login' },
-  { path: 'auth/login', component: AuthComponent, data: { mode: 'login' }, title: 'ورود | Ashkan HelpDesk' },
-  { path: 'auth/register', component: AuthComponent, data: { mode: 'register' }, title: 'ثبت‌نام | Ashkan HelpDesk' },
-  { path: 'auth/forgot-password', component: AuthComponent, data: { mode: 'forgot' }, title: 'بازیابی رمز عبور | Ashkan HelpDesk' },
-  { path: 'auth/reset-password', component: AuthComponent, data: { mode: 'reset' }, title: 'تغییر رمز عبور | Ashkan HelpDesk' },
-  { path: 'auth/invite/:token', component: AuthComponent, data: { mode: 'invite' }, title: 'پذیرش دعوت‌نامه | Ashkan HelpDesk' },
-  { path: 'automation', component: AutomationComponent, title: 'موتور قوانین و اتوماسیون | Ashkan HelpDesk' },
-  { path: 'omnichannel', component: OmnichannelComponent, canActivate: [authGuard], title: 'مدیریت پیشرفته تیکت و Omnichannel | Ashkan HelpDesk' },
-  { path: 'user-management', component: UserManagementComponent, canActivate: [authGuard], data: { permission: 'users.manage' }, title: 'کاربران، نقش‌ها و دسترسی‌ها | Ashkan HelpDesk' },
-  { path: 'billing', component: BillingComponent, data: { permission: 'billing.view' }, title: 'اشتراک‌ها و صورتحساب‌ها | Ashkan HelpDesk' },
-  { path: 'tenants', component: TenantsComponent, title: 'مدیریت سازمان‌ها | Ashkan HelpDesk' },
-  { path: 'portal', component: PortalComponent, data: { permission: 'portal.use' }, title: 'پورتال خدمات کاربران | Ashkan HelpDesk' },
-  { path: 'dashboard', component: DashboardComponent, data: { permission: 'dashboard.view' }, title: 'داشبورد | Ashkan HelpDesk' },
-  { path: 'profile-access', component: ProfileAccessComponent, data: { permission: 'profile.manage' }, title: 'پروفایل و مرکز دسترسی | Ashkan HelpDesk' },
-  { path: 'tenant-management', component: TenantManagementComponent, data: { permission: 'settings.manage' }, title: 'مدیریت سازمان‌ها و Tenantها | Ashkan HelpDesk' },
-  { path: 'subscription-billing', component: SubscriptionBillingComponent, data: { permission: 'settings.manage' }, title: 'اشتراک و صورتحساب | Ashkan HelpDesk' },
-  { path: 'entitlements', component: EntitlementManagementComponent, data: { permission: 'settings.manage' }, title: 'مرکز قابلیت‌ها و سهمیه‌ها | Ashkan HelpDesk' },
-  { path: 'customer-success', component: CustomerSuccessComponent, data: { permission: 'settings.manage' }, title: 'Customer Success | Ashkan HelpDesk' },
-  { path: 'customer-success-automation', component: CustomerSuccessAutomationComponent, data: { permission: 'settings.manage' }, title: 'Customer Success Automation | Ashkan HelpDesk' },
-  { path: 'copilot', component: CopilotComponent, canActivate: [authGuard], title: 'Ashkan Copilot | Intelligent HelpDesk Assistant' },
-  { path: 'ai-knowledge', component: AiKnowledgeComponent, canActivate: [authGuard], data: { permission: 'settings.manage' }, title: 'AI Knowledge & RAG Intelligence | Ashkan HelpDesk' },
-  { path: 'ai-observability', component: AiObservabilityComponent, canActivate: [authGuard], data: { permission: 'settings.manage' }, title: 'AI Observability & Evaluation | Ashkan HelpDesk' },
-  { path: 'organization-access', component: OrganizationAccessComponent, data: { permission: 'organization.members.manage' }, title: 'مدیریت سازمان و عضویت‌ها | Ashkan HelpDesk' },
-  { path: 'search', component: GlobalSearchComponent, canActivate: [authGuard], title: 'جستجوی سراسری | Ashkan HelpDesk' },
-  { path: 'approvals', component: ApprovalCenterComponent, canActivate: [authGuard], title: 'مرکز Workflow و تأییدیه‌ها | Ashkan HelpDesk' },
-  { path: 'tickets', component: TicketsComponent, data: { permission: 'tickets.view' }, title: 'مدیریت تیکت‌ها | Ashkan HelpDesk' },
-  { path: 'requests', component: ServiceRequestsComponent, data: { permission: 'tickets.create' }, title: 'درخواست‌های خدمات | Ashkan HelpDesk' },
-  { path: 'users', component: UsersComponent, data: { permission: 'users.view' }, title: 'کاربران و دسترسی‌ها | Ashkan HelpDesk' },
-  { path: 'organization', component: OrganizationComponent, title: 'تیم‌ها و دپارتمان‌ها | Ashkan HelpDesk' },
-  { path: 'sla', component: SlaComponent, title: 'مدیریت SLA | Ashkan HelpDesk' },
-  { path: 'workflows', component: WorkflowsComponent, title: 'موتور گردش کار | Ashkan HelpDesk' },
-  { path: 'knowledge', component: KnowledgeBaseComponent, data: { permission: 'knowledge.manage' }, title: 'پایگاه دانش | Ashkan HelpDesk' },
-  { path: 'assets', component: AssetsComponent, title: 'مدیریت دارایی‌ها | Ashkan HelpDesk' },
-  { path: 'contracts', component: ContractsComponent, title: 'قراردادها و تأمین‌کنندگان | Ashkan HelpDesk' },
-  { path: 'documents', component: DocumentsComponent },
-  { path: 'knowledge-base', component: KnowledgeBaseComponent },
-  { path: 'surveys', component: SurveysComponent },
-  { path: 'notifications', component: NotificationsComponent },
-  { path: 'procurement', component: ProcurementComponent, title: 'مدیریت خرید و سفارشات | Ashkan HelpDesk' },
-  { path: 'inventory', component: InventoryComponent, title: 'مدیریت انبار و موجودی | Ashkan HelpDesk' },
-  { path: 'maintenance', component: MaintenanceComponent, title: 'مدیریت تعمیرات و نگهداری | Ashkan HelpDesk' },
-  { path: 'hr', component: HrComponent, title: 'مدیریت منابع انسانی | Ashkan HelpDesk' },
-  { path: 'payroll', component: PayrollComponent, title: 'حقوق و دستمزد | Ashkan HelpDesk' },
-  { path: 'finance', component: FinanceComponent, title: 'مدیریت مالی و هزینه‌ها | Ashkan HelpDesk' },
-  { path: 'reports', component: ReportsComponent, data: { permission: 'reports.view' }, title: 'گزارش‌گیری و تحلیل | Ashkan HelpDesk' },
-  { path: 'api-management', component: ApiManagementComponent, title: 'مدیریت API و یکپارچه‌سازی‌ها | Ashkan HelpDesk' },
-  { path: 'audit-log', component: AuditLogComponent, data: { permission: 'audit.view' }, title: 'ثبت رویدادها و ممیزی | Ashkan HelpDesk' },
-  { path: 'settings', component: SettingsComponent, data: { permission: 'settings.manage' }, title: 'تنظیمات سامانه | Ashkan HelpDesk' },
-  { path: 'design-system', component: DesignSystemComponent, title: 'Design System | Ashkan HelpDesk' },
-  { path: 'workforce-planning', component: WorkforcePlanningComponent, canActivate: [authGuard], data: { permission: 'workforce.plan' }, title: 'برنامه‌ریزی ظرفیت نیروی انسانی | Ashkan HelpDesk' },
-
-  { path: '**', redirectTo: 'dashboard' }
+export const routes: Routes = [
+  { path: 'auth/login', component: AuthComponent, data: { mode: 'login' } },
+  { path: 'auth/register', component: AuthComponent, data: { mode: 'register' } },
+  { path: 'auth/forgot', component: AuthComponent, data: { mode: 'forgot' } },
+  { path: 'auth/reset', component: AuthComponent, data: { mode: 'reset' } },
+  { path: 'auth/invite', component: AuthComponent, data: { mode: 'invite' } },
+  { path: 'ai-audit', component: AiAuditComponent, canActivate: [authGuard] },
+  { path: 'ai-billing', component: AiBillingComponent, canActivate: [authGuard] },
+  { path: 'ai-executive', component: AiExecutiveComponent, canActivate: [authGuard] },
+  { path: 'ai-finance', component: AiFinanceComponent, canActivate: [authGuard] },
+  { path: 'ai-finops', component: AiFinopsComponent, canActivate: [authGuard] },
+  { path: 'ai-forecasting', component: AiForecastingComponent, canActivate: [authGuard] },
+  { path: 'ai-governance', component: AiGovernanceComponent, canActivate: [authGuard] },
+  { path: 'ai-incidents', component: AiIncidentsComponent, canActivate: [authGuard] },
+  { path: 'ai-knowledge', component: AiKnowledgeComponent, canActivate: [authGuard] },
+  { path: 'ai-observability', component: AiObservabilityComponent, canActivate: [authGuard] },
+  { path: 'ai-security', component: AiSecurityComponent, canActivate: [authGuard] },
+  { path: 'ai-simulation', component: AiSimulationComponent, canActivate: [authGuard] },
+  { path: 'ai-trust', component: AiTrustComponent, canActivate: [authGuard] },
+  { path: 'api-management', component: ApiManagementComponent, canActivate: [authGuard] },
+  { path: 'approval-center', component: ApprovalCenterComponent, canActivate: [authGuard] },
+  { path: 'asset-lifecycle', component: AssetLifecycleComponent, canActivate: [authGuard] },
+  { path: 'asset-maintenance', component: AssetMaintenanceComponent, canActivate: [authGuard] },
+  { path: 'assets', component: AssetsComponent, canActivate: [authGuard] },
+  { path: 'audit-log', component: AuditLogComponent, canActivate: [authGuard] },
+  { path: 'automation', component: AutomationComponent, canActivate: [authGuard] },
+  { path: 'billing', component: BillingComponent, canActivate: [authGuard] },
+  { path: 'contracts', component: ContractsComponent, canActivate: [authGuard] },
+  { path: 'copilot', component: CopilotComponent, canActivate: [authGuard] },
+  { path: 'customer-success', component: CustomerSuccessComponent, canActivate: [authGuard] },
+  { path: 'customer-success-automation', component: CustomerSuccessAutomationComponent, canActivate: [authGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'design-system', component: DesignSystemComponent, canActivate: [authGuard] },
+  { path: 'documents', component: DocumentsComponent, canActivate: [authGuard] },
+  { path: 'entitlement-management', component: EntitlementManagementComponent, canActivate: [authGuard] },
+  { path: 'facilities-workplace', component: FacilitiesWorkplaceComponent, canActivate: [authGuard] },
+  { path: 'finance', component: FinanceComponent, canActivate: [authGuard] },
+  { path: 'global-search', component: GlobalSearchComponent, canActivate: [authGuard] },
+  { path: 'hr', component: HrComponent, canActivate: [authGuard] },
+  { path: 'inventory', component: InventoryComponent, canActivate: [authGuard] },
+  { path: 'knowledge-base', component: KnowledgeBaseComponent, canActivate: [authGuard] },
+  { path: 'maintenance', component: MaintenanceComponent, canActivate: [authGuard] },
+  { path: 'meeting-room-booking', component: MeetingRoomBookingComponent, canActivate: [authGuard] },
+  { path: 'notifications', component: NotificationsComponent, canActivate: [authGuard] },
+  { path: 'omnichannel', component: OmnichannelComponent, canActivate: [authGuard] },
+  { path: 'organization', component: OrganizationComponent, canActivate: [authGuard] },
+  { path: 'organization-access', component: OrganizationAccessComponent, canActivate: [authGuard] },
+  { path: 'payroll', component: PayrollComponent, canActivate: [authGuard] },
+  { path: 'physical-access-security', component: PhysicalAccessSecurityComponent, canActivate: [authGuard] },
+  { path: 'portal', component: PortalComponent, canActivate: [authGuard] },
+  { path: 'procurement', component: ProcurementComponent, canActivate: [authGuard] },
+  { path: 'profile-access', component: ProfileAccessComponent, canActivate: [authGuard] },
+  { path: 'reports', component: ReportsComponent, canActivate: [authGuard] },
+  { path: 'resource-equipment-booking', component: ResourceEquipmentBookingComponent, canActivate: [authGuard] },
+  { path: 'service-catalog', component: ServiceCatalogComponent, canActivate: [authGuard] },
+  { path: 'service-requests', component: ServiceRequestsComponent, canActivate: [authGuard] },
+  { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
+  { path: 'sla', component: SlaComponent, canActivate: [authGuard] },
+  { path: 'subscription-billing', component: SubscriptionBillingComponent, canActivate: [authGuard] },
+  { path: 'surveys', component: SurveysComponent, canActivate: [authGuard] },
+  { path: 'team-seating-neighborhood', component: TeamSeatingNeighborhoodComponent, canActivate: [authGuard] },
+  { path: 'tenant-management', component: TenantManagementComponent, canActivate: [authGuard] },
+  { path: 'tenants', component: TenantsComponent, canActivate: [authGuard] },
+  { path: 'tickets', component: TicketsComponent, canActivate: [authGuard] },
+  { path: 'user-management', component: UserManagementComponent, canActivate: [authGuard] },
+  { path: 'users', component: UsersComponent, canActivate: [authGuard] },
+  { path: 'visitor-reception', component: VisitorReceptionComponent, canActivate: [authGuard] },
+  { path: 'workflows', component: WorkflowsComponent, canActivate: [authGuard] },
+  { path: 'workforce-insights', component: WorkforceInsightsComponent, canActivate: [authGuard] },
+  { path: 'workforce-planning', component: WorkforcePlanningComponent, canActivate: [authGuard] },
+  { path: 'workplace-attendance', component: WorkplaceAttendanceComponent, canActivate: [authGuard] },
+  { path: 'workplace-desk-management', component: WorkplaceDeskManagementComponent, canActivate: [authGuard] },
+  { path: 'workplace-policy-reservation', component: WorkplacePolicyReservationComponent, canActivate: [authGuard] },
+  { path: 'workspace-capacity-occupancy', component: WorkspaceCapacityOccupancyComponent, canActivate: [authGuard] },
+  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: 'dashboard' },
 ];
-
-export const routes: Routes = rawRoutes.map(route => {
-  // Angular does not allow redirect routes to have activation guards.
-  // Keep redirects untouched and apply the default auth guard only to
-  // navigable component routes that do not already define their guards.
-  if (route.redirectTo) return route;
-
-  const publicPath = typeof route.path === 'string' && route.path.startsWith('auth/');
-  if (publicPath) return route;
-
-  const guards = route.canActivate ?? [];
-  return { ...route, canActivate: guards.length ? guards : [authGuard] };
-});

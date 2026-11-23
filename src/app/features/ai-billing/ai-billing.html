@@ -1,0 +1,81 @@
+<section class="billing-page">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="Receipt" [size]="16"></lucide-icon> AI BILLING &amp; CHARGEBACK</div>
+      <h1>AI Chargeback &amp; Billing Center</h1>
+      <p>Convert AI usage into finance-ready invoices, transparent showback, controlled chargeback and auditable billing cycles.</p>
+    </div>
+    <button class="primary-button"><lucide-icon [img]="FileText" [size]="17"></lucide-icon> Create billing run</button>
+  </header>
+
+  <div class="kpi-grid">
+    <article class="kpi-card"><div class="kpi-icon"><lucide-icon [img]="CircleDollarSign" [size]="20"></lucide-icon></div><span>Current billable usage</span><strong>${{chargebackTotal()|number:'1.0-0'}}</strong><small><lucide-icon [img]="ArrowUpRight" [size]="13"></lucide-icon> 8.7% vs prior cycle</small></article>
+    <article class="kpi-card"><div class="kpi-icon"><lucide-icon [img]="Receipt" [size]="20"></lucide-icon></div><span>Issued invoices</span><strong>${{issuedTotal()|number:'1.0-0'}}</strong><small>{{invoices().filter(x=>x.status==='Issued').length}} invoices awaiting settlement</small></article>
+    <article class="kpi-card"><div class="kpi-icon"><lucide-icon [img]="WalletCards" [size]="20"></lucide-icon></div><span>Open receivables</span><strong>${{receivables()|number:'1.0-0'}}</strong><small>Includes overdue balance</small></article>
+    <article class="kpi-card"><div class="kpi-icon"><lucide-icon [img]="Gauge" [size]="20"></lucide-icon></div><span>Chargeback recovery</span><strong>{{recoveryRate()|number:'1.0-0'}}%</strong><small><lucide-icon [img]="ShieldCheck" [size]="13"></lucide-icon> Allocation coverage</small></article>
+  </div>
+
+  <div class="summary-grid">
+    <article class="panel cycle-panel">
+      <div class="panel-heading"><div><span class="section-kicker">Billing cycle</span><h2>November 2026</h2></div><span class="cycle-status"><span></span> In progress</span></div>
+      <div class="timeline">
+        <div class="step done"><i>1</i><div><strong>Usage closed</strong><small>Nov 30 · 23:59 UTC</small></div></div>
+        <div class="step active"><i>2</i><div><strong>Allocation review</strong><small>Finance review in progress</small></div></div>
+        <div class="step"><i>3</i><div><strong>Invoice issuance</strong><small>Scheduled Dec 01</small></div></div>
+        <div class="step"><i>4</i><div><strong>Settlement</strong><small>Due Dec 07</small></div></div>
+      </div>
+    </article>
+    <article class="panel controls-panel">
+      <div class="panel-heading"><div><span class="section-kicker">Billing controls</span><h2>Policy health</h2></div><lucide-icon [img]="ShieldCheck" [size]="21"></lucide-icon></div>
+      <div class="control-row"><span>Allocation rules</span><b class="ok"><lucide-icon [img]="CheckCircle2" [size]="14"></lucide-icon> Active</b></div>
+      <div class="control-row"><span>Cost center mapping</span><b class="ok"><lucide-icon [img]="CheckCircle2" [size]="14"></lucide-icon> 100%</b></div>
+      <div class="control-row"><span>Finance approval</span><b class="watch">2 pending</b></div>
+      <div class="control-row"><span>Audit evidence</span><b class="ok">Ready</b></div>
+    </article>
+  </div>
+
+  <article class="panel">
+    <div class="panel-heading table-heading">
+      <div><span class="section-kicker">Invoice register</span><h2>AI billing documents</h2></div>
+      <div class="toolbar">
+        <div class="search"><lucide-icon [img]="Search" [size]="16"></lucide-icon><input [value]="query()" (input)="query.set($any($event.target).value)" placeholder="Search invoice, scope or owner..."></div>
+        <select [value]="statusFilter()" (change)="setFilter($any($event.target).value)">
+          <option>All</option><option>Draft</option><option>Issued</option><option>Paid</option><option>Overdue</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Invoice</th><th>Billing period</th><th>Scope</th><th>Amount</th><th>Due</th><th>Usage</th><th>Status</th><th></th></tr></thead>
+      <tbody>@for(item of filteredInvoices();track item.id){<tr (click)="selectInvoice(item)">
+        <td><strong>{{item.id}}</strong><small>{{item.owner}}</small></td><td>{{item.period}}</td><td><span class="scope-chip"><lucide-icon [img]="Building2" [size]="13"></lucide-icon>{{item.scope}}</span></td>
+        <td><strong>${{item.amount|number:'1.2-2'}}</strong></td><td>{{item.due}}</td><td><div class="usage"><span [style.width.%]="Math.min(item.usage,100)"></span></div><small>{{item.usage}}%</small></td>
+        <td><span class="status-pill" [class.draft]="item.status==='Draft'" [class.issued]="item.status==='Issued'" [class.paid]="item.status==='Paid'" [class.overdue]="item.status==='Overdue'"><span></span>{{item.status}}</span></td>
+        <td><lucide-icon [img]="ChevronRight" [size]="16"></lucide-icon></td>
+      </tr>}</tbody></table>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-heading"><div><span class="section-kicker">Showback &amp; chargeback</span><h2>Business allocation ledger</h2></div><button class="ghost-button"><lucide-icon [img]="Download" [size]="16"></lucide-icon> Export ledger</button></div>
+    <div class="allocation-grid">
+      @for(item of allocations();track item.scope){
+        <div class="allocation-card">
+          <div class="allocation-head"><div class="scope-avatar"><lucide-icon [img]="Building2" [size]="18"></lucide-icon></div><div><strong>{{item.scope}}</strong><small>{{item.owner}}</small></div><span class="status-pill" [class.watch]="item.status==='Watch'" [class.healthy]="item.status==='Healthy'"><span></span>{{item.status}}</span></div>
+          <div class="money-row"><div><span>AI cost</span><b>${{item.cost|number:'1.0-0'}}</b></div><div><span>Chargeback</span><b>{{item.chargeback?('$'+(item.chargeback|number:'1.0-0')):'Shared'}}</b></div></div>
+          <div class="allocation-bar"><span [style.width.%]="item.chargeback?Math.min(item.chargeback/item.cost*100,100):0"></span></div>
+          <div class="allocation-foot"><span>{{item.requests|number}} requests</span><span>{{item.tokens/1000000|number:'1.1-1'}}M tokens</span><span>{{item.variance>0?'+':''}}{{item.variance}}%</span></div>
+        </div>
+      }
+    </div>
+  </article>
+
+  <div class="finance-banner"><div class="finance-icon"><lucide-icon [img]="FileText" [size]="19"></lucide-icon></div><div><strong>Finance-ready billing foundation</strong><span>Each billing run can later map AI usage to cost centers, departments, projects and finance-system documents with an immutable audit trail.</span></div><button>View policy <lucide-icon [img]="ChevronRight" [size]="15"></lucide-icon></button></div>
+
+  @if(selectedInvoice();as invoice){<div class="modal-backdrop" (click)="clearSelection()"><div class="modal" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="clearSelection()"><lucide-icon [img]="X" [size]="18"></lucide-icon></button>
+    <span class="section-kicker">Invoice detail</span><h2>{{invoice.id}}</h2><p>{{invoice.scope}} · {{invoice.period}}</p>
+    <div class="invoice-total"><span>Total amount</span><strong>${{invoice.amount|number:'1.2-2'}}</strong></div>
+    <div class="detail-grid"><div><span>Owner</span><b>{{invoice.owner}}</b></div><div><span>Status</span><b>{{invoice.status}}</b></div><div><span>Due date</span><b>{{invoice.due}}</b></div><div><span>Usage index</span><b>{{invoice.usage}}%</b></div></div>
+    <div class="policy-note"><lucide-icon [img]="ShieldCheck" [size]="18"></lucide-icon><span>Backend phase will connect billing runs to provider usage, finance systems, cost centers, approvals, tax rules and settlement workflows.</span></div>
+  </div></div>}
+</section>

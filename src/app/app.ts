@@ -20,7 +20,7 @@ interface QuickCommand { label: string; description: string; path?: string; keyw
       <router-outlet></router-outlet>
     } @else {
     <div class="app-shell" [class.sidebar-collapsed]="collapsed()" [class.dark-theme]="darkMode()" [class.mobile-navigation-open]="mobileMenuOpen()">
-      <ah-app-sidebar [mobileOpen]="mobileMenuOpen()" (toggleCollapsed)="collapsed.set(!collapsed())" (closeMobile)="mobileMenuOpen.set(false)" (toast)="showToast($event)"></ah-app-sidebar>
+      <ah-app-sidebar [collapsed]="collapsed()" [mobileOpen]="mobileMenuOpen()" (toggleCollapsed)="collapsed.set(!collapsed())" (closeMobile)="mobileMenuOpen.set(false)" (toast)="showToast($event)"></ah-app-sidebar>
       @if (mobileMenuOpen()) { <button class="mobile-scrim" type="button" aria-label="بستن منو" (click)="mobileMenuOpen.set(false)"></button> }
       <main class="main-area">
         <ah-app-header [pageTitle]="pageTitle()" [darkMode]="darkMode()" [notificationsOpen]="showNotice()" [profileOpen]="profileOpen()" [unreadCount]="unreadCount()"

@@ -25,6 +25,8 @@ interface WorkspaceArea {
   styleUrl: './workspace-capacity-occupancy.scss'
 })
 export class WorkspaceCapacityOccupancyComponent {
+  readonly Math = Math;
+
   readonly icons = { Building2, Users, Gauge, Layers3, MapPinned, TrendingUp, AlertTriangle, Search, Plus, UsersRound, Armchair };
 
   search = '';

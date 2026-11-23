@@ -1,0 +1,144 @@
+<section class="finance-page">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="CircleDollarSign"></lucide-icon> AI Finance & Revenue Intelligence</div>
+      <h1>Finance & Revenue Intelligence</h1>
+      <p>Connect AI economics to revenue, profitability, margin, and executive business performance.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn secondary" type="button"><lucide-icon [img]="RefreshCw"></lucide-icon> Refresh</button>
+      <button class="btn primary" type="button"><lucide-icon [img]="Download"></lucide-icon> Export Finance Pack</button>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="TrendingUp"></lucide-icon></div>
+      <div><span>Total Revenue</span><strong>${{ money(totalRevenue()) }}</strong><small><lucide-icon [img]="ArrowUpRight"></lucide-icon> 12.6% vs prior period</small></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="WalletCards"></lucide-icon></div>
+      <div><span>AI Cost</span><strong>${{ money(totalAiCost()) }}</strong><small>{{ pct(costToRevenue()) }} of revenue</small></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="Coins"></lucide-icon></div>
+      <div><span>Gross Profit</span><strong>${{ money(totalProfit()) }}</strong><small><lucide-icon [img]="ArrowUpRight"></lucide-icon> 9.4% improvement</small></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="Gauge"></lucide-icon></div>
+      <div><span>Portfolio Margin</span><strong>{{ pct(avgMargin()) }}</strong><small>AI-adjusted profitability</small></div>
+    </article>
+  </div>
+
+  <div class="insight-grid">
+    <article class="panel hero-panel">
+      <div class="panel-head">
+        <div>
+          <span class="panel-kicker">Executive Finance Dashboard</span>
+          <h2>Revenue → AI Cost → Profitability</h2>
+        </div>
+        <span class="status-pill healthy">Healthy economics</span>
+      </div>
+      <div class="finance-flow">
+        <div class="flow-node revenue">
+          <span>Revenue</span><strong>${{ money(totalRevenue()) }}</strong><small>100% of portfolio</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node cost">
+          <span>AI Cost</span><strong>${{ money(totalAiCost()) }}</strong><small>{{ pct(costToRevenue()) }} cost load</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node profit">
+          <span>Gross Profit</span><strong>${{ money(totalProfit()) }}</strong><small>{{ pct(avgMargin()) }} margin</small>
+        </div>
+      </div>
+      <div class="chart-placeholder">
+        <div class="chart-grid"></div>
+        <div class="trend-line"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="chart-labels"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span><span>W7</span></div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div><span class="panel-kicker">Revenue Attribution</span><h2>Where value comes from</h2></div>
+        <lucide-icon [img]="PieChart" class="head-icon"></lucide-icon>
+      </div>
+      <div class="stream-list">
+        @for (stream of revenueStreams(); track stream.name) {
+          <div class="stream-row">
+            <div class="stream-main"><strong>{{ stream.name }}</strong><span>{{ pct(stream.share) }} share</span></div>
+            <div class="stream-bar"><i [style.width.%]="stream.share * 2.6"></i></div>
+            <div class="stream-meta"><b>${{ money(stream.revenue) }}</b><span [class.negative]="stream.growth < 0">{{ stream.growth > 0 ? '+' : '' }}{{ pct(stream.growth) }}</span></div>
+          </div>
+        }
+      </div>
+    </article>
+  </div>
+
+  <article class="panel profitability-panel">
+    <div class="panel-head">
+      <div><span class="panel-kicker">Profitability Intelligence</span><h2>Department & Business-Scope Performance</h2></div>
+      <lucide-icon [img]="BarChart3" class="head-icon"></lucide-icon>
+    </div>
+    <div class="mini-metrics">
+      <div><span>Best margin</span><strong>88.5%</strong><small>Enterprise Support</small></div>
+      <div><span>Highest growth</span><strong>+18.6%</strong><small>Self-Service Portal</small></div>
+      <div><span>Cost pressure</span><strong>26.4%</strong><small>Internal Operations</small></div>
+      <div><span>Recovery opportunity</span><strong>$31.8K</strong><small>Optimization potential</small></div>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head table-head">
+      <div><span class="panel-kicker">Revenue Ledger</span><h2>AI-attributed revenue & profitability</h2></div>
+      <div class="filters">
+        <label class="search-box"><lucide-icon [img]="Search"></lucide-icon><input [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" placeholder="Search scope, ID, attribution..."></label>
+        <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
+          <option>All</option><option>Healthy</option><option>Watch</option><option>At Risk</option>
+        </select>
+        <button class="icon-btn" type="button" (click)="resetFilters()" title="Reset filters"><lucide-icon [img]="RefreshCw"></lucide-icon></button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Business Scope</th><th>Revenue</th><th>AI Cost</th><th>Gross Profit</th><th>Margin</th><th>Attribution</th><th>Status</th></tr></thead>
+        <tbody>
+          @for (record of filteredRecords(); track record.id) {
+            <tr (click)="selectRecord(record)">
+              <td><span class="record-id">{{ record.id }}</span></td>
+              <td><strong>{{ record.scope }}</strong></td>
+              <td>${{ money(record.revenue) }}</td>
+              <td>${{ money(record.aiCost) }}</td>
+              <td class="profit">${{ money(record.grossProfit) }}</td>
+              <td><strong>{{ pct(record.margin) }}</strong></td>
+              <td>{{ record.attribution }}</td>
+              <td><span class="status-pill" [class.healthy]="record.status === 'Healthy'" [class.watch]="record.status === 'Watch'" [class.risk]="record.status === 'At Risk'">{{ record.status }}</span></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="8" class="empty">No revenue records match the current filters.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  @if (selectedRecord(); as record) {
+    <div class="modal-backdrop" (click)="closeDetail()">
+      <section class="detail-modal" (click)="$event.stopPropagation()">
+        <button class="close-btn" type="button" (click)="closeDetail()"><lucide-icon [img]="X"></lucide-icon></button>
+        <span class="panel-kicker">Revenue Intelligence Detail</span>
+        <h2>{{ record.scope }}</h2>
+        <p class="detail-id">{{ record.id }} · {{ record.attribution }}</p>
+        <div class="detail-grid">
+          <div><span>Revenue</span><strong>${{ money(record.revenue) }}</strong></div>
+          <div><span>AI Cost</span><strong>${{ money(record.aiCost) }}</strong></div>
+          <div><span>Gross Profit</span><strong>${{ money(record.grossProfit) }}</strong></div>
+          <div><span>Margin</span><strong>{{ pct(record.margin) }}</strong></div>
+        </div>
+        <div class="detail-note"><lucide-icon [img]="Landmark"></lucide-icon><span>Finance insight: this scope is ready for server-side revenue attribution, cost allocation, and accounting reconciliation.</span></div>
+      </section>
+    </div>
+  }
+</section>

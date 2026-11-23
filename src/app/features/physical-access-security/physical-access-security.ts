@@ -1,9 +1,26 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, ShieldCheck, KeyRound, Users, DoorOpen, Search, Plus, Filter, Clock3,
-  MapPin, Ticket, AlertTriangle, CheckCircle2, XCircle, UserRoundCheck,
-  Building2, BadgeCheck, Activity, LockKeyhole, FileCheck2, ChevronDown } from 'lucide-angular';
+import {
+  Plus,
+  ShieldCheck,
+  FileCheck2,
+  BadgeCheck,
+  AlertTriangle,
+  LockKeyhole,
+  KeyRound,
+  DoorOpen,
+  Activity,
+  Search,
+  Filter,
+  MapPin,
+  UserRoundCheck,
+  Settings2,
+  Users,
+  XCircle,
+  CheckCircle2,
+  LucideAngularModule
+} from 'lucide-angular';
 
 interface AccessRequest {
   id: string;
@@ -46,9 +63,23 @@ interface AccessEvent {
 })
 export class PhysicalAccessSecurityComponent {
   readonly icons = {
-    ShieldCheck, KeyRound, Users, DoorOpen, Search, Plus, Filter, Clock3,
-    MapPin, Ticket, AlertTriangle, CheckCircle2, XCircle, UserRoundCheck,
-    Building2, BadgeCheck, Activity, LockKeyhole, FileCheck2, ChevronDown
+    Plus: Plus,
+    ShieldCheck: ShieldCheck,
+    FileCheck2: FileCheck2,
+    BadgeCheck: BadgeCheck,
+    AlertTriangle: AlertTriangle,
+    LockKeyhole: LockKeyhole,
+    KeyRound: KeyRound,
+    DoorOpen: DoorOpen,
+    Activity: Activity,
+    Search: Search,
+    Filter: Filter,
+    MapPin: MapPin,
+    UserRoundCheck: UserRoundCheck,
+    Settings2: Settings2,
+    Users: Users,
+    XCircle: XCircle,
+    CheckCircle2: CheckCircle2
   };
 
   activeTab: 'requests' | 'credentials' | 'zones' | 'events' = 'requests';

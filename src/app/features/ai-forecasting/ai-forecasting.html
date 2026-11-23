@@ -1,0 +1,134 @@
+<section class="forecast-page">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="LineChart"></lucide-icon> AI Forecasting & Financial Planning</div>
+      <h1>Revenue Forecasting & Financial Planning</h1>
+      <p>Turn historical AI economics into forward-looking revenue, margin, budget and scenario intelligence.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn secondary" type="button"><lucide-icon [img]="RefreshCw"></lucide-icon> Refresh Forecast</button>
+      <button class="btn primary" type="button"><lucide-icon [img]="Download"></lucide-icon> Export Plan</button>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="CircleDollarSign"></lucide-icon></div>
+      <div><span>Forecast Revenue</span><strong>${{ money(forecastRevenue()) }}</strong><small><lucide-icon [img]="ArrowUpRight"></lucide-icon> {{ pct(revenueGrowth()) }} projected growth</small></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="TrendingUp"></lucide-icon></div>
+      <div><span>Forecast Margin</span><strong>{{ pct(forecastMargin()) }}</strong><small>AI-adjusted weighted margin</small></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="Gauge"></lucide-icon></div>
+      <div><span>Forecast Confidence</span><strong>{{ pct(confidence()) }}</strong><small>Model confidence across scopes</small></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon"><lucide-icon [img]="WalletCards"></lucide-icon></div>
+      <div><span>Planning Horizon</span><strong>12 Months</strong><small>Rolling financial outlook</small></div>
+    </article>
+  </div>
+
+  <div class="top-grid">
+    <article class="panel chart-panel">
+      <div class="panel-head">
+        <div><span class="panel-kicker">Revenue Forecast</span><h2>Actual vs projected performance</h2></div>
+        <span class="status-pill healthy"><lucide-icon [img]="ShieldCheck"></lucide-icon> Forecast ready</span>
+      </div>
+      <div class="legend"><span><i class="actual"></i> Actual</span><span><i class="forecast"></i> Forecast</span><span><i class="confidence"></i> Confidence band</span></div>
+      <div class="forecast-chart">
+        <div class="grid-lines"></div>
+        <div class="band"></div>
+        <div class="actual-line"><b></b><b></b><b></b><b></b><b></b><b></b></div>
+        <div class="forecast-line"><b></b><b></b><b></b><b></b><b></b><b></b><b></b></div>
+        <div class="x-axis"><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span><span>Q1</span><span>Q2</span><span>Q3</span></div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div><span class="panel-kicker">Scenario Planning</span><h2>What-if financial outlook</h2></div>
+        <lucide-icon [img]="SlidersHorizontal" class="head-icon"></lucide-icon>
+      </div>
+      <div class="scenario-list">
+        @for (scenario of scenarios(); track scenario.name) {
+          <button class="scenario" type="button" [class.active]="selectedScenario() === scenario.name" (click)="selectedScenario.set(scenario.name)">
+            <div class="scenario-title"><strong>{{ scenario.name }}</strong><span>{{ pct(scenario.confidence) }} confidence</span></div>
+            <div class="scenario-values"><b>${{ money(scenario.revenue) }}</b><span>{{ pct(scenario.margin) }} margin</span><span class="growth" [class.negative]="scenario.growth < 0">{{ scenario.growth > 0 ? '+' : '' }}{{ pct(scenario.growth) }}</span></div>
+            <div class="scenario-bar"><i [style.width.%]="scenario.confidence"></i></div>
+          </button>
+        }
+      </div>
+    </article>
+  </div>
+
+  <article class="panel planning-panel">
+    <div class="panel-head">
+      <div><span class="panel-kicker">Financial Planning Cockpit</span><h2>Budget, margin and revenue planning signals</h2></div>
+      <lucide-icon [img]="CalendarRange" class="head-icon"></lucide-icon>
+    </div>
+    <div class="planning-grid">
+      <div><span>Revenue target</span><strong>$900K</strong><small>94% of target covered</small><div class="progress"><i style="width:94%"></i></div></div>
+      <div><span>AI cost envelope</span><strong>$118K</strong><small>82% utilized</small><div class="progress"><i style="width:82%"></i></div></div>
+      <div><span>Margin floor</span><strong>80%</strong><small>4.8 pts safety buffer</small><div class="progress"><i style="width:86%"></i></div></div>
+      <div><span>Scenario resilience</span><strong>87 / 100</strong><small>Strong downside coverage</small><div class="progress"><i style="width:87%"></i></div></div>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head table-head">
+      <div><span class="panel-kicker">Forecast Register</span><h2>Business-scope revenue forecast</h2></div>
+      <div class="filters">
+        <label class="search-box"><lucide-icon [img]="Search"></lucide-icon><input [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" placeholder="Search scope or forecast ID..."></label>
+        <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
+          <option>All</option><option>On Track</option><option>Watch</option><option>At Risk</option>
+        </select>
+        <select [ngModel]="selectedScenario()" (ngModelChange)="selectedScenario.set($event)">
+          <option>All</option><option>Base</option><option>Upside</option><option>Downside</option>
+        </select>
+        <button class="icon-btn" type="button" (click)="resetFilters()" title="Reset filters"><lucide-icon [img]="RefreshCw"></lucide-icon></button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Business Scope</th><th>Current Revenue</th><th>Forecast Revenue</th><th>Growth</th><th>Margin</th><th>Confidence</th><th>Scenario</th><th>Status</th></tr></thead>
+        <tbody>
+          @for (record of filteredRecords(); track record.id) {
+            <tr (click)="selectRecord(record)">
+              <td><span class="record-id">{{ record.id }}</span></td>
+              <td><strong>{{ record.scope }}</strong></td>
+              <td>${{ money(record.currentRevenue) }}</td>
+              <td class="forecast-value">${{ money(record.forecastRevenue) }}</td>
+              <td><span class="growth-chip">{{ pct(((record.forecastRevenue - record.currentRevenue) / record.currentRevenue) * 100) }}</span></td>
+              <td><strong>{{ pct(record.forecastMargin) }}</strong></td>
+              <td><div class="confidence"><i [style.width.%]="record.confidence"></i><span>{{ record.confidence }}%</span></div></td>
+              <td><span class="scenario-tag" [class.upside]="record.scenario === 'Upside'" [class.downside]="record.scenario === 'Downside'">{{ record.scenario }}</span></td>
+              <td><span class="status-pill" [class.healthy]="record.status === 'On Track'" [class.watch]="record.status === 'Watch'" [class.risk]="record.status === 'At Risk'">{{ record.status }}</span></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="9" class="empty">No forecasts match the current filters.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  @if (selectedRecord(); as record) {
+    <div class="modal-backdrop" (click)="closeDetail()">
+      <section class="detail-modal" (click)="$event.stopPropagation()">
+        <button class="close-btn" type="button" (click)="closeDetail()"><lucide-icon [img]="X"></lucide-icon></button>
+        <span class="panel-kicker">Forecast Detail</span>
+        <h2>{{ record.scope }}</h2>
+        <p class="detail-id">{{ record.id }} · {{ record.scenario }} scenario</p>
+        <div class="detail-grid">
+          <div><span>Current Revenue</span><strong>${{ money(record.currentRevenue) }}</strong></div>
+          <div><span>Forecast Revenue</span><strong>${{ money(record.forecastRevenue) }}</strong></div>
+          <div><span>Forecast Margin</span><strong>{{ pct(record.forecastMargin) }}</strong></div>
+          <div><span>Confidence</span><strong>{{ record.confidence }}%</strong></div>
+        </div>
+        <div class="detail-note"><lucide-icon [img]="Activity"></lucide-icon><span>Planning insight: this forecast is a frontend planning foundation. Server-side time-series models, scenario drivers, historical data ingestion and financial controls can be connected in the backend phase.</span></div>
+      </section>
+    </div>
+  }
+</section>

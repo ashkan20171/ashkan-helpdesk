@@ -277,6 +277,9 @@ Recent AI-focused milestones include:
 - **Phase 2.70** — AI Knowledge & RAG Intelligence
 - **Phase 2.71** — AI Prompt Engineering & Model Management
 - **Phase 2.72** — AI Observability & Evaluation Center
+- **Phase 2.73** — AI Safety & Red-Team Center
+- **Phase 2.74** — AI Incident Command Center
+- **Phase 2.75** — AI Governance & Compliance Center
 
 The current phase adds a dedicated workspace for:
 
@@ -382,3 +385,80 @@ License and contribution policy can be added when the repository is prepared for
 ### Built as an enterprise-focused engineering portfolio project
 
 **Ashkan HelpDesk — ITSM, Automation, Enterprise Operations & AI**
+
+
+## Phase 2.76 — AI Trust & Transparency Center
+
+Added the enterprise trust layer for AI-assisted experiences:
+- AI decision transparency and user disclosure patterns
+- Explainability / “Why this answer?” foundation
+- Model card and capability/limitation disclosure
+- Data and source provenance visibility
+- Fairness and bias monitoring foundation
+- Trust control registry with scores, evidence, owners, and limitations
+- Search, status filtering, and control detail review
+- Route: `/ai-trust`
+- Frontend-only architecture; live telemetry, policy enforcement, model metadata synchronization, and governed fairness datasets remain backend integration work.
+
+
+## Phase 2.77 — AI Audit & Evidence Center
+
+Added an audit-ready evidence layer for AI decisions, model snapshots, security findings, compliance controls and human approvals, including evidence readiness, integrity/retention metadata, audit events, package workflow, search/filtering and detail review. Route: `/ai-audit`. Backend persistence, cryptographic sealing, exports, retention enforcement and audit APIs remain integration work.
+
+
+## Phase 2.78 — AI Observability & Operations Center
+
+Added an AI operations foundation for runtime telemetry, model health, latency, reliability, token/cost signals, operational alerts, routing health, quality, guardrail health and drift indicators. Route: `/ai-observability`. Server telemetry ingestion, tracing, SLO enforcement, provider health checks, metering and alert delivery remain backend integration work.
+
+
+## Phase 2.79 — AI Cost & FinOps Center
+Enterprise AI spend governance with token economics, budgets, forecasting, cost allocation and optimization opportunities. Backend billing and metering integrations remain deferred.
+
+
+## Phase 2.80 — AI Chargeback & Billing Center
+Finance-ready AI billing with invoice lifecycle, showback/chargeback allocation, billing controls and settlement-ready foundations. Backend accounting integrations remain deferred.
+
+
+## Phase 2.81 — AI Finance & Revenue Intelligence Center
+- Executive finance dashboard
+- Revenue attribution and profitability intelligence
+- AI cost-to-revenue and margin KPIs
+- Revenue ledger with filtering and detail inspection
+- Route: `/ai-finance`
+- Backend-ready finance integration foundation
+
+
+## Phase 2.82 — AI Revenue Forecasting & Financial Planning Center
+- Revenue forecasting and financial planning cockpit
+- Base / Upside / Downside scenario analysis
+- Forecast confidence, margin and budget signals
+- Business-scope forecast register and detail inspection
+- Route: `/ai-forecasting`
+
+
+## Phase 2.83 — AI Financial Scenario & What-If Simulation Center
+- Live financial what-if controls
+- Revenue, AI cost, profit and margin impact modeling
+- Growth / Efficiency / Conservative presets
+- Simulation register and confidence indicators
+- Route: `/ai-simulation`
+
+
+### Phase 2.83 Compile Fix
+The Phase 2.83 frontend was repaired for malformed route/sidebar declarations, standalone Lucide imports, and invalid Sass imports. See `docs/PHASE-2.83-FIX-CHANGELOG.md`.
+
+## Phase 2.83 Compile Fix 2
+
+Resolved the latest Angular compiler issues reported from `ng serve`, including standalone Lucide imports, corrupted routing/sidebar code, Sass imports, signal invocation and template `Math` access. See `docs/PHASE-2.83-FIX2-CHANGELOG.md`.
+
+
+## Latest Fix
+Phase 2.83 Fix 3 resolves Angular standalone `*ngIf` imports and standardizes affected Lucide icon templates on `lucide-icon [img]` usage. See `docs/PHASE-2.83-FIX3-CHANGELOG.md`.
+
+
+## Phase 2.83 Fix 4
+Sidebar selector, Lucide rendering, AppComponent bindings, and toast event typing were repaired. See `docs/PHASE-2.83-FIX4-CHANGELOG.md`.
+> Phase 2.83 Fix 5: remaining sidebar Lucide bindings were normalized to `lucide-icon [img]` and all icon references were exposed on `AppSidebarComponent`.
+
+### Phase 2.84
+AI Executive Intelligence & Decision Center is now available at `/ai-executive`, with executive KPI synthesis, strategic decision signals, decision register and governance-aware recommendation flows. The frontend route catalog was also restored from the existing feature modules.

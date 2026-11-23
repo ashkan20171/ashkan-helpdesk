@@ -1,138 +1,123 @@
+import { LucideAngularModule } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  Activity, BarChart3, CheckCircle2, Clock3, Database, Gauge, GitBranch,
-  LucideAngularModule, RefreshCw, Search, ShieldCheck, Sparkles, Target,
-  TrendingUp, XCircle
+  Activity,
+  AlertTriangle,
+  ArrowDownRight,
+  ArrowUpRight,
+  Bot,
+  CheckCircle2,
+  ChevronRight,
+  Clock3,
+  Cpu,
+  DollarSign,
+  Gauge,
+  Layers3,
+  RefreshCw,
+  Search,
+  ServerCog,
+  ShieldAlert,
+  Sparkles,
+  Timer,
+  TrendingUp,
+  X,
+  Zap,
 } from 'lucide-angular';
 
-type RunStatus = 'Healthy' | 'Needs Review' | 'Failed';
-type EvalStatus = 'Passed' | 'Review' | 'Failed';
+type HealthState = 'Healthy' | 'Degraded' | 'Critical';
 
-interface AiRun {
-  id: string;
-  model: string;
-  task: string;
-  latency: number;
-  tokens: number;
-  cost: number;
-  confidence: number;
-  status: RunStatus;
-  time: string;
+interface ModelHealth {
+  name: string;
+  provider: string;
+  health: HealthState;
+  latency: string;
+  errorRate: string;
+  availability: string;
+  traffic: string;
+  trend: number;
 }
 
-interface EvalCase {
+interface AlertItem {
   id: string;
-  name: string;
-  dataset: string;
-  score: number;
-  grounded: number;
-  safety: number;
-  status: EvalStatus;
+  title: string;
+  severity: 'Critical' | 'Warning' | 'Info';
+  time: string;
+  source: string;
+  state: 'Open' | 'Investigating' | 'Resolved';
 }
 
 @Component({
-  selector: 'ah-ai-observability',
+  selector: 'app-ai-observability',
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './ai-observability.html',
-  styleUrl: './ai-observability.scss'
+  styleUrl: './ai-observability.scss',
 })
 export class AiObservabilityComponent {
-  readonly Activity = Activity;
-  readonly BarChart3 = BarChart3;
-  readonly CheckCircle2 = CheckCircle2;
-  readonly Clock3 = Clock3;
-  readonly Database = Database;
-  readonly Gauge = Gauge;
-  readonly GitBranch = GitBranch;
-  readonly RefreshCw = RefreshCw;
   readonly Search = Search;
-  readonly ShieldCheck = ShieldCheck;
+  readonly X = X;
+  readonly Activity = Activity;
+  readonly Bot = Bot;
+  readonly Gauge = Gauge;
+  readonly Timer = Timer;
+  readonly DollarSign = DollarSign;
+  readonly Zap = Zap;
+  readonly Cpu = Cpu;
+  readonly ServerCog = ServerCog;
+  readonly Layers3 = Layers3;
+  readonly ShieldAlert = ShieldAlert;
+  readonly AlertTriangle = AlertTriangle;
+  readonly CheckCircle2 = CheckCircle2;
+  readonly ChevronRight = ChevronRight;
+  readonly Clock3 = Clock3;
+  readonly RefreshCw = RefreshCw;
   readonly Sparkles = Sparkles;
-  readonly Target = Target;
   readonly TrendingUp = TrendingUp;
-  readonly XCircle = XCircle;
+  readonly ArrowUpRight = ArrowUpRight;
+  readonly ArrowDownRight = ArrowDownRight;
 
-  readonly search = signal('');
-  readonly selectedRun = signal<AiRun | null>(null);
-  readonly showModal = signal(false);
-  readonly toast = signal('');
-  readonly refreshing = signal(false);
+  readonly searchTerm = signal('');
+  readonly selectedHealth = signal<'All' | HealthState>('All');
+  readonly selectedModel = signal<ModelHealth | null>(null);
 
-  readonly runs = signal<AiRun[]>([
-    { id: 'RUN-9021', model: 'GPT-4.1', task: 'Ticket summarization', latency: 842, tokens: 1280, cost: 0.014, confidence: 96, status: 'Healthy', time: '2 min ago' },
-    { id: 'RUN-9019', model: 'Claude Sonnet', task: 'RCA generation', latency: 1180, tokens: 2140, cost: 0.026, confidence: 91, status: 'Healthy', time: '8 min ago' },
-    { id: 'RUN-9015', model: 'GPT-4.1 mini', task: 'Knowledge retrieval answer', latency: 620, tokens: 760, cost: 0.004, confidence: 88, status: 'Needs Review', time: '16 min ago' },
-    { id: 'RUN-9008', model: 'GPT-4.1', task: 'Sensitive action recommendation', latency: 1450, tokens: 1820, cost: 0.019, confidence: 72, status: 'Needs Review', time: '31 min ago' },
-    { id: 'RUN-8997', model: 'Fallback model', task: 'Customer reply draft', latency: 1710, tokens: 1420, cost: 0.011, confidence: 61, status: 'Failed', time: '49 min ago' }
+  readonly models = signal<ModelHealth[]>([
+    { name: 'Apex Reasoning 4.2', provider: 'Primary Gateway', health: 'Healthy', latency: '820 ms', errorRate: '0.34%', availability: '99.97%', traffic: '42%', trend: 8.4 },
+    { name: 'Apex Fast 3.8', provider: 'Primary Gateway', health: 'Healthy', latency: '410 ms', errorRate: '0.21%', availability: '99.99%', traffic: '31%', trend: 4.7 },
+    { name: 'Orion Enterprise', provider: 'Fallback Gateway', health: 'Degraded', latency: '1.42 s', errorRate: '1.86%', availability: '99.62%', traffic: '17%', trend: -6.2 },
+    { name: 'Local Guardrail Model', provider: 'On-Prem Runtime', health: 'Healthy', latency: '190 ms', errorRate: '0.08%', availability: '99.99%', traffic: '10%', trend: 2.1 },
   ]);
 
-  readonly evaluations = signal<EvalCase[]>([
-    { id: 'EVAL-104', name: 'Enterprise Support QA', dataset: 'support-golden-v3', score: 94, grounded: 97, safety: 99, status: 'Passed' },
-    { id: 'EVAL-103', name: 'RAG Citation Accuracy', dataset: 'rag-citations-v2', score: 91, grounded: 93, safety: 98, status: 'Passed' },
-    { id: 'EVAL-102', name: 'Prompt Injection Defense', dataset: 'security-redteam-v1', score: 88, grounded: 84, safety: 96, status: 'Review' },
-    { id: 'EVAL-101', name: 'Customer Tone & Policy', dataset: 'tone-policy-v4', score: 96, grounded: 95, safety: 99, status: 'Passed' }
+  readonly alerts = signal<AlertItem[]>([
+    { id: 'AL-482', title: 'Fallback model latency above SLO', severity: 'Warning', time: '4 min ago', source: 'Model routing', state: 'Investigating' },
+    { id: 'AL-479', title: 'Token consumption spike detected', severity: 'Info', time: '12 min ago', source: 'Cost telemetry', state: 'Open' },
+    { id: 'AL-476', title: 'Guardrail response-time anomaly', severity: 'Warning', time: '27 min ago', source: 'Safety runtime', state: 'Resolved' },
+    { id: 'AL-471', title: 'Provider availability recovered', severity: 'Info', time: '41 min ago', source: 'Gateway monitor', state: 'Resolved' },
   ]);
 
-  readonly filteredRuns = computed(() => {
-    const q = this.search().trim().toLowerCase();
-    if (!q) return this.runs();
-    return this.runs().filter(x =>
-      `${x.id} ${x.model} ${x.task} ${x.status}`.toLowerCase().includes(q)
-    );
+  readonly filteredModels = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    const health = this.selectedHealth();
+    return this.models().filter(model => {
+      const text = `${model.name} ${model.provider}`.toLowerCase();
+      return (!term || text.includes(term)) && (health === 'All' || model.health === health);
+    });
   });
 
-  readonly healthyRate = computed(() => {
-    const all = this.runs();
-    return Math.round((all.filter(x => x.status === 'Healthy').length / all.length) * 100);
-  });
+  readonly healthyCount = computed(() => this.models().filter(m => m.health === 'Healthy').length);
+  readonly degradedCount = computed(() => this.models().filter(m => m.health === 'Degraded').length);
+  readonly criticalCount = computed(() => this.models().filter(m => m.health === 'Critical').length);
 
-  readonly avgLatency = computed(() =>
-    Math.round(this.runs().reduce((sum, x) => sum + x.latency, 0) / this.runs().length)
-  );
-
-  readonly totalTokens = computed(() =>
-    this.runs().reduce((sum, x) => sum + x.tokens, 0)
-  );
-
-  readonly totalCost = computed(() =>
-    this.runs().reduce((sum, x) => sum + x.cost, 0)
-  );
-
-  readonly avgEvalScore = computed(() =>
-    Math.round(this.evaluations().reduce((sum, x) => sum + x.score, 0) / this.evaluations().length)
-  );
-
-  notify(message: string) {
-    this.toast.set(message);
-    setTimeout(() => this.toast.set(''), 3000);
+  openModel(model: ModelHealth): void {
+    this.selectedModel.set(model);
   }
 
-  refresh() {
-    this.refreshing.set(true);
-    this.notify('AI observability snapshot is refreshing...');
-    setTimeout(() => {
-      this.refreshing.set(false);
-      this.notify('Telemetry snapshot refreshed. Backend collector is ready for integration.');
-    }, 700);
+  closeModel(): void {
+    this.selectedModel.set(null);
   }
 
-  openRun(run: AiRun) {
-    this.selectedRun.set(run);
-    this.showModal.set(true);
-  }
-
-  statusClass(status: string) {
-    return status.toLowerCase().replace(/\s+/g, '-');
-  }
-
-  track(_: number, item: AiRun) {
-    return item.id;
-  }
-
-  trackEval(_: number, item: EvalCase) {
-    return item.id;
+  setHealth(value: 'All' | HealthState): void {
+    this.selectedHealth.set(value);
   }
 }

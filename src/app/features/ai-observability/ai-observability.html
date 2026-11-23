@@ -1,101 +1,149 @@
-<section class="ai-page">
+<section class="observability-page">
   <header class="hero">
-    <div>
-      <div class="eyebrow"><i-lucide [img]="Activity" [size]="16"></i-lucide> AI OPERATIONS</div>
-      <h1>AI Observability & Evaluation Center</h1>
-      <p>Monitor model quality, latency, cost, safety and groundedness across the Ashkan AI layer.</p>
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="pulse"></span> AI Operations · Live Telemetry</div>
+      <h1>AI Observability &amp; Operations Center</h1>
+      <p>Monitor AI runtime health, latency, reliability, token consumption, cost signals and model routing from one operational command surface.</p>
+      <div class="hero-actions">
+        <button class="primary-btn"><lucide-icon [img]="Activity" [size]="17"></lucide-icon> Live monitoring</button>
+        <button class="ghost-btn"><lucide-icon [img]="RefreshCw" [size]="17"></lucide-icon> Refresh telemetry</button>
+      </div>
     </div>
-    <button class="refresh" type="button" (click)="refresh()">
-      <i-lucide [img]="RefreshCw" [size]="17"></i-lucide>
-      {{ refreshing() ? 'Refreshing…' : 'Refresh telemetry' }}
-    </button>
+    <div class="ops-status">
+      <div class="status-top"><span>Operational status</span><span class="live-dot"></span></div>
+      <strong>Stable</strong>
+      <small>Last telemetry · 22 Nov 2026 · 20:24</small>
+      <div class="availability"><i style="width:99.97%"></i></div>
+      <div class="availability-meta"><span>99.97% availability</span><b>30d</b></div>
+    </div>
   </header>
 
-  <div class="kpis">
-    <article class="kpi"><span class="icon"><i-lucide [img]="Gauge" [size]="20"></i-lucide></span><div><small>Healthy runs</small><strong>{{ healthyRate() }}%</strong><em>last 5 executions</em></div></article>
-    <article class="kpi"><span class="icon"><i-lucide [img]="Clock3" [size]="20"></i-lucide></span><div><small>Avg latency</small><strong>{{ avgLatency() }} ms</strong><em>model response time</em></div></article>
-    <article class="kpi"><span class="icon"><i-lucide [img]="Database" [size]="20"></i-lucide></span><div><small>Tokens observed</small><strong>{{ totalTokens().toLocaleString() }}</strong><em>current telemetry window</em></div></article>
-    <article class="kpi"><span class="icon"><i-lucide [img]="Target" [size]="20"></i-lucide></span><div><small>Eval score</small><strong>{{ avgEvalScore() }}%</strong><em>golden datasets</em></div></article>
+  <div class="metric-grid">
+    <article class="metric-card">
+      <div class="metric-icon purple"><lucide-icon [img]="Gauge" [size]="20"></lucide-icon></div>
+      <div><span>Requests / min</span><strong>1,284</strong><small><lucide-icon [img]="ArrowUpRight" [size]="12"></lucide-icon> 8.6% vs baseline</small></div>
+    </article>
+    <article class="metric-card">
+      <div class="metric-icon blue"><lucide-icon [img]="Timer" [size]="20"></lucide-icon></div>
+      <div><span>p95 latency</span><strong>820 ms</strong><small><lucide-icon [img]="ArrowDownRight" [size]="12"></lucide-icon> 4.2% improved</small></div>
+    </article>
+    <article class="metric-card">
+      <div class="metric-icon teal"><lucide-icon [img]="Zap" [size]="20"></lucide-icon></div>
+      <div><span>Tokens / hour</span><strong>486K</strong><small><lucide-icon [img]="ArrowUpRight" [size]="12"></lucide-icon> 11.8% usage</small></div>
+    </article>
+    <article class="metric-card">
+      <div class="metric-icon gold"><lucide-icon [img]="DollarSign" [size]="20"></lucide-icon></div>
+      <div><span>Estimated daily cost</span><strong>$42.80</strong><small><lucide-icon [img]="ArrowDownRight" [size]="12"></lucide-icon> 3.1% optimized</small></div>
+    </article>
   </div>
 
-  <div class="grid-top">
-    <article class="panel score-panel">
-      <div class="panel-head"><div><span class="section-kicker">QUALITY GATES</span><h2>AI quality posture</h2></div><i-lucide [img]="ShieldCheck" [size]="20"></i-lucide></div>
-      <div class="quality-row"><span>Groundedness</span><strong>94%</strong><div class="bar"><i style="width:94%"></i></div></div>
-      <div class="quality-row"><span>Safety policy compliance</span><strong>98%</strong><div class="bar"><i style="width:98%"></i></div></div>
-      <div class="quality-row"><span>Citation coverage</span><strong>91%</strong><div class="bar"><i style="width:91%"></i></div></div>
-      <div class="quality-row"><span>Human-review routing</span><strong>87%</strong><div class="bar"><i style="width:87%"></i></div></div>
-    </article>
-
-    <article class="panel architecture">
-      <div class="panel-head"><div><span class="section-kicker">OBSERVABILITY PIPELINE</span><h2>Telemetry flow</h2></div><i-lucide [img]="GitBranch" [size]="20"></i-lucide></div>
-      <div class="flow">
-        <div><i-lucide [img]="Sparkles" [size]="18"></i-lucide><strong>AI Request</strong><small>prompt + context</small></div>
-        <span>→</span>
-        <div><i-lucide [img]="Activity" [size]="18"></i-lucide><strong>Telemetry</strong><small>latency + tokens</small></div>
-        <span>→</span>
-        <div><i-lucide [img]="Target" [size]="18"></i-lucide><strong>Evaluation</strong><small>quality + safety</small></div>
-        <span>→</span>
-        <div><i-lucide [img]="ShieldCheck" [size]="18"></i-lucide><strong>Governance</strong><small>review + policy</small></div>
+  <div class="dashboard-grid">
+    <section class="panel chart-panel">
+      <div class="panel-heading">
+        <div><span class="section-kicker">Runtime telemetry</span><h2>AI traffic &amp; latency</h2></div>
+        <div class="legend"><span><i class="request"></i> Requests</span><span><i class="latency"></i> p95 latency</span></div>
       </div>
-      <div class="architecture-note"><i-lucide [img]="TrendingUp" [size]="16"></i-lucide> Designed for provider-neutral telemetry, evaluation workers and audit-ready AI governance.</div>
-    </article>
+      <div class="chart">
+        <div class="y-labels"><span>2k</span><span>1.5k</span><span>1k</span><span>500</span><span>0</span></div>
+        <div class="plot">
+          <div class="grid-line one"></div><div class="grid-line two"></div><div class="grid-line three"></div><div class="grid-line four"></div>
+          <svg viewBox="0 0 700 230" preserveAspectRatio="none" aria-label="AI traffic chart">
+            <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6657d5" stop-opacity=".22"/><stop offset="1" stop-color="#6657d5" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0 176 C40 162 55 168 90 143 S145 128 175 137 S235 110 270 121 S320 83 355 104 S410 88 445 96 S500 56 530 73 S580 45 610 61 S660 30 700 42 L700 230 L0 230 Z" fill="url(#area)"></path>
+            <path d="M0 176 C40 162 55 168 90 143 S145 128 175 137 S235 110 270 121 S320 83 355 104 S410 88 445 96 S500 56 530 73 S580 45 610 61 S660 30 700 42" fill="none" stroke="#6657d5" stroke-width="3" stroke-linecap="round"></path>
+            <path d="M0 188 C50 179 70 186 110 172 S170 178 205 156 S270 160 310 148 S360 166 400 139 S455 149 500 119 S555 136 595 108 S650 121 700 95" fill="none" stroke="#00a798" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 6"></path>
+          </svg>
+          <div class="x-labels"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>20:24</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel health-panel">
+      <div class="panel-heading">
+        <div><span class="section-kicker">Model fleet</span><h2>Runtime health</h2></div>
+        <div class="health-summary"><b>{{ healthyCount() }}</b> healthy</div>
+      </div>
+      <div class="health-list">
+        @for (model of models(); track model.name) {
+          <button class="health-row" (click)="openModel(model)">
+            <div class="model-icon"><lucide-icon [img]="Bot" [size]="18"></lucide-icon></div>
+            <div class="model-main"><strong>{{ model.name }}</strong><span>{{ model.provider }}</span></div>
+            <span class="health-badge" [class]="model.health.toLowerCase()">{{ model.health }}</span>
+            <div class="health-value"><small>p95</small><b>{{ model.latency }}</b></div>
+            <lucide-icon [img]="ChevronRight" [size]="16"></lucide-icon>
+          </button>
+        }
+      </div>
+    </section>
   </div>
 
-  <article class="panel runs">
-    <div class="panel-head">
-      <div><span class="section-kicker">LIVE AI RUNS</span><h2>Model execution telemetry</h2></div>
-      <label class="search"><i-lucide [img]="Search" [size]="16"></i-lucide><input [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search run, model or task"></label>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Run</th><th>Model</th><th>Task</th><th>Latency</th><th>Tokens</th><th>Confidence</th><th>Status</th></tr></thead>
-        <tbody>
-          @for (run of filteredRuns(); track track($index, run)) {
-            <tr (click)="openRun(run)">
-              <td><strong>{{ run.id }}</strong><small>{{ run.time }}</small></td>
-              <td>{{ run.model }}</td><td>{{ run.task }}</td><td>{{ run.latency }} ms</td><td>{{ run.tokens.toLocaleString() }}</td>
-              <td><span class="confidence">{{ run.confidence }}%</span></td>
-              <td><span class="status" [class]="statusClass(run.status)"><i-lucide [img]="run.status === 'Healthy' ? CheckCircle2 : run.status === 'Failed' ? XCircle : Activity" [size]="14"></i-lucide>{{ run.status }}</span></td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-    <div class="cost-line">Estimated telemetry cost: <strong>${{ totalCost().toFixed(3) }}</strong> <span>• frontend demo metering</span></div>
-  </article>
-
-  <article class="panel evaluations">
-    <div class="panel-head"><div><span class="section-kicker">EVALUATION LAB</span><h2>Golden datasets & quality gates</h2></div><button class="ghost" type="button" (click)="notify('Evaluation runner queued for backend integration.')"><i-lucide [img]="BarChart3" [size]="16"></i-lucide> Run evaluation</button></div>
-    <div class="eval-grid">
-      @for (item of evaluations(); track trackEval($index, item)) {
-        <div class="eval-card">
-          <div class="eval-top"><span>{{ item.id }}</span><span class="status" [class]="statusClass(item.status)">{{ item.status }}</span></div>
-          <h3>{{ item.name }}</h3><small>{{ item.dataset }}</small>
-          <div class="eval-score"><strong>{{ item.score }}%</strong><span>overall score</span></div>
-          <div class="mini-metrics"><span>Grounded <b>{{ item.grounded }}%</b></span><span>Safety <b>{{ item.safety }}%</b></span></div>
+  <div class="lower-grid">
+    <section class="panel models-panel">
+      <div class="panel-heading">
+        <div><span class="section-kicker">Model performance</span><h2>Provider &amp; model telemetry</h2></div>
+        <div class="filters">
+          <div class="search-box"><lucide-icon [img]="Search" [size]="16"></lucide-icon><input [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" placeholder="Search models..." /></div>
+          <select [ngModel]="selectedHealth()" (ngModelChange)="setHealth($event)">
+            <option value="All">All health</option><option value="Healthy">Healthy</option><option value="Degraded">Degraded</option><option value="Critical">Critical</option>
+          </select>
         </div>
-      }
+      </div>
+      <div class="table">
+        <div class="table-head"><span>Model</span><span>Health</span><span>Latency</span><span>Error rate</span><span>Availability</span><span>Traffic</span><span>Trend</span></div>
+        @for (model of filteredModels(); track model.name) {
+          <button class="table-row" (click)="openModel(model)">
+            <div class="model-cell"><div class="tiny-icon"><lucide-icon [img]="Cpu" [size]="15"></lucide-icon></div><span><strong>{{ model.name }}</strong><small>{{ model.provider }}</small></span></div>
+            <span class="health-badge" [class]="model.health.toLowerCase()">{{ model.health }}</span>
+            <strong>{{ model.latency }}</strong><span>{{ model.errorRate }}</span><span>{{ model.availability }}</span><span>{{ model.traffic }}</span>
+            <span class="trend" [class.down]="model.trend < 0">@if(model.trend > 0){<lucide-icon [img]="ArrowUpRight" [size]="12"></lucide-icon>} @else {<lucide-icon [img]="ArrowDownRight" [size]="12"></lucide-icon>} {{ model.trend > 0 ? '+' : '' }}{{ model.trend }}%</span>
+          </button>
+        } @empty { <div class="empty">No models match the selected filters.</div> }
+      </div>
+    </section>
+
+    <section class="panel alert-panel">
+      <div class="panel-heading"><div><span class="section-kicker">Operational signals</span><h2>Active alerts</h2></div><span class="alert-count">{{ alerts().length }}</span></div>
+      <div class="alert-list">
+        @for (alert of alerts(); track alert.id) {
+          <div class="alert-row">
+            <div class="alert-icon" [class]="alert.severity.toLowerCase()">
+              @if(alert.severity === 'Critical'){<lucide-icon [img]="ShieldAlert" [size]="16"></lucide-icon>} @else if(alert.severity === 'Warning'){<lucide-icon [img]="AlertTriangle" [size]="16"></lucide-icon>} @else {<lucide-icon [img]="Activity" [size]="16"></lucide-icon>}
+            </div>
+            <div><strong>{{ alert.title }}</strong><span>{{ alert.source }} · {{ alert.time }}</span></div>
+            <div class="alert-state" [class]="alert.state.toLowerCase()">{{ alert.state }}</div>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+
+  <section class="panel operations-panel">
+    <div class="panel-heading"><div><span class="section-kicker">Operations layer</span><h2>AI service signals</h2></div><span class="ops-note"><lucide-icon [img]="ServerCog" [size]="15"></lucide-icon> Frontend telemetry foundation</span></div>
+    <div class="ops-cards">
+      <article><div><lucide-icon [img]="Layers3" [size]="18"></lucide-icon><span>Routing health</span></div><strong>96%</strong><small>Fallback capacity ready</small></article>
+      <article><div><lucide-icon [img]="Sparkles" [size]="18"></lucide-icon><span>Quality signal</span></div><strong>91%</strong><small>Evaluation baseline stable</small></article>
+      <article><div><lucide-icon [img]="ShieldAlert" [size]="18"></lucide-icon><span>Guardrail health</span></div><strong>99.8%</strong><small>Blocking pipeline available</small></article>
+      <article><div><lucide-icon [img]="TrendingUp" [size]="18"></lucide-icon><span>Drift signal</span></div><strong>Low</strong><small>No material drift detected</small></article>
     </div>
-  </article>
+  </section>
 
-  @if (toast()) { <div class="toast">{{ toast() }}</div> }
-
-  @if (showModal() && selectedRun()) {
-    <div class="modal-backdrop" (click)="showModal.set(false)">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-head"><div><span class="section-kicker">RUN DETAIL</span><h2>{{ selectedRun()!.id }}</h2></div><button type="button" (click)="showModal.set(false)">×</button></div>
+  @if (selectedModel(); as model) {
+    <div class="modal-backdrop" (click)="closeModel()">
+      <section class="detail-modal" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="closeModel()"><lucide-icon [img]="X" [size]="18"></lucide-icon></button>
+        <div class="modal-kicker">MODEL TELEMETRY</div>
+        <h2>{{ model.name }}</h2><p>{{ model.provider }} · operational telemetry snapshot</p>
         <div class="detail-grid">
-          <div><small>Model</small><strong>{{ selectedRun()!.model }}</strong></div>
-          <div><small>Task</small><strong>{{ selectedRun()!.task }}</strong></div>
-          <div><small>Latency</small><strong>{{ selectedRun()!.latency }} ms</strong></div>
-          <div><small>Tokens</small><strong>{{ selectedRun()!.tokens.toLocaleString() }}</strong></div>
-          <div><small>Confidence</small><strong>{{ selectedRun()!.confidence }}%</strong></div>
-          <div><small>Estimated cost</small><strong>${{ selectedRun()!.cost.toFixed(3) }}</strong></div>
+          <article><span>Health</span><strong class="health-badge" [class]="model.health.toLowerCase()">{{ model.health }}</strong></article>
+          <article><span>p95 latency</span><strong>{{ model.latency }}</strong></article>
+          <article><span>Error rate</span><strong>{{ model.errorRate }}</strong></article>
+          <article><span>Availability</span><strong>{{ model.availability }}</strong></article>
+          <article><span>Traffic share</span><strong>{{ model.traffic }}</strong></article>
+          <article><span>Trend</span><strong>{{ model.trend > 0 ? '+' : '' }}{{ model.trend }}%</strong></article>
         </div>
-        <div class="trace"><div><span>Prompt</span><b>Captured</b></div><div><span>Retrieved context</span><b>ACL-aware pipeline ready</b></div><div><span>Policy checks</span><b>Evaluated</b></div><div><span>Human review</span><b>{{ selectedRun()!.status === 'Needs Review' ? 'Required' : 'Not required' }}</b></div></div>
-      </div>
+        <div class="modal-note"><lucide-icon [img]="Activity" [size]="17"></lucide-icon><div><strong>Operational interpretation</strong><p>Telemetry is ready to connect to server-side metrics, provider health checks, tracing, cost metering and SLO enforcement.</p></div></div>
+        <button class="primary-btn close-action" (click)="closeModel()">Close telemetry</button>
+      </section>
     </div>
   }
 </section>

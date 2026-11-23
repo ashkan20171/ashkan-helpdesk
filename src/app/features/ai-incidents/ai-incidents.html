@@ -1,0 +1,118 @@
+<section class="page">
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><i-lucide [img]="ShieldAlert" [size]="16"></i-lucide> AI INCIDENT MANAGEMENT</div>
+      <h1>AI Incident Command Center</h1>
+      <p>Detect, triage, contain and learn from AI safety and governance incidents.</p>
+    </div>
+    <button class="primary" type="button" (click)="createIncident()">
+      <i-lucide [img]="Plus" [size]="17"></i-lucide> Create AI incident
+    </button>
+  </header>
+
+  <div class="kpis">
+    <article><span class="icon"><i-lucide [img]="AlertTriangle" [size]="20"></i-lucide></span><small>Open incidents</small><strong>{{ openCount() }}</strong><em>awaiting triage</em></article>
+    <article><span class="icon"><i-lucide [img]="Clock3" [size]="20"></i-lucide></span><small>Active response</small><strong>{{ activeCount() }}</strong><em>investigating / contained</em></article>
+    <article><span class="icon"><i-lucide [img]="Flag" [size]="20"></i-lucide></span><small>Critical incidents</small><strong>{{ criticalCount() }}</strong><em>priority queue</em></article>
+    <article><span class="icon"><i-lucide [img]="CheckCircle2" [size]="20"></i-lucide></span><small>Resolved</small><strong>{{ resolvedCount() }}</strong><em>closed with evidence</em></article>
+  </div>
+
+  <div class="command-grid">
+    <article class="panel response">
+      <div class="head">
+        <div><span>RESPONSE LIFECYCLE</span><h2>AI incident response</h2></div>
+        <i-lucide [img]="GitBranch" [size]="20"></i-lucide>
+      </div>
+      <div class="steps">
+        <div class="step active"><b>01</b><i-lucide [img]="AlertTriangle"></i-lucide><strong>Detect</strong><small>signal created</small></div>
+        <div class="connector">→</div>
+        <div class="step"><b>02</b><i-lucide [img]="UsersRound"></i-lucide><strong>Triage</strong><small>owner assigned</small></div>
+        <div class="connector">→</div>
+        <div class="step"><b>03</b><i-lucide [img]="LockKeyhole"></i-lucide><strong>Contain</strong><small>risk isolated</small></div>
+        <div class="connector">→</div>
+        <div class="step"><b>04</b><i-lucide [img]="CheckCircle2"></i-lucide><strong>Resolve</strong><small>evidence captured</small></div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="head">
+        <div><span>GOVERNANCE HANDOFF</span><h2>Incident evidence chain</h2></div>
+        <i-lucide [img]="FileText" [size]="20"></i-lucide>
+      </div>
+      <div class="evidence-list">
+        <div><i-lucide [img]="Bot"></i-lucide><div><b>AI run telemetry</b><small>Model, prompt, latency and token context</small></div><span>Ready</span></div>
+        <div><i-lucide [img]="ShieldCheck"></i-lucide><div><b>Security finding</b><small>Policy decision and control evidence</small></div><span>Linked</span></div>
+        <div><i-lucide [img]="UserCheck"></i-lucide><div><b>Human review</b><small>Decision owner and approval record</small></div><span>Required</span></div>
+        <div><i-lucide [img]="History"></i-lucide><div><b>Audit trail</b><small>Immutable event history foundation</small></div><span>Ready</span></div>
+      </div>
+    </article>
+  </div>
+
+  <article class="panel">
+    <div class="head">
+      <div><span>AI INCIDENT REGISTER</span><h2>Operational incident queue</h2></div>
+      <div class="filters">
+        <label><i-lucide [img]="Search" [size]="16"></i-lucide><input [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search incidents"></label>
+        <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+          <option value="All">All statuses</option>
+          <option value="Open">Open</option>
+          <option value="Investigating">Investigating</option>
+          <option value="Contained">Contained</option>
+          <option value="Resolved">Resolved</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table">
+      <table>
+        <thead><tr><th>Incident</th><th>Severity</th><th>Status</th><th>Category</th><th>Owner</th><th>Affected flow</th><th>Detected</th></tr></thead>
+        <tbody>
+          @for (item of filtered(); track track($index, item)) {
+            <tr (click)="openIncident(item)">
+              <td><b>{{ item.id }}</b><small>{{ item.title }}</small></td>
+              <td><span class="pill" [class]="severityClass(item.severity)">{{ item.severity }}</span></td>
+              <td><span class="pill" [class]="statusClass(item.status)">{{ item.status }}</span></td>
+              <td>{{ item.category }}</td>
+              <td>{{ item.owner }}</td>
+              <td>{{ item.affected }}</td>
+              <td>{{ item.detected }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="panel learning">
+    <div class="head">
+      <div><span>POST-INCIDENT LEARNING</span><h2>From incident to control improvement</h2></div>
+      <i-lucide [img]="MessageSquare" [size]="20"></i-lucide>
+    </div>
+    <div class="learning-grid">
+      <div><i-lucide [img]="Search"></i-lucide><b>Root cause</b><small>Identify the model, prompt, retrieval or policy condition.</small></div>
+      <div><i-lucide [img]="ShieldCheck"></i-lucide><b>Control update</b><small>Turn the lesson into a policy, guardrail or evaluation case.</small></div>
+      <div><i-lucide [img]="GitBranch"></i-lucide><b>Regression test</b><small>Promote the incident into the red-team and evaluation suites.</small></div>
+    </div>
+  </article>
+
+  @if (toast()) { <div class="toast">{{ toast() }}</div> }
+
+  @if (showDetail() && selected()) {
+    <div class="backdrop" (click)="showDetail.set(false)">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="head"><div><span>INCIDENT DETAIL</span><h2>{{ selected()!.id }}</h2></div><button type="button" (click)="showDetail.set(false)">×</button></div>
+        <div class="detail">
+          <div><small>Title</small><b>{{ selected()!.title }}</b></div>
+          <div><small>Severity</small><b>{{ selected()!.severity }}</b></div>
+          <div><small>Status</small><b>{{ selected()!.status }}</b></div>
+          <div><small>Category</small><b>{{ selected()!.category }}</b></div>
+          <div><small>Owner</small><b>{{ selected()!.owner }}</b></div>
+          <div><small>Affected flow</small><b>{{ selected()!.affected }}</b></div>
+          <div><small>Impact</small><b>{{ selected()!.impact }}</b></div>
+          <div><small>Detected</small><b>{{ selected()!.detected }}</b></div>
+        </div>
+        <div class="modal-note"><i-lucide [img]="ShieldCheck" [size]="17"></i-lucide><span>Evidence, timeline, containment actions and post-incident review are ready for server-side integration.</span></div>
+      </div>
+    </div>
+  }
+</section>

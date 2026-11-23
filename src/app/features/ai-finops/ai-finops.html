@@ -1,0 +1,59 @@
+<section class="finops-page">
+  <header class="page-header">
+    <div><div class="eyebrow"><lucide-icon [img]="Coins" [size]="16"></lucide-icon> AI FINOPS</div>
+    <h1>AI Cost &amp; FinOps Center</h1><p>Track token economics, control AI spend, forecast budgets, and turn model usage into measurable unit economics.</p></div>
+    <button class="ghost-button"><lucide-icon [img]="Download" [size]="17"></lucide-icon> Export cost report</button>
+  </header>
+
+  <div class="kpi-grid">
+    <article class="kpi-card"><div class="kpi-icon"><lucide-icon [img]="CircleDollarSign" [size]="20"></lucide-icon></div><span>MTD AI spend</span><strong>${{totalSpend()|number:'1.0-0'}}</strong><small><lucide-icon [img]="ArrowUpRight" [size]="13"></lucide-icon> 4.8% vs last month</small></article>
+    <article class="kpi-card"><div class="kpi-icon"><lucide-icon [img]="WalletCards" [size]="20"></lucide-icon></div><span>Budget utilization</span><strong>{{totalSpend()/monthlyBudget*100|number:'1.0-1'}}%</strong><small>${{monthlyBudget-totalSpend()|number:'1.0-0'}} remaining</small></article>
+    <article class="kpi-card"><div class="kpi-icon"><lucide-icon [img]="Gauge" [size]="20"></lucide-icon></div><span>Forecasted month-end</span><strong>${{forecast|number:'1.0-0'}}</strong><small><lucide-icon [img]="TrendingDown" [size]="13"></lucide-icon> 7.9% under budget</small></article>
+    <article class="kpi-card"><div class="kpi-icon"><lucide-icon [img]="Calculator" [size]="20"></lucide-icon></div><span>Cost / request</span><strong>${{avgCostPerRequest()|number:'1.2-3'}}</strong><small>Weighted across model fleet</small></article>
+  </div>
+
+  <div class="insight-grid">
+    <article class="panel"><div class="panel-heading"><div><span class="section-kicker">Spend trajectory</span><h2>Daily AI spend</h2></div><span class="status-pill healthy"><span></span> On plan</span></div>
+      <div class="chart"><div class="chart-grid"><i></i><i></i><i></i><i></i></div><div class="bars">
+        <div class="bar" style="height:38%"><span>$31</span></div><div class="bar" style="height:47%"><span>$38</span></div><div class="bar" style="height:44%"><span>$36</span></div><div class="bar" style="height:58%"><span>$47</span></div><div class="bar" style="height:63%"><span>$51</span></div><div class="bar" style="height:69%"><span>$56</span></div><div class="bar active" style="height:82%"><span>$66</span></div>
+      </div><div class="chart-labels"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div></div>
+      <div class="legend-row"><span><i class="dot actual"></i> Actual spend</span><span><i class="dot forecast"></i> Forecast trend</span><strong>$1,142 projected</strong></div>
+    </article>
+    <article class="panel budget-panel"><div class="panel-heading"><div><span class="section-kicker">Budget control</span><h2>Monthly budget</h2></div><lucide-icon [img]="PiggyBank" [size]="21"></lucide-icon></div>
+      <div class="budget-ring"><div><strong>{{totalSpend()/monthlyBudget*100|number:'1.0-0'}}%</strong><span>used</span></div></div>
+      <div class="budget-values"><span>Spent <b>${{totalSpend()|number:'1.0-0'}}</b></span><span>Limit <b>${{monthlyBudget|number}}</b></span></div>
+      <div class="progress"><span [style.width.%]="totalSpend()/monthlyBudget*100"></span></div>
+      <div class="budget-footer"><span><lucide-icon [img]="ShieldCheck" [size]="14"></lucide-icon> Soft limit protected</span><b>${{forecast|number}} forecast</b></div>
+    </article>
+  </div>
+
+  <article class="panel"><div class="panel-heading table-heading"><div><span class="section-kicker">Model economics</span><h2>Model cost registry</h2></div>
+    <div class="toolbar"><div class="search"><lucide-icon [img]="Search" [size]="16"></lucide-icon><input [value]="query()" (input)="query.set($any($event.target).value)" placeholder="Search model or provider..."></div></div>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>Model</th><th>Input / 1K</th><th>Output / 1K</th><th>Requests</th><th>Tokens</th><th>Spend</th><th>Trend</th><th>Status</th></tr></thead>
+  <tbody>@for(model of filteredModels();track model.model){<tr (click)="selectModel(model)">
+    <td><strong>{{model.model}}</strong><small>{{model.provider}}</small></td><td>${{model.inputPer1k|number:'1.3-4'}}</td><td>${{model.outputPer1k|number:'1.3-4'}}</td><td>{{model.requests|number}}</td><td>{{model.tokens/1000000|number:'1.1-1'}}M</td>
+    <td><strong>${{model.spend|number:'1.2-2'}}</strong><small>{{model.share}}% of total</small></td>
+    <td [class.down]="model.trend<0"><lucide-icon [img]="model.trend<0?ArrowDownRight:ArrowUpRight" [size]="14"></lucide-icon>{{model.trend>0?'+':''}}{{model.trend}}%</td>
+    <td><span class="status-pill" [class.healthy]="model.status==='Healthy'" [class.watch]="model.status==='Watch'" [class.over]="model.status==='Over budget'"><span></span>{{model.status}}</span></td>
+  </tr>}</tbody></table></div></article>
+
+  <div class="lower-grid">
+    <article class="panel"><div class="panel-heading"><div><span class="section-kicker">Cost allocation</span><h2>Spend by business scope</h2></div><lucide-icon [img]="BarChart3" [size]="21"></lucide-icon></div>
+      <div class="allocation-list">@for(item of allocations();track item.scope){<div class="allocation"><div class="allocation-top"><div><strong>{{item.scope}}</strong><small>{{item.owner}}</small></div><b>${{item.spend|number:'1.0-0'}}</b></div>
+        <div class="allocation-bar"><span [style.width.%]="item.spend/item.budget*100"></span></div><div class="allocation-meta"><span>{{item.requests|number}} requests</span><span>${{item.spend/item.requests|number:'1.3-3'}}/request</span><span>Forecast ${{item.forecast}}</span></div>
+      </div>}</div>
+    </article>
+    <article class="panel optimization-panel"><div class="panel-heading"><div><span class="section-kicker">FinOps intelligence</span><h2>Savings opportunities</h2></div><span class="saving-total">Up to ${{projectedSaving()|number:'1.0-0'}}/mo</span></div>
+      @for(title of savingsTitles;track title;let i=$index){<div class="optimization"><div class="op-icon"><lucide-icon [img]="Lightbulb" [size]="17"></lucide-icon></div><div class="op-body"><strong>{{title}}</strong><small>{{savingsImpacts[i]}} · {{savingsConfidence[i]}}% confidence</small></div><b>-${{savings[i]|number:'1.0-0'}}</b><lucide-icon [img]="ChevronRight" [size]="17"></lucide-icon></div>}
+    </article>
+  </div>
+
+  <div class="alert-banner"><div class="alert-icon"><lucide-icon [img]="AlertTriangle" [size]="19"></lucide-icon></div><div><strong>FinOps watch: Mistral Large is trending above its allocation.</strong><span>Review routing rules before the projected variance becomes a budget breach.</span></div><button>Review policy <lucide-icon [img]="ChevronRight" [size]="15"></lucide-icon></button></div>
+
+  @if(selectedModel();as model){<div class="modal-backdrop" (click)="clearSelection()"><div class="modal" (click)="$event.stopPropagation()"><button class="modal-close" (click)="clearSelection()"><lucide-icon [img]="X" [size]="18"></lucide-icon></button>
+    <span class="section-kicker">Model economics detail</span><h2>{{model.model}}</h2><p>{{model.provider}} · current production pricing profile</p>
+    <div class="detail-grid"><div><span>Input / 1K</span><b>${{model.inputPer1k|number:'1.3-4'}}</b></div><div><span>Output / 1K</span><b>${{model.outputPer1k|number:'1.3-4'}}</b></div><div><span>Monthly requests</span><b>{{model.requests|number}}</b></div><div><span>Monthly spend</span><b>${{model.spend|number:'1.2-2'}}</b></div></div>
+    <div class="policy-note"><lucide-icon [img]="ShieldCheck" [size]="18"></lucide-icon><span>Backend integration will later connect provider billing APIs, usage meters, budgets, and tenant-aware cost allocation.</span></div>
+  </div></div>}
+</section>

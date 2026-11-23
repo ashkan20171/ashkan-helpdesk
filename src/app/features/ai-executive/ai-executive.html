@@ -1,0 +1,165 @@
+<section class="executive-page">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow"><lucide-icon [img]="BrainCircuit"></lucide-icon> AI Executive Intelligence</div>
+      <h1>Executive Intelligence & Decision Center</h1>
+      <p>Turn operational, financial, AI and governance signals into one decision-ready executive view.</p>
+    </div>
+    <div class="header-actions">
+      <span class="live-pill"><span></span> Intelligence snapshot</span>
+      <button class="btn primary" type="button"><lucide-icon [img]="Sparkles"></lucide-icon> Generate Executive Brief</button>
+    </div>
+  </header>
+
+  <section class="hero-grid">
+    <article class="executive-card">
+      <div class="hero-copy">
+        <span class="panel-kicker">Executive Readiness</span>
+        <h2>Business is healthy, with a clear optimization path.</h2>
+        <p>AI efficiency, SLA performance and revenue outlook are moving in a favorable direction. The main decision area is capacity versus margin.</p>
+        <div class="hero-actions">
+          <button class="btn secondary" type="button"><lucide-icon [img]="Target"></lucide-icon> Review priorities</button>
+          <button class="btn ghost" type="button"><lucide-icon [img]="ShieldCheck"></lucide-icon> Governance posture</button>
+        </div>
+      </div>
+      <div class="score-ring" [style.--score]="executiveScore() + '%'" aria-label="Executive readiness score">
+        <div><strong>{{ executiveScore() }}</strong><span>/100</span></div>
+        <small>Executive score</small>
+      </div>
+    </article>
+
+    <article class="signal-card">
+      <div class="panel-head">
+        <div><span class="panel-kicker">Decision Signals</span><h2>Live business pulse</h2></div>
+        <lucide-icon [img]="Activity" class="head-icon"></lucide-icon>
+      </div>
+      <div class="signal-list">
+        @for (signal of signals(); track signal.label) {
+          <div class="signal-row">
+            <span>{{ signal.label }}</span>
+            <strong>{{ signal.value }}</strong>
+            <em [class]="signal.tone"><lucide-icon [img]="signal.tone === 'negative' ? ArrowDownRight : ArrowUpRight"></lucide-icon>{{ signal.delta }}</em>
+          </div>
+        }
+      </div>
+    </article>
+  </section>
+
+  <div class="kpi-grid">
+    <article class="kpi-card">
+      <div class="kpi-icon revenue"><lucide-icon [img]="CircleDollarSign"></lucide-icon></div>
+      <span>Revenue Outlook</span><strong>$1.24M</strong><small class="positive"><lucide-icon [img]="ArrowUpRight"></lucide-icon> +8.6% forecast</small>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon service"><lucide-icon [img]="Gauge"></lucide-icon></div>
+      <span>Service Health</span><strong>{{ serviceHealth() }}%</strong><small class="positive">SLA + CSAT aligned</small>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon ai"><lucide-icon [img]="Sparkles"></lucide-icon></div>
+      <span>AI Efficiency</span><strong>{{ aiEfficiency() }}%</strong><small class="positive">Cost / quality balanced</small>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-icon forecast"><lucide-icon [img]="TrendingUp"></lucide-icon></div>
+      <span>Forecast Confidence</span><strong>{{ forecastConfidence() }}%</strong><small class="positive">Model evidence healthy</small>
+    </article>
+  </div>
+
+  <section class="main-grid">
+    <article class="panel">
+      <div class="panel-head">
+        <div><span class="panel-kicker">Strategic Portfolio</span><h2>Where leadership attention creates value</h2></div>
+        <lucide-icon [img]="Layers3" class="head-icon"></lucide-icon>
+      </div>
+      <div class="portfolio">
+        <div class="portfolio-row">
+          <div><span>Revenue expansion</span><strong>82%</strong></div>
+          <div class="meter"><i style="width:82%"></i></div>
+          <small>Pricing + premium SLA opportunities</small>
+        </div>
+        <div class="portfolio-row">
+          <div><span>Operational efficiency</span><strong>91%</strong></div>
+          <div class="meter"><i style="width:91%"></i></div>
+          <small>Automation and queue optimization</small>
+        </div>
+        <div class="portfolio-row">
+          <div><span>AI economics</span><strong>87%</strong></div>
+          <div class="meter"><i style="width:87%"></i></div>
+          <small>Model routing and unit-cost control</small>
+        </div>
+        <div class="portfolio-row">
+          <div><span>Governance readiness</span><strong>95%</strong></div>
+          <div class="meter"><i style="width:95%"></i></div>
+          <small>Evidence, oversight and audit traceability</small>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div><span class="panel-kicker">Executive Recommendation</span><h2>Recommended sequence</h2></div>
+        <lucide-icon [img]="CheckCircle2" class="head-icon"></lucide-icon>
+      </div>
+      <ol class="recommendations">
+        <li><span>01</span><div><strong>Automate high-volume Tier-1 intents</strong><small>Best near-term profit and service opportunity.</small></div></li>
+        <li><span>02</span><div><strong>Route routine intents to lower-cost models</strong><small>Preserve quality while reducing unit economics.</small></div></li>
+        <li><span>03</span><div><strong>Validate enterprise capacity before growth</strong><small>Protect margin while demand expands.</small></div></li>
+      </ol>
+      <div class="value-callout"><div><span>Identified monthly value</span><strong>${{ money(portfolioValue()) }}K+</strong></div><small>Based on current decision register signals.</small></div>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head table-head">
+      <div><span class="panel-kicker">Decision Register</span><h2>AI-assisted decisions ready for leadership review</h2></div>
+      <div class="filters">
+        <label class="search-box"><lucide-icon [img]="Search"></lucide-icon><input [(ngModel)]="searchTerm" placeholder="Search decisions"></label>
+        <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
+          <option>All</option><option>Recommended</option><option>Review</option><option>Risk</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Decision</th><th>Domain</th><th>Owner</th><th>Impact</th><th>Confidence</th><th>Status</th></tr></thead>
+        <tbody>
+          @for (decision of filteredDecisions(); track decision.id) {
+            <tr (click)="selectDecision(decision)">
+              <td><span class="record-id">{{ decision.id }}</span></td>
+              <td><strong>{{ decision.title }}</strong></td>
+              <td>{{ decision.domain }}</td>
+              <td>{{ decision.owner }}</td>
+              <td><strong>{{ decision.impact }}</strong></td>
+              <td><div class="confidence"><i><b [style.width.%]="decision.confidence"></b></i><span>{{ decision.confidence }}%</span></div></td>
+              <td><span class="status" [class.recommended]="decision.status === 'Recommended'" [class.review]="decision.status === 'Review'" [class.risk]="decision.status === 'Risk'">{{ decision.status }}</span></td>
+            </tr>
+          }
+          @if (!filteredDecisions().length) { <tr><td colspan="7" class="empty">No decisions match the current filters.</td></tr> }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="footer-grid">
+    <article class="mini-card"><lucide-icon [img]="Users"></lucide-icon><div><strong>Human oversight</strong><span>Leadership approval remains the final promotion gate.</span></div></article>
+    <article class="mini-card"><lucide-icon [img]="ShieldCheck"></lucide-icon><div><strong>Governance linked</strong><span>Decision evidence can connect to AI audit and compliance records.</span></div></article>
+    <article class="mini-card"><lucide-icon [img]="BarChart3"></lucide-icon><div><strong>Decision-ready analytics</strong><span>Financial, operational and AI signals are presented together.</span></div></article>
+  </section>
+
+  @if (selectedDecision(); as decision) {
+    <div class="modal-backdrop" (click)="closeDetail()">
+      <section class="modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+        <button class="close" type="button" (click)="closeDetail()" aria-label="Close"><lucide-icon [img]="X"></lucide-icon></button>
+        <span class="panel-kicker">Decision Detail</span>
+        <h2>{{ decision.title }}</h2>
+        <p class="modal-subtitle">{{ decision.id }} · {{ decision.domain }} · {{ decision.owner }}</p>
+        <div class="detail-grid">
+          <div><span>Expected impact</span><strong>{{ decision.impact }}</strong></div>
+          <div><span>Confidence</span><strong>{{ decision.confidence }}%</strong></div>
+          <div><span>Status</span><strong>{{ decision.status }}</strong></div>
+        </div>
+        <div class="evidence"><lucide-icon [img]="ShieldCheck"></lucide-icon><div><strong>Governance note</strong><p>Promotion should preserve human approval, evidence capture, tenant boundaries and an auditable decision trail.</p></div></div>
+      </section>
+    </div>
+  }
+</section>

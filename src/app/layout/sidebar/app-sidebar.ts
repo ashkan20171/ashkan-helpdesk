@@ -1,108 +1,162 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Router } from '@angular/router';
-import { AppRole, hasPermission } from '../../features/auth/auth.guard';
+import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideAngularModule, LayoutDashboard, Ticket, LifeBuoy, Users, UsersRound, BookOpen, Laptop, ChartNoAxesCombined, Palette, Settings, FileText, Search, ShoppingCart, Package, Wrench, Wallet, Activity, PlugZap, ChevronDown, PanelRightClose, Headset, ShieldCheck, ContactRound, CreditCard, Building2, Flag, HeartPulse, Sparkles, BrainCircuit,
+import {
+  Activity,
+  BarChart3,
+  Bell,
+  BrainCircuit,
+  Calculator,
+  ChevronRight,
+  CircleDollarSign,
+  ClipboardCheck,
+  Eye,
+  FolderKanban,
+  HeartPulse,
+  LayoutDashboard,
+  Receipt,
+  Settings,
+  ShieldCheck,
+  Sparkles,
+  Ticket,
+  TrendingUp,
+  Users,
+  Wallet,
+  LucideAngularModule
 } from 'lucide-angular';
-
 @Component({
   selector: 'ah-app-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, LucideAngularModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, LucideAngularModule],
   template: `
-    <aside class="sidebar" [class.sidebar-mobile-open]="mobileOpen">
-      <div class="brand-row">
-        <a class="brand-home" routerLink="/dashboard" aria-label="صفحه اصلی Ashkan HelpDesk">
-          <div class="brand-mark"><span>A</span><i></i></div>
-          <div class="brand-copy"><strong>ashkan<span>.</span></strong><small>HELPDESK PLATFORM</small></div>
-        </a>
-        <button class="icon-button sidebar-toggle" type="button" aria-label="جمع یا باز کردن منو" (click)="toggleCollapsed.emit()">
-          <i-lucide [img]="PanelRightClose" [size]="18"></i-lucide>
-        </button>
-        <button class="icon-button mobile-close" type="button" aria-label="بستن منو" (click)="closeMobile.emit()">×</button>
+    <aside class="sidebar-shell" [class.collapsed]="collapsed">
+      <div class="brand">
+        <div class="brand-mark"><lucide-icon [img]="Sparkles" [size]="20"></lucide-icon></div>
+        <div class="brand-copy" *ngIf="!collapsed">
+          <strong>Ashkan</strong>
+          <span>HelpDesk</span>
+        </div>
       </div>
 
-      <button class="workspace-switch" type="button" (click)="workspaceOpen = !workspaceOpen" [attr.aria-expanded]="workspaceOpen">
-        <div class="workspace-avatar">AC</div>
-        <div class="workspace-copy"><strong>شرکت آشیان</strong><small>فضای کاری سازمانی</small></div>
-        <i-lucide [img]="ChevronDown" [size]="16"></i-lucide>
-      </button>
-      @if (workspaceOpen) {
-        <div class="workspace-menu"><strong>فضای کاری فعال</strong><span>شرکت آشیان · سازمان اصلی</span><button type="button" (click)="showComingSoon('انتخاب فضای کاری')">مدیریت فضاهای کاری</button></div>
-      }
+      <nav class="sidebar-nav" aria-label="Main navigation">
+        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <lucide-icon [img]="LayoutDashboard" [size]="18"></lucide-icon><span *ngIf="!collapsed">Dashboard</span>
+        </a>
+        <a routerLink="/tickets" routerLinkActive="active">
+          <lucide-icon [img]="Ticket" [size]="18"></lucide-icon><span *ngIf="!collapsed">Tickets</span>
+        </a>
+        <a routerLink="/customers" routerLinkActive="active">
+          <lucide-icon [img]="Users" [size]="18"></lucide-icon><span *ngIf="!collapsed">Customers</span>
+        </a>
+        <a routerLink="/knowledge" routerLinkActive="active">
+          <lucide-icon [img]="FolderKanban" [size]="18"></lucide-icon><span *ngIf="!collapsed">Knowledge Base</span>
+        </a>
+        <a routerLink="/reports" routerLinkActive="active">
+          <lucide-icon [img]="BarChart3" [size]="18"></lucide-icon><span *ngIf="!collapsed">Reports</span>
+        </a>
 
-      <div class="nav-label">فضای کاری</div>
-      <nav class="main-nav" aria-label="منوی اصلی">
-        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMobile.emit()"><i-lucide [img]="LayoutDashboard" [size]="19"></i-lucide><span>داشبورد</span><kbd>⌘ 1</kbd></a>
-        <a routerLink="/search" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Search" [size]="19"></i-lucide><span>جستجوی سراسری</span><em class="nav-count">⌘K</em></a>
-        <a routerLink="/portal" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="ContactRound" [size]="19"></i-lucide><span>پورتال خدمات کاربران</span></a>
-        <a routerLink="/tickets" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Ticket" [size]="19"></i-lucide><span>مدیریت تیکت‌ها</span><em class="nav-count">۱۲</em></a>
-        <a routerLink="/requests" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="LifeBuoy" [size]="19"></i-lucide><span>درخواست خدمات</span></a>
-        @if (can('users.view')) { <a routerLink="/users" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Users" [size]="19"></i-lucide><span>کاربران و دسترسی‌ها</span></a> }
-        @if (can('users.view')) { <a routerLink="/organization" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="UsersRound" [size]="19"></i-lucide><span>تیم‌ها و دپارتمان‌ها</span></a> }
-        <a routerLink="/sla" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="ShieldCheck" [size]="19"></i-lucide><span>مدیریت SLA</span></a>
-        <a routerLink="/workflows" routerLinkActive="active" (click)="closeMobile.emit()"><i class="nav-glyph">⌘</i><span>موتور گردش کار</span></a>
-        <a routerLink="/approvals" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="ShieldCheck" [size]="19"></i-lucide><span>Workflow و تأییدیه‌ها</span><em class="nav-count">جدید</em></a>
-        <a routerLink="/automation" routerLinkActive="active" (click)="closeMobile.emit()"><i class="nav-glyph">⚡</i><span>موتور اتوماسیون</span></a>
-        <a routerLink="/omnichannel" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Headset" [size]="19"></i-lucide><span>Omnichannel و مسیریابی</span><em class="nav-count">جدید</em></a>
+        <div class="nav-section" *ngIf="!collapsed">AI Intelligence</div>
+        <a routerLink="/ai-knowledge" routerLinkActive="active">
+          <lucide-icon [img]="BrainCircuit" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Knowledge & RAG</span>
+        </a>
+        <a routerLink="/ai-model-management" routerLinkActive="active">
+          <lucide-icon [img]="Sparkles" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Models & Prompts</span>
+        </a>
+        <a routerLink="/ai-security" routerLinkActive="active">
+          <lucide-icon [img]="ShieldCheck" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Safety & Red-Team</span>
+        </a>
+        <a routerLink="/ai-incidents" routerLinkActive="active">
+          <lucide-icon [img]="HeartPulse" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Incident Command</span>
+        </a>
+        <a routerLink="/ai-governance" routerLinkActive="active">
+          <lucide-icon [img]="ShieldCheck" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Governance & Compliance</span>
+        </a>
+        <a routerLink="/ai-audit" routerLinkActive="active">
+          <lucide-icon [img]="ClipboardCheck" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Audit & Evidence</span>
+        </a>
+        <a routerLink="/ai-observability" routerLinkActive="active">
+          <lucide-icon [img]="Activity" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Observability & Operations</span>
+        </a>
+        <a routerLink="/ai-trust" routerLinkActive="active">
+          <lucide-icon [img]="Eye" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Trust & Transparency</span>
+        </a>
+        <a routerLink="/ai-finance" routerLinkActive="active">
+          <lucide-icon [img]="CircleDollarSign" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Finance & Revenue</span>
+        </a>
+        <a routerLink="/ai-forecasting" routerLinkActive="active">
+          <lucide-icon [img]="TrendingUp" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Revenue Forecasting & Planning</span>
+        </a>
+        <a routerLink="/ai-simulation" routerLinkActive="active">
+          <lucide-icon [img]="Calculator" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Scenario Simulation</span>
+        </a>
+        <a routerLink="/ai-finops" routerLinkActive="active">
+          <lucide-icon [img]="Wallet" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Cost & FinOps</span>
+        </a>
+        <a routerLink="/ai-billing" routerLinkActive="active">
+          <lucide-icon [img]="Receipt" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Chargeback & Billing</span>
+        </a>
+        <a routerLink="/ai-executive" routerLinkActive="active">
+          <lucide-icon [img]="BrainCircuit" [size]="18"></lucide-icon><span *ngIf="!collapsed">AI Executive Intelligence</span>
+        </a>
+
+        <div class="nav-section" *ngIf="!collapsed">Workspace</div>
+        <a routerLink="/notifications" routerLinkActive="active">
+          <lucide-icon [img]="Bell" [size]="18"></lucide-icon><span *ngIf="!collapsed">Notifications</span>
+        </a>
+        <a routerLink="/settings" routerLinkActive="active">
+          <lucide-icon [img]="Settings" [size]="18"></lucide-icon><span *ngIf="!collapsed">Settings</span>
+        </a>
       </nav>
 
-      <a routerLink="/ai-knowledge" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="BrainCircuit" [size]="19"></i-lucide><span>AI Knowledge & RAG</span><em class="nav-count">RAG</em></a>
-        <a routerLink="/copilot" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Sparkles" [size]="19"></i-lucide><span>Ashkan Copilot</span><em class="nav-count">AI</em></a>
-        <a routerLink="/ai-observability" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Activity" [size]="19"></i-lucide><span>AI Observability & Evaluation</span><em class="nav-count">QA</em></a>
-        <div class="nav-label nav-label-spaced">دانش و منابع</div>
-      <nav class="main-nav" aria-label="مدیریت دانش و منابع">
-        <a routerLink="/knowledge" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="BookOpen" [size]="19"></i-lucide><span>پایگاه دانش</span></a>
-        <a routerLink="/assets" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Laptop" [size]="19"></i-lucide><span>مدیریت دارایی‌ها</span></a>
-        <a routerLink="/contracts" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="FileText" [size]="19"></i-lucide><span>قراردادها و تأمین‌کنندگان</span></a>
-        <a routerLink="/procurement" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="ShoppingCart" [size]="19"></i-lucide><span>مدیریت خرید و سفارشات</span></a>
-        <a routerLink="/inventory" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Package" [size]="19"></i-lucide><span>مدیریت انبار و موجودی</span></a>
-        <a routerLink="/maintenance" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Wrench" [size]="19"></i-lucide><span>تعمیرات و نگهداری</span></a>
-        <a routerLink="/finance" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Wallet" [size]="19"></i-lucide><span>مدیریت مالی و هزینه‌ها</span></a>
-        @if (can('workforce.plan')) { <a routerLink="/workforce-planning" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="ChartNoAxesCombined" [size]="19"></i-lucide><span>برنامه‌ریزی ظرفیت نیروی انسانی</span></a> }
-        @if (can('reports.view')) { <a routerLink="/reports" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="ChartNoAxesCombined" [size]="19"></i-lucide><span>گزارش‌گیری و تحلیل</span></a> }
-        <a routerLink="/design-system" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Palette" [size]="19"></i-lucide><span>کتابخانه طراحی</span></a>
-      </nav>
-
-      <div class="sidebar-bottom">
-        <div class="sidebar-help"><div class="help-icon"><i-lucide [img]="Headset" [size]="18"></i-lucide></div><strong>به راهنمایی نیاز دارید؟</strong><p>مرکز راهنما همیشه کنار شماست.</p><button type="button" (click)="showComingSoon('مرکز راهنما')">مشاهده راهنما <span>←</span></button></div>
-        @if (can('billing.view')) { <a class="settings-link" routerLink="/billing" routerLinkActive="active" (click)="closeMobile.emit()"><i class="nav-glyph">＄</i><span>اشتراک‌ها و صورتحساب‌ها</span></a> }
-        <a class="settings-link" routerLink="/tenants" routerLinkActive="active" (click)="closeMobile.emit()"><i class="nav-glyph">▦</i><span>مدیریت سازمان‌ها</span></a>
-        <a class="settings-link" routerLink="/api-management" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="PlugZap" [size]="19"></i-lucide><span>مدیریت API و یکپارچه‌سازی‌ها</span></a>
-        <a class="settings-link" routerLink="/audit-log" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Activity" [size]="19"></i-lucide><span>ثبت رویدادها و ممیزی</span></a>
-        <a class="settings-link" routerLink="/subscription-billing" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="CreditCard" [size]="19"></i-lucide><span>اشتراک و صورتحساب</span></a>\n        <a class="settings-link" routerLink="/entitlements" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Flag" [size]="19"></i-lucide><span>قابلیت‌ها و سهمیه‌ها</span></a>
-        <a class="settings-link" routerLink="/customer-success" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="HeartPulse" [size]="19"></i-lucide><span>Customer Success و سلامت مشتری</span></a>
-        <a class="settings-link" routerLink="/customer-success-automation" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Activity" [size]="19"></i-lucide><span>اتوماسیون Customer Success</span></a>
-        <a class="settings-link" routerLink="/tenant-management" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Building2" [size]="19"></i-lucide><span>مدیریت سازمان‌ها و Tenantها</span></a>
-        <a class="settings-link" routerLink="/organization-access" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="UsersRound" [size]="19"></i-lucide><span>مرکز مدیریت سازمان</span></a>
-        <a class="settings-link" routerLink="/profile-access" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="ContactRound" [size]="19"></i-lucide><span>پروفایل و مرکز دسترسی</span></a>
-        <a class="settings-link" routerLink="/settings" routerLinkActive="active" (click)="closeMobile.emit()"><i-lucide [img]="Settings" [size]="19"></i-lucide><span>تنظیمات سامانه</span></a>
-        <div class="sidebar-security"><i-lucide [img]="ShieldCheck" [size]="15"></i-lucide><span>محیط امن سازمانی</span></div>
-        <div class="user-profile"><div class="avatar avatar-purple">{{displayName().slice(0,1)}}</div><div class="profile-copy"><strong>{{displayName()}}</strong><small>{{roleName()}}</small></div><button class="logout-mini" type="button" title="خروج از حساب" (click)="logout()">↪</button><span class="online-indicator" title="آنلاین"></span></div>
+      <div class="sidebar-footer">
+        <button type="button" class="collapse-btn" (click)="toggleCollapsed.emit()">
+          <lucide-icon [img]="ChevronRight" [size]="18"></lucide-icon>
+          <span *ngIf="!collapsed">Collapse</span>
+        </button>
       </div>
     </aside>
-  `
+  `,
+  styles: [`
+    :host { display:block; height:100%; }
+    .sidebar-shell { height:100%; width:270px; display:flex; flex-direction:column; padding:18px 12px; box-sizing:border-box; }
+    .sidebar-shell.collapsed { width:78px; }
+    .brand { display:flex; align-items:center; gap:10px; padding:8px 10px 20px; }
+    .brand-mark { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; background:linear-gradient(135deg,#6d5dfc,#36cfc9); color:white; }
+    .brand-copy { display:flex; flex-direction:column; line-height:1.05; }
+    .brand-copy span { font-size:11px; opacity:.62; margin-top:4px; }
+    .sidebar-nav { display:flex; flex-direction:column; gap:4px; overflow:auto; }
+    .sidebar-nav a { display:flex; align-items:center; gap:11px; min-height:42px; padding:0 11px; border-radius:12px; text-decoration:none; color:inherit; }
+    .sidebar-nav a.active { background:rgba(109,93,252,.12); }
+    .nav-section { margin:16px 10px 7px; font-size:11px; font-weight:700; opacity:.5; text-transform:uppercase; letter-spacing:.06em; }
+    .sidebar-footer { margin-top:auto; padding-top:12px; }
+    .collapse-btn { width:100%; display:flex; align-items:center; gap:10px; border:0; background:transparent; padding:10px 11px; cursor:pointer; color:inherit; border-radius:12px; }
+  `]
 })
 export class AppSidebarComponent {
+  readonly Activity = Activity;
+  readonly BarChart3 = BarChart3;
+  readonly Bell = Bell;
   readonly BrainCircuit = BrainCircuit;
+  readonly Calculator = Calculator;
+  readonly ChevronRight = ChevronRight;
+  readonly CircleDollarSign = CircleDollarSign;
+  readonly ClipboardCheck = ClipboardCheck;
+  readonly Eye = Eye;
+  readonly FolderKanban = FolderKanban;
+  readonly HeartPulse = HeartPulse;
+  readonly LayoutDashboard = LayoutDashboard;
+  readonly Receipt = Receipt;
+  readonly Settings = Settings;
+  readonly ShieldCheck = ShieldCheck;
   readonly Sparkles = Sparkles;
-  constructor(private readonly router: Router) {}
+  readonly Ticket = Ticket;
+  readonly TrendingUp = TrendingUp;
+  readonly Users = Users;
+  readonly Wallet = Wallet;
+
+@Input() collapsed = false;
   @Input() mobileOpen = false;
   @Output() toggleCollapsed = new EventEmitter<void>();
   @Output() closeMobile = new EventEmitter<void>();
   @Output() toast = new EventEmitter<string>();
-  workspaceOpen = false;
-  readonly LayoutDashboard = LayoutDashboard; readonly Ticket = Ticket; readonly LifeBuoy = LifeBuoy;
-  readonly Users = Users; readonly UsersRound = UsersRound; readonly BookOpen = BookOpen; readonly Laptop = Laptop;
-  readonly ChartNoAxesCombined = ChartNoAxesCombined; readonly Activity = Activity; readonly PlugZap = PlugZap; readonly Palette = Palette; readonly Settings = Settings; readonly FileText = FileText; readonly ShoppingCart = ShoppingCart; readonly Package = Package; readonly Wrench = Wrench; readonly Wallet = Wallet;
-  readonly Search = Search; readonly ChevronDown = ChevronDown; readonly PanelRightClose = PanelRightClose; readonly Headset = Headset; readonly ShieldCheck = ShieldCheck; readonly ContactRound = ContactRound; readonly CreditCard = CreditCard; readonly Building2 = Building2; readonly Flag = Flag; readonly HeartPulse = HeartPulse;
-
-  readonly role: AppRole = (localStorage.getItem('ashkan.demo.role') || 'customer') as AppRole;
-  can(permission: string): boolean { return hasPermission(permission); }
-  displayName(): string { return localStorage.getItem('ashkan.demo.name') || 'کاربر'; }
-  roleName(): string { return this.role === 'admin' ? 'مدیر سامانه' : this.role === 'manager' ? 'مدیر پشتیبانی' : this.role === 'agent' ? 'کارشناس پشتیبانی' : 'کاربر / مشتری'; }
-  logout(): void { localStorage.removeItem('ashkan.demo.session'); localStorage.removeItem('ashkan.demo.role'); this.router.navigateByUrl('/auth/login'); this.closeMobile.emit(); }
-
-  preventAndNotify(event: Event, name: string): void { event.preventDefault(); this.showComingSoon(name); }
-  showComingSoon(name: string): void { this.toast.emit(`${name} در فازهای بعدی تکمیل می‌شود.`); this.closeMobile.emit(); }
 }

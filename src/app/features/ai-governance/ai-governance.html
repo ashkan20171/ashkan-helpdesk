@@ -1,0 +1,106 @@
+<section class="page">
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><i-lucide [img]="Globe2" [size]="16"></i-lucide> AI GOVERNANCE & COMPLIANCE</div>
+      <h1>AI Governance & Compliance Center</h1>
+      <p>Turn AI policies, risk controls and regulatory readiness into an auditable operating model.</p>
+    </div>
+    <button class="primary" type="button" (click)="runAssessment()">
+      <i-lucide [img]="ClipboardCheck" [size]="17"></i-lucide> Run governance assessment
+    </button>
+  </header>
+
+  <div class="kpis">
+    <article><i-lucide [img]="ShieldCheck"></i-lucide><small>Overall readiness</small><strong>{{ overallCoverage() }}%</strong><em>across mapped frameworks</em></article>
+    <article><i-lucide [img]="CheckCircle2"></i-lucide><small>Compliant frameworks</small><strong>{{ compliant() }}</strong><em>control coverage is healthy</em></article>
+    <article><i-lucide [img]="AlertTriangle"></i-lucide><small>Review required</small><strong>{{ review() }}</strong><em>evidence or policy updates</em></article>
+    <article><i-lucide [img]="FileCheck2"></i-lucide><small>Control evidence</small><strong>{{ controlEvidence() }}%</strong><em>evidence completeness</em></article>
+  </div>
+
+  <div class="top-grid">
+    <article class="panel">
+      <div class="head"><div><span>GOVERNANCE OPERATING MODEL</span><h2>AI accountability chain</h2></div><i-lucide [img]="UsersRound"></i-lucide></div>
+      <div class="chain">
+        <div><i-lucide [img]="UserCheck"></i-lucide><b>Owner</b><small>Accountability</small></div>
+        <span>→</span>
+        <div><i-lucide [img]="Flag"></i-lucide><b>Risk</b><small>Assessment</small></div>
+        <span>→</span>
+        <div><i-lucide [img]="LockKeyhole"></i-lucide><b>Control</b><small>Guardrail</small></div>
+        <span>→</span>
+        <div><i-lucide [img]="FileCheck2"></i-lucide><b>Evidence</b><small>Auditability</small></div>
+      </div>
+      <div class="principles">
+        <span><i-lucide [img]="ShieldCheck"></i-lucide> Human oversight</span>
+        <span><i-lucide [img]="BookOpenCheck"></i-lucide> Policy traceability</span>
+        <span><i-lucide [img]="History"></i-lucide> Continuous review</span>
+      </div>
+    </article>
+
+    <article class="panel readiness">
+      <div class="head"><div><span>READINESS SIGNALS</span><h2>Compliance posture</h2></div><i-lucide [img]="Sparkles"></i-lucide></div>
+      <div class="signal"><span>Regulatory mapping</span><b>92%</b><div><i style="width:92%"></i></div></div>
+      <div class="signal"><span>Policy coverage</span><b>88%</b><div><i style="width:88%"></i></div></div>
+      <div class="signal"><span>Evidence readiness</span><b>81%</b><div><i style="width:81%"></i></div></div>
+      <div class="signal"><span>Owner accountability</span><b>96%</b><div><i style="width:96%"></i></div></div>
+    </article>
+  </div>
+
+  <article class="panel">
+    <div class="head">
+      <div><span>REGULATORY FRAMEWORKS</span><h2>AI compliance readiness</h2></div>
+      <div class="filters">
+        <label><i-lucide [img]="Search" [size]="16"></i-lucide><input [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Search frameworks"></label>
+        <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+          <option value="All">All statuses</option>
+          <option value="Compliant">Compliant</option>
+          <option value="Review">Review</option>
+          <option value="Gap">Gap</option>
+        </select>
+      </div>
+    </div>
+    <div class="frameworks">
+      @for (item of filteredFrameworks(); track track($index, item)) {
+        <button class="framework" type="button" (click)="open(item)">
+          <div class="framework-top"><span>{{ item.id }}</span><em class="pill" [class]="classOf(item.status)">{{ item.status }}</em></div>
+          <h3>{{ item.name }}</h3>
+          <p>{{ item.scope }}</p>
+          <div class="coverage"><span>Coverage</span><b>{{ item.coverage }}%</b></div>
+          <div class="bar"><i [style.width.%]="item.coverage"></i></div>
+          <small>Next review: {{ item.nextReview }}</small>
+        </button>
+      }
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="head"><div><span>CONTROL LIBRARY</span><h2>Auditable AI controls</h2></div><i-lucide [img]="FileText"></i-lucide></div>
+    <div class="controls">
+      @for (item of controls(); track trackControl($index, item)) {
+        <div class="control">
+          <div class="control-title"><b>{{ item.id }}</b><span class="pill" [class]="classOf(item.status)">{{ item.status }}</span></div>
+          <h3>{{ item.title }}</h3>
+          <small>{{ item.domain }} · Owner: {{ item.owner }}</small>
+          <div class="evidence"><span>Evidence</span><b>{{ item.evidence }}%</b><div><i [style.width.%]="item.evidence"></i></div></div>
+        </div>
+      }
+    </div>
+  </article>
+
+  @if (toast()) { <div class="toast">{{ toast() }}</div> }
+
+  @if (showDetail() && selected()) {
+    <div class="backdrop" (click)="showDetail.set(false)">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="head"><div><span>FRAMEWORK DETAIL</span><h2>{{ selected()!.id }}</h2></div><button type="button" (click)="showDetail.set(false)">×</button></div>
+        <div class="detail">
+          <div><small>Framework</small><b>{{ selected()!.name }}</b></div>
+          <div><small>Status</small><b>{{ selected()!.status }}</b></div>
+          <div><small>Coverage</small><b>{{ selected()!.coverage }}%</b></div>
+          <div><small>Next review</small><b>{{ selected()!.nextReview }}</b></div>
+          <div class="wide"><small>Scope</small><b>{{ selected()!.scope }}</b></div>
+        </div>
+        <div class="modal-note"><i-lucide [img]="ShieldCheck" [size]="17"></i-lucide><span>Evidence mapping, control ownership, policy versions and audit exports are ready for backend integration.</span></div>
+      </div>
+    </div>
+  }
+</section>

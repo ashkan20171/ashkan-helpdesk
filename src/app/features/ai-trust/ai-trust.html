@@ -1,0 +1,162 @@
+<section class="trust-page">
+  <header class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="eyebrow-dot"></span> Responsible AI · Trust Layer</div>
+      <h1>AI Trust &amp; Transparency Center</h1>
+      <p>
+        Make AI behavior understandable, traceable, and accountable with explainability,
+        provenance, model disclosures, fairness signals, and user-facing transparency controls.
+      </p>
+      <div class="hero-actions">
+        <button class="primary-btn"><span class="btn-icon">✦</span> Trust Review</button>
+        <button class="ghost-btn"><lucide-icon [img]="Eye" [size]="17"></lucide-icon> Preview user disclosure</button>
+      </div>
+    </div>
+
+    <div class="trust-orb">
+      <div class="orb-ring ring-one"></div>
+      <div class="orb-ring ring-two"></div>
+      <div class="orb-core"><lucide-icon [img]="ShieldCheck" [size]="34"></lucide-icon></div>
+      <span class="orb-label">TRUST SCORE</span>
+      <strong>{{ trustScore() }}%</strong>
+      <small>enterprise readiness</small>
+    </div>
+  </header>
+
+  <div class="metric-grid">
+    <article class="metric-card">
+      <div class="metric-icon"><lucide-icon [img]="BadgeCheck" [size]="19"></lucide-icon></div>
+      <div><span>Verified controls</span><strong>{{ verifiedCount() }}</strong></div>
+      <em>operational</em>
+    </article>
+    <article class="metric-card">
+      <div class="metric-icon"><lucide-icon [img]="Gauge" [size]="19"></lucide-icon></div>
+      <div><span>Explainability</span><strong>{{ avgExplainability() }}%</strong></div>
+      <em>traceable</em>
+    </article>
+    <article class="metric-card">
+      <div class="metric-icon"><lucide-icon [img]="FileCheck2" [size]="19"></lucide-icon></div>
+      <div><span>Under review</span><strong>{{ reviewCount() }}</strong></div>
+      <em>needs evidence</em>
+    </article>
+    <article class="metric-card">
+      <div class="metric-icon danger"><lucide-icon [img]="CircleAlert" [size]="19"></lucide-icon></div>
+      <div><span>Transparency gaps</span><strong>{{ gapCount() }}</strong></div>
+      <em>action required</em>
+    </article>
+  </div>
+
+  <div class="layout-grid">
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <span class="section-kicker">Trust control library</span>
+          <h2>Transparency &amp; explainability controls</h2>
+        </div>
+        <div class="filter-row">
+          <div class="search-box">
+            <lucide-icon [img]="Search" [size]="17"></lucide-icon>
+            <input [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" placeholder="Search controls..." />
+          </div>
+          <select [ngModel]="statusFilter()" (ngModelChange)="setStatus($event)">
+            <option value="All">All statuses</option>
+            <option value="Verified">Verified</option>
+            <option value="Review">Review</option>
+            <option value="Gap">Gap</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="control-list">
+        @for (control of filteredControls(); track control.id) {
+          <button class="control-row" (click)="openControl(control)">
+            <div class="control-mark">
+              @switch (control.category) {
+                @case ('Transparency') { <lucide-icon [img]="Eye" [size]="18"></lucide-icon> }
+                @case ('Explainability') { <lucide-icon [img]="Sparkles" [size]="18"></lucide-icon> }
+                @case ('Provenance') { <lucide-icon [img]="Fingerprint" [size]="18"></lucide-icon> }
+                @case ('Fairness') { <lucide-icon [img]="Scale" [size]="18"></lucide-icon> }
+                @default { <lucide-icon [img]="UserCheck" [size]="18"></lucide-icon> }
+              }
+            </div>
+            <div class="control-main">
+              <div class="control-title">
+                <strong>{{ control.title }}</strong>
+                <span class="status" [class]="control.status.toLowerCase()">{{ control.status }}</span>
+              </div>
+              <p>{{ control.description }}</p>
+              <div class="meta-line"><span>{{ control.category }}</span><span>•</span><span>{{ control.owner }}</span></div>
+            </div>
+            <div class="score">
+              <span>Score</span>
+              <strong>{{ control.score }}%</strong>
+              <div class="score-bar"><i [style.width.%]="control.score"></i></div>
+            </div>
+            <lucide-icon [img]="ChevronRight" [size]="19" class="chevron"></lucide-icon>
+          </button>
+        } @empty {
+          <div class="empty-state"><lucide-icon [img]="Info" [size]="20"></lucide-icon><span>No trust controls match your filters.</span></div>
+        }
+      </div>
+    </section>
+
+    <aside class="side-stack">
+      <section class="panel insight-panel">
+        <div class="panel-title"><lucide-icon [img]="BrainCircuit" [size]="19"></lucide-icon><h3>Explainable AI pattern</h3></div>
+        <div class="flow">
+          <div><span>01</span><strong>Decision</strong><small>AI output</small></div>
+          <i></i>
+          <div><span>02</span><strong>Evidence</strong><small>sources &amp; policy</small></div>
+          <i></i>
+          <div><span>03</span><strong>Explanation</strong><small>human-readable</small></div>
+        </div>
+        <div class="notice"><lucide-icon [img]="Info" [size]="17"></lucide-icon><p>Explanations should clarify the outcome without exposing hidden prompts, credentials, or protected internal reasoning.</p></div>
+      </section>
+
+      <section class="panel model-card">
+        <div class="panel-title"><lucide-icon [img]="Layers3" [size]="19"></lucide-icon><h3>Trust signals</h3></div>
+        <div class="signal"><span><lucide-icon [img]="Target" [size]="16"></lucide-icon> Intended use</span><b>Documented</b></div>
+        <div class="signal"><span><lucide-icon [img]="CircleAlert" [size]="16"></lucide-icon> Limitations</span><b>Visible</b></div>
+        <div class="signal"><span><lucide-icon [img]="Fingerprint" [size]="16"></lucide-icon> Provenance</span><b>Traceable</b></div>
+        <div class="signal"><lucide-icon [img]="Scale" [size]="16"></lucide-icon><span>Fairness</span><b>Reviewing</b></div>
+      </section>
+
+      <section class="panel disclosure">
+        <div class="panel-title"><lucide-icon [img]="Eye" [size]="19"></lucide-icon><h3>User disclosure preview</h3></div>
+        <div class="disclosure-card">
+          <div class="ai-avatar"><lucide-icon [img]="Sparkles" [size]="18"></lucide-icon></div>
+          <div>
+            <strong>AI-assisted response</strong>
+            <p>This answer may be generated or summarized by AI. Review the cited sources before making material decisions.</p>
+            <button>Why this answer?</button>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  @if (selectedControl(); as control) {
+    <div class="modal-backdrop" (click)="closeControl()">
+      <section class="detail-modal" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="closeControl()"><lucide-icon [img]="X" [size]="18"></lucide-icon></button>
+        <div class="modal-kicker">{{ control.category }} · {{ control.id }}</div>
+        <h2>{{ control.title }}</h2>
+        <p class="modal-description">{{ control.description }}</p>
+
+        <div class="detail-score">
+          <span>Trust score</span><strong>{{ control.score }}%</strong>
+          <div><i [style.width.%]="control.score"></i></div>
+        </div>
+
+        <div class="detail-grid">
+          <article><span>Evidence</span><p>{{ control.evidence }}</p></article>
+          <article><span>Owner</span><p>{{ control.owner }}</p></article>
+          <article><span>Limitation</span><p>{{ control.limitation }}</p></article>
+          <article><span>User disclosure</span><p>{{ control.userDisclosure }}</p></article>
+        </div>
+
+        <div class="modal-footer"><span class="status" [class]="control.status.toLowerCase()">{{ control.status }}</span><button class="primary-btn" (click)="closeControl()">Done</button></div>
+      </section>
+    </div>
+  }
+</section>
